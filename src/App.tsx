@@ -479,14 +479,24 @@ function Profile({
 
   const tgUser = telegramUser || {
     first_name: "Тестовый пользователь",
+    last_name: "",
     username: "test_user",
     id: 123456789,
     photo_url: "https://i.pravatar.cc/300",
   };
 
+  const fullName = `${tgUser.first_name || ""} ${tgUser.last_name || ""}`.trim();
+
   function buyStars() {
-    setBalance(balance + 500);
-    setPaymentMessage("Тестовая оплата успешно выполнена ✅");
+    const tg = (window as any).Telegram?.WebApp;
+
+    if (!tg) {
+      setBalance(balance + 500);
+      setPaymentMessage("Тестовое пополнение: +500 Stars ✅");
+      return;
+    }
+
+    setPaymentMessage("Telegram Mini App подключён ✅ Оплату Stars подключим следующим шагом.");
   }
 
   return (
@@ -500,8 +510,10 @@ function Profile({
           className="profile-photo"
         />
 
-        <h2>{tgUser.first_name}</h2>
+        <h2>{fullName || "Telegram User"}</h2>
+
         {tgUser.username && <p>@{tgUser.username}</p>}
+
         <p>ID: {tgUser.id}</p>
       </div>
 
@@ -513,9 +525,7 @@ function Profile({
           💳 Купить 500 Stars
         </button>
 
-        {paymentMessage && (
-          <p className="success-message">{paymentMessage}</p>
-        )}
+        {paymentMessage && <p className="success-message">{paymentMessage}</p>}
       </div>
 
       <div className="card">
