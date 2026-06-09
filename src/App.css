@@ -1,0 +1,205 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #050505;
+  font-family: Arial, sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #050505, #120018);
+  color: white;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 30px 20px 110px;
+  text-align: center;
+}
+
+.page h1 {
+  color: gold;
+  font-size: 42px;
+  margin: 20px 0 10px;
+}
+
+.page p {
+  color: #d7c7ff;
+  font-size: 18px;
+}
+
+.card {
+  width: 90%;
+  max-width: 420px;
+  margin: 30px auto;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  border-radius: 20px;
+  padding: 22px;
+}
+
+.card h2 {
+  color: gold;
+  margin: 0 0 12px;
+}
+
+.bottom-nav {
+  position: fixed;
+  z-index: 9999;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 78px;
+  background: #111;
+  border-top: 1px solid gold;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.bottom-nav a {
+  color: gold;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: bold;
+}
+.contestant-photo {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 20px;
+  border: 2px solid gold;
+  margin-bottom: 15px;
+}
+.profile-photo {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 28px;
+  border: 2px solid gold;
+  margin: 10px auto 25px;
+  display: block;
+}
+.vote-btn {
+  background: linear-gradient(90deg, gold, #ffcc00);
+  color: black;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 25px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.vote-btn:hover {
+  transform: scale(1.03);
+}
+.success-message {
+  color: #7CFF7C;
+  font-weight: bold;
+  margin-top: 15px;
+}
+.gift-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gift-btn {
+  background: linear-gradient(90deg, #3b0066, #8a00ff);
+  color: white;
+  border: 1px solid gold;
+  border-radius: 14px;
+  padding: 14px 20px;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.gift-btn:hover {
+  transform: scale(1.03);
+}
+.form-input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid gold;
+  background: #0d0d0d;
+  color: white;
+  font-size: 16px;
+}
+
+.form-input::placeholder {
+  color: #aaa;
+}
+.page h1 {
+  font-size: clamp(32px, 8vw, 54px);
+  line-height: 1.05;
+  text-align: center;
+  word-break: normal;
+  white-space: normal;
+}
+
+.page > p {
+  font-size: clamp(18px, 5vw, 24px);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 20px 14px 95px;
+  }
+
+  .card {
+    width: auto;
+    max-width: 92%;
+    margin: 28px auto;
+  }
+
+  .bottom-nav {
+    padding: 12px 4px;
+  }
+
+  .bottom-nav a {
+    font-size: 14px;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 480px) {
+  .bottom-nav {
+    gap: 4px;
+    padding: 10px 2px;
+  }
+
+  .bottom-nav a {
+    font-size: 12px;
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .vote-btn {
+    width: 100%;
+    max-width: 280px;
+    font-size: 17px;
+  }
+
+  .page h1 {
+    font-size: 34px;
+  }
+}
+@media (max-width: 480px) {
+  .card .vote-btn {
+    display: block;
+    width: 85%;
+    max-width: 260px;
+    margin: 10px auto;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 16px;
+  }
+}
