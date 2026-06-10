@@ -954,47 +954,6 @@ function Profile({
     </div>
   );
 }
-  return (
-    <div className="page">
-      <h1>👤 Профиль</h1>
-
-      <div className="card">
-        <img
-          src={tgUser.photo_url || "https://i.pravatar.cc/300"}
-          alt="avatar"
-          className="profile-photo"
-        />
-
-        <h2>{fullName || "Telegram User"}</h2>
-
-        {tgUser.username && <p>@{tgUser.username}</p>}
-
-        <p>ID: {tgUser.id}</p>
-      </div>
-
-      <div className="card">
-        <h2>⭐ Мой баланс</h2>
-        <p>{balance} Stars</p>
-
-        <button className="vote-btn" onClick={buyStars}>
-          💳 Купить 500 Stars
-        </button>
-
-        {paymentMessage && <p className="success-message">{paymentMessage}</p>}
-      </div>
-
-      <div className="card">
-        <h2>🎁 Отправлено подарков</h2>
-        <p>{sentGifts}</p>
-      </div>
-
-      <div className="card">
-        <h2>⭐ Потрачено Stars</h2>
-        <p>{spentStars}</p>
-      </div>
-    </div>
-  );
-}
 
 function App() {
   const [balance, setBalance] = useState(() => {
