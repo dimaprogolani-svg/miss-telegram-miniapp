@@ -42,6 +42,11 @@ const contestants = [
 function Home() {
   const navigate = useNavigate();
 
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  const isAdmin = telegramUser?.id === 678312754;
+
   return (
     <div className="page">
       <h1>👑 МИСС ТЕЛЕГРАМ</h1>
@@ -51,14 +56,157 @@ function Home() {
         <h2>🌍 Новый сезон 2026</h2>
         <p>Регистрация участниц уже открыта</p>
 
-        <button className="vote-btn" onClick={() => navigate("/apply")}>
+        <button
+          className="vote-btn"
+          onClick={() => navigate("/apply")}
+        >
           📝 Отправить заявку
         </button>
 
-        <button className="vote-btn" onClick={() => navigate("/my-applications")}>
+        <button
+          className="vote-btn"
+          onClick={() => navigate("/my-applications")}
+        >
           📋 Мои заявки
         </button>
+
+        {isAdmin && (
+          <button
+            className="vote-btn"
+            onClick={() => navigate("/admin")}
+          >
+            👮 Модераторы
+          </button>
+        )}
       </div>
+    </div>
+  );
+}
+
+function Admin() {
+  const [telegramId, setTelegramId] = useState("");
+  const [name, setName] = useState("");
+  const [moderators, setModerators] = useState<any[]>([]);
+  const [message, setMessage] = useState("");
+
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  const isAdmin = telegramUser?.id === 678312754;
+
+  async function loadModerators() {
+    const { data, error } = await supabase
+      .from("moderators")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    setModerators(data || []);
+  }
+
+  useEffect(() => {
+    loadModerators();
+  }, []);
+
+  async function addModerator() {
+    if (!telegramId || !name) {
+      setMessage("Введите Telegram ID и имя");
+      return;
+    }
+
+    const { error } = await supabase.from("moderators").insert({
+      telegram_id: Number(telegramId),
+      name,
+      role: "moderator",
+    });
+
+    if (error) {
+      console.log(error);
+      setMessage("Ошибка добавления модератора");
+      return;
+    }
+
+    setTelegramId("");
+    setName("");
+    setMessage("Модератор добавлен ✅");
+    await loadModerators();
+  }
+
+  async function deleteModerator(id: number, role: string) {
+    if (role === "admin") {
+      setMessage("Админа удалить нельзя");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("moderators")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.log(error);
+      setMessage("Ошибка удаления");
+      return;
+    }
+
+    setMessage("Модератор удалён");
+    await loadModerators();
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="page">
+        <h1>⛔ Доступ запрещён</h1>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page">
+      <h1>👮 Модераторы</h1>
+
+      <div className="card">
+        <input
+          className="form-input"
+          placeholder="Telegram ID"
+          value={telegramId}
+          onChange={(e) => setTelegramId(e.target.value)}
+        />
+
+        <input
+          className="form-input"
+          placeholder="Имя"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
+        <button className="vote-btn" onClick={addModerator}>
+          ➕ Добавить модератора
+        </button>
+
+        {message && <p className="success-message">{message}</p>}
+      </div>
+
+      {moderators.map((moderator) => (
+        <div className="card" key={moderator.id}>
+          <h2>{moderator.name}</h2>
+          <p>ID: {moderator.telegram_id}</p>
+          <p>Роль: {moderator.role}</p>
+
+          {moderator.role !== "admin" && (
+            <button
+              className="gift-btn"
+              onClick={() => deleteModerator(moderator.id, moderator.role)}
+            >
+              🗑 Удалить
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -810,6 +958,7 @@ function App() {
         <Route path="/apply" element={<Apply />} />
         <Route path="/my-applications" element={<MyApplications />} />
         <Route path="/contestants" element={<Contestants />} />
+        <Route path="/admin" element={<Admin />} />
 
         <Route
           path="/contestant/:slug"
