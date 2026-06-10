@@ -126,7 +126,8 @@ function Admin() {
 
     if (error) {
       console.log(error);
-      setMessage("Ошибка добавления модератора");
+      alert(JSON.stringify(error));
+      setMessage(error.message);
       return;
     }
 
@@ -149,7 +150,8 @@ function Admin() {
 
     if (error) {
       console.log(error);
-      setMessage("Ошибка удаления");
+      alert(JSON.stringify(error));
+      setMessage(error.message);
       return;
     }
 
