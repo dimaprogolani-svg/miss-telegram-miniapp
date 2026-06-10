@@ -73,6 +73,7 @@ function Apply() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [existingApplication, setExistingApplication] = useState<any>(null);
+  const [applicationsCount, setApplicationsCount] = useState(0);
   const [canSubmitMany, setCanSubmitMany] = useState(false);
 
   async function checkAccess() {
@@ -98,9 +99,11 @@ function Apply() {
         .from("contestants")
         .select("*")
         .eq("telegram_id", telegramUser.id)
-        .maybeSingle();
+        .order("created_at", { ascending: false });
 
-      setExistingApplication(data);
+      const applications = data || [];
+      setApplicationsCount(applications.length);
+      setExistingApplication(applications[0] || null);
     }
 
     setLoading(false);
@@ -138,9 +141,19 @@ function Apply() {
       return;
     }
 
-    if (!canSubmitMany && existingApplication) {
-      setMessage("У вас уже есть заявка");
-      return;
+    if (!canSubmitMany) {
+      if (applicationsCount >= 5) {
+        setMessage("Лимит заявок исчерпан: максимум 5 заявок");
+        return;
+      }
+
+      if (
+        existingApplication &&
+        existingApplication.status !== "Отклонена"
+      ) {
+        setMessage("У вас уже есть активная заявка");
+        return;
+      }
     }
 
     const slug =
@@ -188,7 +201,11 @@ function Apply() {
     );
   }
 
-  if (!canSubmitMany && existingApplication) {
+  if (
+    !canSubmitMany &&
+    existingApplication &&
+    existingApplication.status !== "Отклонена"
+  ) {
     return (
       <div className="page">
         <h1>📝 Заявка участницы</h1>
@@ -200,7 +217,7 @@ function Apply() {
             alt={existingApplication.name}
           />
 
-          <h2>У вас уже есть заявка</h2>
+          <h2>У вас уже есть активная заявка</h2>
           <p>👑 {existingApplication.name}</p>
           <p>🎂 Возраст: {existingApplication.age}</p>
           <p>
@@ -213,9 +230,30 @@ function Apply() {
     );
   }
 
+  if (!canSubmitMany && applicationsCount >= 5) {
+    return (
+      <div className="page">
+        <h1>📝 Заявка участницы</h1>
+
+        <div className="card">
+          <h2>Лимит заявок исчерпан</h2>
+          <p>Вы уже отправили максимум 5 заявок.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <h1>📝 Заявка участницы</h1>
+
+      {!canSubmitMany && existingApplication?.status === "Отклонена" && (
+        <div className="card">
+          <h2>Предыдущая заявка отклонена</h2>
+          <p>Вы можете отправить новую заявку.</p>
+          <p>Использовано заявок: {applicationsCount} из 5</p>
+        </div>
+      )}
 
       <div className="card">
         <input className="form-input" placeholder="Имя" value={name} onChange={(e) => setName(e.target.value)} />
