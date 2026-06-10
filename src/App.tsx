@@ -436,49 +436,65 @@ function Apply() {
 function MyApplications() {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState("user");
 
-  async function checkAdmin() {
-    const telegramUser =
-      (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+  function getTelegramUser() {
+    return (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+  }
+
+  function getTelegramName(user: any) {
+    return `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || user?.username || "Moderator";
+  }
+
+  async function loadRole() {
+    const telegramUser = getTelegramUser();
 
     if (!telegramUser?.id) {
-      setIsAdmin(false);
-      return false;
+      setUserRole("user");
+      return "user";
     }
 
     const { data, error } = await supabase
       .from("moderators")
-      .select("*")
+      .select("role")
       .eq("telegram_id", telegramUser.id)
-      .eq("role", "admin")
       .maybeSingle();
 
     if (error) {
       console.log(error);
-      setIsAdmin(false);
-      return false;
+      setUserRole("user");
+      return "user";
     }
 
-    const result = !!data;
-    setIsAdmin(result);
-    return result;
+    const role = data?.role || "user";
+    setUserRole(role);
+    return role;
   }
 
   async function loadApplications() {
     setLoading(true);
 
-    const telegramUser =
-      (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-
-    const admin = await checkAdmin();
+    const telegramUser = getTelegramUser();
+    const role = await loadRole();
 
     let query = supabase
       .from("contestants")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (!admin) {
+    if (role === "admin") {
+      // админ видит все заявки
+    } else if (role === "moderator") {
+      if (!telegramUser?.id) {
+        setApplications([]);
+        setLoading(false);
+        return;
+      }
+
+      query = query.or(
+        `status.eq.На модерации,moderated_by.eq.${telegramUser.id}`
+      );
+    } else {
       if (!telegramUser?.id) {
         setApplications([]);
         setLoading(false);
@@ -505,12 +521,22 @@ function MyApplications() {
   }, []);
 
   async function changeStatus(id: number, newStatus: string) {
+    const telegramUser = getTelegramUser();
+
+    if (!telegramUser?.id) {
+      return;
+    }
+
     const finalStatus =
       newStatus === "Одобрена" ? "Опубликована в конкурсе" : newStatus;
 
     const { error } = await supabase
       .from("contestants")
-      .update({ status: finalStatus })
+      .update({
+        status: finalStatus,
+        moderated_by: telegramUser.id,
+        moderated_by_name: getTelegramName(telegramUser),
+      })
       .eq("id", id);
 
     if (error) {
@@ -524,7 +550,7 @@ function MyApplications() {
   if (loading) {
     return (
       <div className="page">
-        <h1>📝 Мои заявки</h1>
+        <h1>📋 Заявки</h1>
         <div className="card">
           <h2>Загрузка...</h2>
         </div>
@@ -535,10 +561,10 @@ function MyApplications() {
   if (applications.length === 0) {
     return (
       <div className="page">
-        <h1>📝 Мои заявки</h1>
+        <h1>📋 Заявки</h1>
         <div className="card">
           <h2>Заявок пока нет</h2>
-          <p>Отправьте заявку на участие в конкурсе.</p>
+          <p>Новых заявок на модерацию нет.</p>
         </div>
       </div>
     );
@@ -546,7 +572,7 @@ function MyApplications() {
 
   return (
     <div className="page">
-      <h1>📝 Мои заявки</h1>
+      <h1>📋 Заявки</h1>
 
       {applications.map((application) => (
         <div className="card" key={application.id}>
@@ -562,23 +588,28 @@ function MyApplications() {
           <p>📝 {application.description}</p>
           <p>🟡 Статус: {application.status}</p>
 
-          {isAdmin && application.status === "На модерации" && (
-            <>
-              <button
-                className="vote-btn"
-                onClick={() => changeStatus(application.id, "Одобрена")}
-              >
-                🟢 Одобрить
-              </button>
-
-              <button
-                className="gift-btn"
-                onClick={() => changeStatus(application.id, "Отклонена")}
-              >
-                🔴 Отклонить
-              </button>
-            </>
+          {application.moderated_by_name && (
+            <p>👮 Обработал: {application.moderated_by_name}</p>
           )}
+
+          {(userRole === "admin" || userRole === "moderator") &&
+            application.status === "На модерации" && (
+              <>
+                <button
+                  className="vote-btn"
+                  onClick={() => changeStatus(application.id, "Одобрена")}
+                >
+                  🟢 Одобрить
+                </button>
+
+                <button
+                  className="gift-btn"
+                  onClick={() => changeStatus(application.id, "Отклонена")}
+                >
+                  🔴 Отклонить
+                </button>
+              </>
+            )}
         </div>
       ))}
     </div>
