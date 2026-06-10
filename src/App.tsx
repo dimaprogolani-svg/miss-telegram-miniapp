@@ -436,14 +436,14 @@ function Apply() {
 function MyApplications() {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModerator, setIsModerator] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  async function checkModerator() {
+  async function checkAdmin() {
     const telegramUser =
       (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
-    if (!telegramUser || !telegramUser.id) {
-      setIsModerator(false);
+    if (!telegramUser?.id) {
+      setIsAdmin(false);
       return false;
     }
 
@@ -451,16 +451,17 @@ function MyApplications() {
       .from("moderators")
       .select("*")
       .eq("telegram_id", telegramUser.id)
+      .eq("role", "admin")
       .maybeSingle();
 
     if (error) {
       console.log(error);
-      setIsModerator(false);
+      setIsAdmin(false);
       return false;
     }
 
     const result = !!data;
-    setIsModerator(result);
+    setIsAdmin(result);
     return result;
   }
 
@@ -470,14 +471,14 @@ function MyApplications() {
     const telegramUser =
       (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
-    const moderator = await checkModerator();
+    const admin = await checkAdmin();
 
     let query = supabase
       .from("contestants")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (!moderator) {
+    if (!admin) {
       if (!telegramUser?.id) {
         setApplications([]);
         setLoading(false);
@@ -561,7 +562,7 @@ function MyApplications() {
           <p>📝 {application.description}</p>
           <p>🟡 Статус: {application.status}</p>
 
-          {isModerator && application.status === "На модерации" && (
+          {isAdmin && application.status === "На модерации" && (
             <>
               <button
                 className="vote-btn"
