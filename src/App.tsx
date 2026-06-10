@@ -714,11 +714,29 @@ function ContestantProfile({
 
   const contestant = allContestants.find((item) => item.slug === slug);
 
-  const savedVotes = Number(localStorage.getItem(`votes_${slug}`));
-
-  const [votes, setVotes] = useState(savedVotes || contestant?.votes || 0);
+  const [votes, setVotes] = useState(0);
   const [gifts, setGifts] = useState(320);
   const [message, setMessage] = useState("");
+
+  async function loadVotes() {
+    if (!contestant?.id) return;
+
+    const { count, error } = await supabase
+      .from("votes")
+      .select("*", { count: "exact", head: true })
+      .eq("contestant_id", contestant.id);
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    setVotes(count || 0);
+  }
+
+  useEffect(() => {
+    loadVotes();
+  }, [contestant?.id]);
 
   if (!contestant) {
     return (
@@ -728,7 +746,7 @@ function ContestantProfile({
     );
   }
 
-  function vote() {
+  async function vote() {
     const price = 100;
 
     if (balance < price) {
@@ -736,12 +754,30 @@ function ContestantProfile({
       return;
     }
 
-    const newVotes = votes + 1;
+    const telegramUser =
+      (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+    if (!telegramUser?.id) {
+      setMessage("Откройте приложение через Telegram");
+      return;
+    }
+
+    const { error } = await supabase.from("votes").insert({
+      contestant_id: contestant.id,
+      telegram_id: telegramUser.id,
+    });
+
+    if (error) {
+      console.log(error);
+      setMessage("Ошибка голосования");
+      return;
+    }
 
     setBalance(balance - price);
     setSpentStars(spentStars + price);
-    setVotes(newVotes);
-    localStorage.setItem(`votes_${slug}`, String(newVotes));
+
+    await loadVotes();
+
     setMessage("Спасибо за голос! ⭐");
   }
 
