@@ -71,13 +71,49 @@ function Apply() {
   const [about, setAbout] = useState("");
   const [photo, setPhoto] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [existingApplication, setExistingApplication] = useState<any>(null);
+  const [canSubmitMany, setCanSubmitMany] = useState(false);
+
+  async function checkAccess() {
+    const telegramUser =
+      (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+    if (!telegramUser?.id) {
+      setLoading(false);
+      return;
+    }
+
+    const { data: moderatorData } = await supabase
+      .from("moderators")
+      .select("*")
+      .eq("telegram_id", telegramUser.id)
+      .maybeSingle();
+
+    const isModerator = !!moderatorData;
+    setCanSubmitMany(isModerator);
+
+    if (!isModerator) {
+      const { data } = await supabase
+        .from("contestants")
+        .select("*")
+        .eq("telegram_id", telegramUser.id)
+        .maybeSingle();
+
+      setExistingApplication(data);
+    }
+
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    checkAccess();
+  }, []);
 
   function uploadPhoto(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     const reader = new FileReader();
 
@@ -102,44 +138,26 @@ function Apply() {
       return;
     }
 
-    const { data: moderatorData } = await supabase
-      .from("moderators")
-      .select("*")
-      .eq("telegram_id", telegramUser.id)
-      .maybeSingle();
-
-    const isModerator = !!moderatorData;
-
-    if (!isModerator) {
-      const { data: existingApplication } = await supabase
-        .from("contestants")
-        .select("id")
-        .eq("telegram_id", telegramUser.id)
-        .maybeSingle();
-
-      if (existingApplication) {
-        setMessage("У вас уже есть заявка");
-        return;
-      }
+    if (!canSubmitMany && existingApplication) {
+      setMessage("У вас уже есть заявка");
+      return;
     }
 
     const slug =
       name.toLowerCase().trim().replace(/\s+/g, "-") + "-" + Date.now();
 
-    const { error } = await supabase
-      .from("contestants")
-      .insert({
-        slug,
-        name,
-        age: Number(age),
-        country,
-        city,
-        description: about,
-        photo,
-        status: "На модерации",
-        votes: 0,
-        telegram_id: telegramUser.id,
-      });
+    const { error } = await supabase.from("contestants").insert({
+      slug,
+      name,
+      age: Number(age),
+      country,
+      city,
+      description: about,
+      photo,
+      status: "На модерации",
+      votes: 0,
+      telegram_id: telegramUser.id,
+    });
 
     if (error) {
       console.log(error);
@@ -155,6 +173,44 @@ function Apply() {
     setCity("");
     setAbout("");
     setPhoto("");
+
+    await checkAccess();
+  }
+
+  if (loading) {
+    return (
+      <div className="page">
+        <h1>📝 Заявка участницы</h1>
+        <div className="card">
+          <h2>Загрузка...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (!canSubmitMany && existingApplication) {
+    return (
+      <div className="page">
+        <h1>📝 Заявка участницы</h1>
+
+        <div className="card">
+          <img
+            className="profile-photo"
+            src={existingApplication.photo}
+            alt={existingApplication.name}
+          />
+
+          <h2>У вас уже есть заявка</h2>
+          <p>👑 {existingApplication.name}</p>
+          <p>🎂 Возраст: {existingApplication.age}</p>
+          <p>
+            🌍 {existingApplication.country}, {existingApplication.city}
+          </p>
+          <p>📝 {existingApplication.description}</p>
+          <p>🟡 Статус: {existingApplication.status}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -162,40 +218,11 @@ function Apply() {
       <h1>📝 Заявка участницы</h1>
 
       <div className="card">
-        <input
-          className="form-input"
-          placeholder="Имя"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <input
-          className="form-input"
-          placeholder="Возраст"
-          value={age}
-          onChange={(e) => setAge(e.target.value)}
-        />
-
-        <input
-          className="form-input"
-          placeholder="Страна"
-          value={country}
-          onChange={(e) => setCountry(e.target.value)}
-        />
-
-        <input
-          className="form-input"
-          placeholder="Город"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-        />
-
-        <textarea
-          className="form-input"
-          placeholder="О себе"
-          value={about}
-          onChange={(e) => setAbout(e.target.value)}
-        />
+        <input className="form-input" placeholder="Имя" value={name} onChange={(e) => setName(e.target.value)} />
+        <input className="form-input" placeholder="Возраст" value={age} onChange={(e) => setAge(e.target.value)} />
+        <input className="form-input" placeholder="Страна" value={country} onChange={(e) => setCountry(e.target.value)} />
+        <input className="form-input" placeholder="Город" value={city} onChange={(e) => setCity(e.target.value)} />
+        <textarea className="form-input" placeholder="О себе" value={about} onChange={(e) => setAbout(e.target.value)} />
 
         <input
           className="form-input"
@@ -205,23 +232,14 @@ function Apply() {
         />
 
         {photo && (
-          <img
-            className="profile-photo"
-            src={photo}
-            alt="Фото заявки"
-          />
+          <img className="profile-photo" src={photo} alt="Фото заявки" />
         )}
 
-        <button
-          className="vote-btn"
-          onClick={submitApplication}
-        >
+        <button className="vote-btn" onClick={submitApplication}>
           🚀 Отправить заявку
         </button>
 
-        {message && (
-          <p className="success-message">{message}</p>
-        )}
+        {message && <p className="success-message">{message}</p>}
       </div>
     </div>
   );
