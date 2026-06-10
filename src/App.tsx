@@ -868,15 +868,10 @@ function Profile({
   const fullName = `${tgUser.first_name || ""} ${tgUser.last_name || ""}`.trim();
 
   async function loadUserRole() {
-    if (!telegramUser?.id) {
-      setRoleText("👤 Участник");
-      return;
-    }
-
     const { data } = await supabase
       .from("moderators")
       .select("role")
-      .eq("telegram_id", telegramUser.id)
+      .eq("telegram_id", tgUser.id)
       .maybeSingle();
 
     if (data?.role === "admin") {
@@ -929,7 +924,11 @@ function Profile({
         {tgUser.username && <p>@{tgUser.username}</p>}
 
         <p>ID: {tgUser.id}</p>
-        <p>Роль: {roleText}</p>
+      </div>
+
+      <div className="card">
+        <h2>🏷 Моя роль</h2>
+        <p>{roleText}</p>
       </div>
 
       <div className="card">
@@ -955,7 +954,6 @@ function Profile({
     </div>
   );
 }
-
   return (
     <div className="page">
       <h1>👤 Профиль</h1>
