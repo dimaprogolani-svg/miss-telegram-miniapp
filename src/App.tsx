@@ -727,7 +727,7 @@ function ContestantProfile({
       .eq("contestant_id", contestant.id);
 
     if (error) {
-      console.log(error);
+      setMessage(error.message);
       return;
     }
 
@@ -768,8 +768,7 @@ function ContestantProfile({
     });
 
     if (error) {
-      console.log(error);
-      setMessage("Ошибка голосования");
+      setMessage(error.message);
       return;
     }
 
