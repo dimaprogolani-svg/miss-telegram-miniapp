@@ -270,19 +270,24 @@ function MyApplications() {
 
           {isModerator && (
             <>
-              <button
-                className="vote-btn"
-                onClick={() => changeStatus(application.id, "Одобрена")}
-              >
-                🟢 Одобрить
-              </button>
+              {application.status === "На модерации" && (
+                <button
+                  className="vote-btn"
+                  onClick={() => changeStatus(application.id, "Одобрена")}
+                >
+                  🟢 Одобрить
+                </button>
+              )}
 
-              <button
-                className="gift-btn"
-                onClick={() => changeStatus(application.id, "Отклонена")}
-              >
-                🔴 Отклонить
-              </button>
+              {application.status !== "Отклонена" &&
+                application.status !== "Опубликована в конкурсе" && (
+                  <button
+                    className="gift-btn"
+                    onClick={() => changeStatus(application.id, "Отклонена")}
+                  >
+                    🔴 Отклонить
+                  </button>
+                )}
 
               {application.status === "Одобрена" && (
                 <button
