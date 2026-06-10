@@ -999,6 +999,47 @@ function App() {
     return Number(localStorage.getItem("sentGifts")) || 38;
   });
 
+  const [pendingCount, setPendingCount] = useState(0);
+  const [userRole, setUserRole] = useState("user");
+
+  async function loadPendingCount() {
+    const telegramUser =
+      (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+    if (!telegramUser?.id) {
+      setPendingCount(0);
+      setUserRole("user");
+      return;
+    }
+
+    const { data: roleData } = await supabase
+      .from("moderators")
+      .select("role")
+      .eq("telegram_id", telegramUser.id)
+      .maybeSingle();
+
+    const role = roleData?.role || "user";
+    setUserRole(role);
+
+    if (role !== "admin" && role !== "moderator") {
+      setPendingCount(0);
+      return;
+    }
+
+    const { count, error } = await supabase
+      .from("contestants")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "На модерации");
+
+    if (error) {
+      console.log(error);
+      setPendingCount(0);
+      return;
+    }
+
+    setPendingCount(count || 0);
+  }
+
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp;
 
@@ -1006,6 +1047,14 @@ function App() {
       tg.ready();
       tg.expand();
     }
+
+    loadPendingCount();
+
+    const interval = setInterval(() => {
+      loadPendingCount();
+    }, 15000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -1061,6 +1110,13 @@ function App() {
       <nav className="bottom-nav">
         <Link to="/">🏠 Главная</Link>
         <Link to="/contestants">👑 Участницы</Link>
+
+        {(userRole === "admin" || userRole === "moderator") && (
+          <Link to="/my-applications">
+            📋 Заявки {pendingCount > 0 ? `(${pendingCount})` : ""}
+          </Link>
+        )}
+
         <Link to="/rating">🏆 Рейтинг</Link>
         <Link to="/profile">👤 Профиль</Link>
       </nav>
