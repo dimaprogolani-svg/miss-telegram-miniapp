@@ -1,3 +1,4 @@
+import { supabase } from "./lib/supabase";
 import { useState, useEffect } from "react";
 
 import {
@@ -87,25 +88,45 @@ function Apply() {
     reader.readAsDataURL(file);
   }
 
-  function submitApplication() {
+  async function submitApplication() {
     if (!name || !age || !country || !city || !about || !photo) {
       setMessage("Заполните все поля и загрузите фото");
       return;
     }
 
-    const application = {
+    const telegramUser =
+      (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+    const slug =
+      name.toLowerCase().trim().replace(/\s+/g, "-") + "-" + Date.now();
+
+    const { error } = await supabase.from("contestants").insert({
+      slug,
       name,
-      age,
+      age: Number(age),
       country,
       city,
-      about,
+      description: about,
       photo,
       status: "На модерации",
-    };
+      votes: 0,
+      telegram_id: telegramUser?.id || null,
+    });
 
-    localStorage.setItem("application", JSON.stringify(application));
+    if (error) {
+      setMessage("Ошибка сохранения заявки ❌");
+      console.log(error);
+      return;
+    }
 
-    setMessage("Заявка отправлена на модерацию ✅");
+    setMessage("Заявка отправлена в базу Supabase ✅");
+
+    setName("");
+    setAge("");
+    setCountry("");
+    setCity("");
+    setAbout("");
+    setPhoto("");
   }
 
   return (
@@ -141,15 +162,86 @@ function Apply() {
 }
 
 function MyApplications() {
-  const [savedApplication, setSavedApplication] = useState(
-    localStorage.getItem("application")
-  );
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isModerator, setIsModerator] = useState(false);
 
-  if (!savedApplication) {
+  async function loadApplications() {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("contestants")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log(error);
+      setLoading(false);
+      return;
+    }
+
+    setApplications(data || []);
+    setLoading(false);
+  }
+
+  async function checkModerator() {
+    const telegramUser =
+      (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+    if (!telegramUser || !telegramUser.id) {
+      setIsModerator(false);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("moderators")
+      .select("*")
+      .eq("telegram_id", telegramUser.id)
+      .maybeSingle();
+
+    if (error) {
+      console.log(error);
+      setIsModerator(false);
+      return;
+    }
+
+    setIsModerator(!!data);
+  }
+
+  useEffect(() => {
+    loadApplications();
+    checkModerator();
+  }, []);
+
+  async function changeStatus(id: number, newStatus: string) {
+    const { error } = await supabase
+      .from("contestants")
+      .update({ status: newStatus })
+      .eq("id", id);
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    await loadApplications();
+  }
+
+  if (loading) {
     return (
       <div className="page">
         <h1>📝 Мои заявки</h1>
+        <div className="card">
+          <h2>Загрузка...</h2>
+        </div>
+      </div>
+    );
+  }
 
+  if (applications.length === 0) {
+    return (
+      <div className="page">
+        <h1>📝 Мои заявки</h1>
         <div className="card">
           <h2>Заявок пока нет</h2>
           <p>Отправьте заявку на участие в конкурсе.</p>
@@ -158,75 +250,54 @@ function MyApplications() {
     );
   }
 
-  const application = JSON.parse(savedApplication);
-
-  function changeStatus(newStatus: string) {
-    const updatedApplication = {
-      ...application,
-      status: newStatus,
-    };
-
-    localStorage.setItem("application", JSON.stringify(updatedApplication));
-    setSavedApplication(JSON.stringify(updatedApplication));
-  }
-
-  function publishToContest() {
-    const newContestant = {
-      id: Date.now(),
-      slug: application.name.toLowerCase(),
-      name: application.name,
-      country: application.country,
-      votes: 0,
-      photo: application.photo,
-    };
-
-    const savedList = localStorage.getItem("publishedContestants");
-    const list = savedList ? JSON.parse(savedList) : [];
-
-    const alreadyExists = list.some(
-      (item: any) => item.slug === newContestant.slug
-    );
-
-    const updatedList = alreadyExists ? list : [...list, newContestant];
-
-    localStorage.setItem("publishedContestants", JSON.stringify(updatedList));
-
-    const updatedApplication = {
-      ...application,
-      status: "Опубликована в конкурсе",
-    };
-
-    localStorage.setItem("application", JSON.stringify(updatedApplication));
-    setSavedApplication(JSON.stringify(updatedApplication));
-  }
-
   return (
     <div className="page">
       <h1>📝 Мои заявки</h1>
 
-      <div className="card">
-        <img className="profile-photo" src={application.photo} alt={application.name} />
+      {applications.map((application) => (
+        <div className="card" key={application.id}>
+          <img
+            className="profile-photo"
+            src={application.photo}
+            alt={application.name}
+          />
 
-        <h2>👑 {application.name}</h2>
-        <p>🎂 Возраст: {application.age}</p>
-        <p>🌍 {application.country}, {application.city}</p>
-        <p>📝 {application.about}</p>
-        <p>🟡 Статус: {application.status}</p>
+          <h2>👑 {application.name}</h2>
+          <p>🎂 Возраст: {application.age}</p>
+          <p>🌍 {application.country}, {application.city}</p>
+          <p>📝 {application.description}</p>
+          <p>🟡 Статус: {application.status}</p>
 
-        <button className="vote-btn" onClick={() => changeStatus("Одобрена")}>
-          🟢 Одобрить
-        </button>
+          {isModerator && (
+            <>
+              <button
+                className="vote-btn"
+                onClick={() => changeStatus(application.id, "Одобрена")}
+              >
+                🟢 Одобрить
+              </button>
 
-        <button className="gift-btn" onClick={() => changeStatus("Отклонена")}>
-          🔴 Отклонить
-        </button>
+              <button
+                className="gift-btn"
+                onClick={() => changeStatus(application.id, "Отклонена")}
+              >
+                🔴 Отклонить
+              </button>
 
-        {application.status === "Одобрена" && (
-          <button className="vote-btn" onClick={publishToContest}>
-            👑 Опубликовать в конкурсе
-          </button>
-        )}
-      </div>
+              {application.status === "Одобрена" && (
+                <button
+                  className="vote-btn"
+                  onClick={() =>
+                    changeStatus(application.id, "Опубликована в конкурсе")
+                  }
+                >
+                  👑 Опубликовать в конкурсе
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -234,19 +305,33 @@ function MyApplications() {
 function Contestants() {
   const navigate = useNavigate();
 
-  const savedPublished = localStorage.getItem("publishedContestants");
-  const publishedContestants = savedPublished ? JSON.parse(savedPublished) : [];
+  const [supabaseContestants, setSupabaseContestants] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const allContestants = [...contestants, ...publishedContestants];
+  async function loadContestants() {
+    setLoading(true);
 
-  const contestantsWithSavedVotes = allContestants.map((contestant) => {
-    const savedVotes = Number(localStorage.getItem(`votes_${contestant.slug}`));
+    const { data, error } = await supabase
+      .from("contestants")
+      .select("*")
+      .eq("status", "Опубликована в конкурсе")
+      .order("votes", { ascending: false });
 
-    return {
-      ...contestant,
-      votes: savedVotes || contestant.votes,
-    };
-  });
+    if (error) {
+      console.log(error);
+      setLoading(false);
+      return;
+    }
+
+    setSupabaseContestants(data || []);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    loadContestants();
+  }, []);
+
+  const allContestants = [...contestants, ...supabaseContestants];
 
   function getPhoto(contestant: any) {
     if (contestant.photo) return contestant.photo;
@@ -255,13 +340,24 @@ function Contestants() {
     return annaPhoto;
   }
 
+  if (loading) {
+    return (
+      <div className="page">
+        <h1>👑 Участницы</h1>
+        <div className="card">
+          <h2>Загрузка...</h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <h1>👑 Участницы</h1>
 
-      {contestantsWithSavedVotes.map((contestant) => (
+      {allContestants.map((contestant) => (
         <div
-          key={contestant.id}
+          key={`${contestant.slug}-${contestant.id}`}
           className="card"
           onClick={() => navigate(`/contestant/${contestant.slug}`)}
           style={{ cursor: "pointer" }}
