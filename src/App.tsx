@@ -166,31 +166,13 @@ function MyApplications() {
   const [loading, setLoading] = useState(true);
   const [isModerator, setIsModerator] = useState(false);
 
-  async function loadApplications() {
-    setLoading(true);
-
-    const { data, error } = await supabase
-      .from("contestants")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.log(error);
-      setLoading(false);
-      return;
-    }
-
-    setApplications(data || []);
-    setLoading(false);
-  }
-
   async function checkModerator() {
     const telegramUser =
       (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
     if (!telegramUser || !telegramUser.id) {
       setIsModerator(false);
-      return;
+      return false;
     }
 
     const { data, error } = await supabase
@@ -202,21 +184,60 @@ function MyApplications() {
     if (error) {
       console.log(error);
       setIsModerator(false);
+      return false;
+    }
+
+    const result = !!data;
+    setIsModerator(result);
+    return result;
+  }
+
+  async function loadApplications() {
+    setLoading(true);
+
+    const telegramUser =
+      (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+    const moderator = await checkModerator();
+
+    let query = supabase
+      .from("contestants")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!moderator) {
+      if (!telegramUser?.id) {
+        setApplications([]);
+        setLoading(false);
+        return;
+      }
+
+      query = query.eq("telegram_id", telegramUser.id);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.log(error);
+      setLoading(false);
       return;
     }
 
-    setIsModerator(!!data);
+    setApplications(data || []);
+    setLoading(false);
   }
 
   useEffect(() => {
     loadApplications();
-    checkModerator();
   }, []);
 
   async function changeStatus(id: number, newStatus: string) {
+    const finalStatus =
+      newStatus === "Одобрена" ? "Опубликована в конкурсе" : newStatus;
+
     const { error } = await supabase
       .from("contestants")
-      .update({ status: newStatus })
+      .update({ status: finalStatus })
       .eq("id", id);
 
     if (error) {
@@ -268,37 +289,21 @@ function MyApplications() {
           <p>📝 {application.description}</p>
           <p>🟡 Статус: {application.status}</p>
 
-          {isModerator && (
+          {isModerator && application.status === "На модерации" && (
             <>
-              {application.status === "На модерации" && (
-                <button
-                  className="vote-btn"
-                  onClick={() => changeStatus(application.id, "Одобрена")}
-                >
-                  🟢 Одобрить
-                </button>
-              )}
+              <button
+                className="vote-btn"
+                onClick={() => changeStatus(application.id, "Одобрена")}
+              >
+                🟢 Одобрить
+              </button>
 
-              {application.status !== "Отклонена" &&
-                application.status !== "Опубликована в конкурсе" && (
-                  <button
-                    className="gift-btn"
-                    onClick={() => changeStatus(application.id, "Отклонена")}
-                  >
-                    🔴 Отклонить
-                  </button>
-                )}
-
-              {application.status === "Одобрена" && (
-                <button
-                  className="vote-btn"
-                  onClick={() =>
-                    changeStatus(application.id, "Опубликована в конкурсе")
-                  }
-                >
-                  👑 Опубликовать в конкурсе
-                </button>
-              )}
+              <button
+                className="gift-btn"
+                onClick={() => changeStatus(application.id, "Отклонена")}
+              >
+                🔴 Отклонить
+              </button>
             </>
           )}
         </div>
