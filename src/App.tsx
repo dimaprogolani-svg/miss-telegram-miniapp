@@ -1354,8 +1354,8 @@ function App() {
     return Number(localStorage.getItem("sentGifts")) || 38;
   });
 
-  const [pendingCount, setPendingCount] = useState(0);
-  const [userRole, setUserRole] = useState("user");
+  const [_pendingCount, setPendingCount] = useState(0);
+  const [_userRole, setUserRole] = useState("user");
 
   async function loadPendingCount() {
     const telegramUser =
@@ -1466,25 +1466,13 @@ function App() {
         />
       </Routes>
 
-<nav className="bottom-nav">
-  <Link to="/">🏠 Главная</Link>
-
-  <Link to="/contestants">
-    👑 Участницы
-  </Link>
-
-  <Link to="/rating">
-    🏆 Рейтинг
-  </Link>
-
-  <Link to="/star-rating">
-    🎁 STAR
-  </Link>
-
-  <Link to="/profile">
-    👤 Профиль
-  </Link>
-</nav>
+      <nav className="bottom-nav">
+        <Link to="/">🏠 Главная</Link>
+        <Link to="/contestants">👑 Участницы</Link>
+        <Link to="/rating">🏆 Рейтинг</Link>
+		<Link to="/star-rating">🎁 STAR</Link>
+        <Link to="/profile">👤 Профиль</Link>
+      </nav>
     </BrowserRouter>
   );
 }
