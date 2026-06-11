@@ -619,8 +619,22 @@ function MyApplications() {
 function Contestants() {
   const navigate = useNavigate();
 
-  const [supabaseContestants, setSupabaseContestants] = useState<any[]>([]);
+  const [contestantsList, setContestantsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  async function getVotesCount(contestantId: number) {
+    const { count, error } = await supabase
+      .from("votes")
+      .select("*", { count: "exact", head: true })
+      .eq("contestant_id", contestantId);
+
+    if (error) {
+      console.log(error);
+      return 0;
+    }
+
+    return count || 0;
+  }
 
   async function loadContestants() {
     setLoading(true);
@@ -629,7 +643,7 @@ function Contestants() {
       .from("contestants")
       .select("*")
       .eq("status", "Опубликована в конкурсе")
-      .order("votes", { ascending: false });
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.log(error);
@@ -637,15 +651,30 @@ function Contestants() {
       return;
     }
 
-    setSupabaseContestants(data || []);
+    const publishedFromSupabase = data || [];
+
+    const allContestants = [...contestants, ...publishedFromSupabase];
+
+    const contestantsWithVotes = await Promise.all(
+      allContestants.map(async (contestant) => {
+        const realVotes = await getVotesCount(contestant.id);
+
+        return {
+          ...contestant,
+          realVotes,
+        };
+      })
+    );
+
+    contestantsWithVotes.sort((a, b) => b.realVotes - a.realVotes);
+
+    setContestantsList(contestantsWithVotes);
     setLoading(false);
   }
 
   useEffect(() => {
     loadContestants();
   }, []);
-
-  const allContestants = [...contestants, ...supabaseContestants];
 
   function getPhoto(contestant: any) {
     if (contestant.photo) return contestant.photo;
@@ -669,7 +698,7 @@ function Contestants() {
     <div className="page">
       <h1>👑 Участницы</h1>
 
-      {allContestants.map((contestant) => (
+      {contestantsList.map((contestant) => (
         <div
           key={`${contestant.slug}-${contestant.id}`}
           className="card"
@@ -684,12 +713,13 @@ function Contestants() {
 
           <h2>👑 {contestant.name}</h2>
           <p>🌍 {contestant.country}</p>
-          <p>⭐ {contestant.votes} голосов</p>
+          <p>⭐ {contestant.realVotes} голосов</p>
         </div>
       ))}
     </div>
   );
 }
+
 function ContestantProfile({
   balance,
   setBalance,
