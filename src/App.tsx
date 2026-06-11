@@ -320,11 +320,14 @@ function Apply() {
       status: "На модерации",
       votes: 0,
       telegram_id: telegramUser.id,
+      telegram_username: telegramUser.username || null,
+      telegram_first_name: telegramUser.first_name || null,
+      telegram_last_name: telegramUser.last_name || null,
     });
 
     if (error) {
       console.log(error);
-      setMessage("Ошибка сохранения заявки ❌");
+      setMessage(error.message);
       return;
     }
 
@@ -379,6 +382,80 @@ function Apply() {
       </div>
     );
   }
+
+  if (!canSubmitMany && applicationsCount >= 5) {
+    return (
+      <div className="page">
+        <h1>📝 Заявка участницы</h1>
+
+        <div className="card">
+          <h2>Лимит заявок исчерпан</h2>
+          <p>Вы уже отправили максимум 5 заявок.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page">
+      <h1>📝 Заявка участницы</h1>
+
+      <div className="card">
+        <input
+          className="form-input"
+          placeholder="Имя"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
+        <input
+          className="form-input"
+          placeholder="Возраст"
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
+        />
+
+        <input
+          className="form-input"
+          placeholder="Страна"
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
+        />
+
+        <input
+          className="form-input"
+          placeholder="Город"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+        />
+
+        <textarea
+          className="form-input"
+          placeholder="О себе"
+          value={about}
+          onChange={(e) => setAbout(e.target.value)}
+        />
+
+        <input
+          className="form-input"
+          type="file"
+          accept="image/*"
+          onChange={uploadPhoto}
+        />
+
+        {photo && (
+          <img className="profile-photo" src={photo} alt="Фото заявки" />
+        )}
+
+        <button className="vote-btn" onClick={submitApplication}>
+          🚀 Отправить заявку
+        </button>
+
+        {message && <p className="success-message">{message}</p>}
+      </div>
+    </div>
+  );
+}
 
   if (!canSubmitMany && applicationsCount >= 5) {
     return (
