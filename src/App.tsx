@@ -342,7 +342,7 @@ function Apply() {
 
     if (error) {
       console.log(error);
-      setMessage(error.message);
+      setMessage(error?.message || "Ошибка сохранения заявки ❌");
       return;
     }
 
