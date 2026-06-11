@@ -309,20 +309,7 @@ function Apply() {
     const slug =
       name.toLowerCase().trim().replace(/\s+/g, "-") + "-" + Date.now();
 
-    setMessage(
-      JSON.stringify(
-        {
-          id: telegramUser.id,
-          username: telegramUser.username,
-          first_name: telegramUser.first_name,
-          last_name: telegramUser.last_name,
-        },
-        null,
-        2
-      )
-    );
 
-    return;
 
     const { error } = await supabase.from("contestants").insert({
       slug,
