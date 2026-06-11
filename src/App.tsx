@@ -911,35 +911,85 @@ function ContestantProfile({
 }
 
 function Rating() {
-  const savedPublished = localStorage.getItem("publishedContestants");
-  const publishedContestants = savedPublished ? JSON.parse(savedPublished) : [];
+  const [ratingList, setRatingList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const allContestants = [...contestants, ...publishedContestants];
+  async function getVotesCount(contestantId: number) {
+    const { count, error } = await supabase
+      .from("votes")
+      .select("*", { count: "exact", head: true })
+      .eq("contestant_id", contestantId);
 
-  const contestantsWithSavedVotes = allContestants.map((contestant) => {
-    const savedVotes = Number(localStorage.getItem(`votes_${contestant.slug}`));
+    if (error) {
+      console.log(error);
+      return 0;
+    }
 
-    return {
-      ...contestant,
-      votes: savedVotes || contestant.votes,
-    };
-  });
+    return count || 0;
+  }
 
-  const sortedContestants = [...contestantsWithSavedVotes].sort(
-    (a, b) => b.votes - a.votes
-  );
+  async function loadRating() {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("contestants")
+      .select("*")
+      .eq("status", "Опубликована в конкурсе");
+
+    if (error) {
+      console.log(error);
+      setLoading(false);
+      return;
+    }
+
+    const publishedFromSupabase = data || [];
+
+    const allContestants = [...contestants, ...publishedFromSupabase];
+
+    const contestantsWithVotes = await Promise.all(
+      allContestants.map(async (contestant) => {
+        const realVotes = await getVotesCount(contestant.id);
+
+        return {
+          ...contestant,
+          realVotes,
+        };
+      })
+    );
+
+    contestantsWithVotes.sort((a, b) => b.realVotes - a.realVotes);
+
+    setRatingList(contestantsWithVotes);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    loadRating();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="page">
+        <h1>🏆 Рейтинг</h1>
+        <div className="card">
+          <h2>Загрузка...</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page">
       <h1>🏆 Рейтинг</h1>
 
-      {sortedContestants.map((contestant, index) => (
+      {ratingList.map((contestant, index) => (
         <div key={contestant.id} className="card">
           <h2>
             {index + 1} место — {contestant.name}
           </h2>
+
           <p>🌍 {contestant.country}</p>
-          <p>⭐ {contestant.votes} голосов</p>
+          <p>⭐ {contestant.realVotes} голосов</p>
         </div>
       ))}
     </div>
