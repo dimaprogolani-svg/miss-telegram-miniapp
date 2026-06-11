@@ -763,7 +763,6 @@ function ContestantProfile({
 
   const [votes, setVotes] = useState(0);
   const [gifts, setGifts] = useState(0);
-  const [message, setMessage] = useState("");
   const [voteMessage, setVoteMessage] = useState("");
   const [giftMessage, setGiftMessage] = useState("");
 
@@ -776,7 +775,7 @@ function ContestantProfile({
       .eq("contestant_id", contestant.id);
 
     if (error) {
-      setMessage(error.message);
+      setVoteMessage(error.message);
       return;
     }
 
@@ -792,7 +791,7 @@ function ContestantProfile({
       .eq("contestant_id", contestant.id);
 
     if (error) {
-      setMessage(error.message);
+      setGiftMessage(error.message);
       return;
     }
 
@@ -817,7 +816,6 @@ function ContestantProfile({
 
     setVoteMessage("");
     setGiftMessage("");
-    setMessage("");
 
     if (balance < price) {
       setVoteMessage("Недостаточно Stars ⭐");
@@ -864,7 +862,6 @@ function ContestantProfile({
   }
 
   async function sendGift(giftName: string, price: number) {
-    setMessage("");
     setVoteMessage("");
     setGiftMessage("");
 
