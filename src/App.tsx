@@ -796,12 +796,25 @@ function ContestantProfile({
       return;
     }
 
+    const todayUtc = new Date().toISOString().slice(0, 10);
+
     const { error } = await supabase.from("votes").insert({
       contestant_id: contestant.id,
       telegram_id: telegramUser.id,
+      vote_day: todayUtc,
     });
 
     if (error) {
+      if (
+        error.message.includes("one_vote_per_day") ||
+        error.code === "23505"
+      ) {
+        setVoteMessage(
+          "⭐ Вы уже голосовали за эту участницу сегодня.\n\n🕛 Следующий голос будет доступен завтра.\n\nПоддержите пока других участниц 👑"
+        );
+        return;
+      }
+
       setVoteMessage(error.message);
       return;
     }
@@ -861,7 +874,11 @@ function ContestantProfile({
           ⭐ Голосовать за 100 Stars
         </button>
 
-        {voteMessage && <p className="success-message">{voteMessage}</p>}
+        {voteMessage && (
+          <p className="success-message" style={{ whiteSpace: "pre-line" }}>
+            {voteMessage}
+          </p>
+        )}
       </div>
 
       <div className="card">
