@@ -881,6 +881,10 @@ function ContestantProfile({
     setSentGifts(sentGifts + 1);
 
     await loadGifts();
+	window.scrollTo({
+  top: document.body.scrollHeight,
+  behavior: "smooth",
+});
 
     setGiftMessage(`🎁 Спасибо! Подарок отправлен: ${giftName}`);
   }
