@@ -312,3 +312,145 @@ body {
   font-size: 13px;
   color: #e6d6ff;
 }
+.home-page {
+  padding-bottom: 90px;
+}
+
+.home-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px;
+  margin: 18px auto;
+  max-width: 620px;
+  min-height: 210px;
+  border: 1px solid #d4af37;
+  border-radius: 22px;
+  background: radial-gradient(circle at 70% 20%, rgba(255, 215, 0, 0.18), transparent 35%),
+    linear-gradient(135deg, #121212, #241026);
+  text-align: left;
+  overflow: hidden;
+}
+
+.home-hero-text {
+  width: 55%;
+  z-index: 2;
+}
+
+.home-hero h2 {
+  margin: 0;
+  color: #ffffff;
+}
+
+.home-year {
+  font-size: 54px;
+  font-weight: 900;
+  color: #ffd700;
+  line-height: 1;
+  margin: 6px 0;
+}
+
+.home-main-btn {
+  padding: 12px 20px;
+  max-width: 220px;
+}
+
+.home-girl {
+  width: 42%;
+  max-height: 190px;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.45);
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 620px;
+  margin: 0 auto 12px;
+}
+
+.home-small-card,
+.home-wide-card {
+  border: 1px solid #d4af37;
+  border-radius: 18px;
+  background: #151217;
+  cursor: pointer;
+}
+
+.home-small-card {
+  padding: 14px;
+  text-align: left;
+  min-height: 110px;
+}
+
+.home-small-card h2,
+.home-wide-card h2 {
+  color: #ffd700;
+  margin: 0 0 8px;
+}
+
+.home-small-card p,
+.home-wide-card p {
+  margin: 0;
+}
+
+.home-wide-card {
+  max-width: 620px;
+  margin: 12px auto;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+}
+
+.home-icon {
+  font-size: 52px;
+  min-width: 64px;
+  text-align: center;
+}
+
+.home-section-title {
+  max-width: 620px;
+  margin: 18px auto 10px;
+  text-align: left;
+  color: white;
+}
+
+.home-stats {
+  max-width: 620px;
+  margin: 0 auto 80px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #151217;
+  border-radius: 18px;
+  border: 1px solid #333;
+  overflow: hidden;
+}
+
+.home-stats div {
+  padding: 12px 4px;
+  text-align: center;
+  border-right: 1px solid #333;
+}
+
+.home-stats div:last-child {
+  border-right: none;
+}
+
+.home-stats strong {
+  display: block;
+  color: #ffd700;
+  font-size: 20px;
+  margin: 5px 0;
+}
+
+.home-stats span {
+  font-size: 12px;
+  color: #e6d6ff;
+}

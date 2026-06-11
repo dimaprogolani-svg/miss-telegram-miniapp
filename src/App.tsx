@@ -42,23 +42,28 @@ const contestants = [
 function Home() {
   const navigate = useNavigate();
 
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  const isAdmin = telegramUser?.id === 678312754;
+
   return (
-    <div className="page">
+    <div className="page home-page">
       <h1>👑 MISS TELEGRAM 👑</h1>
       <p>Международный конкурс красоты</p>
 
       <div className="home-hero">
-        <div>
+        <div className="home-hero-text">
           <h2>🌍 Новый сезон</h2>
           <div className="home-year">2026</div>
           <p>Регистрируйся, участвуй и побеждай!</p>
 
-          <button className="vote-btn" onClick={() => navigate("/apply")}>
+          <button className="vote-btn home-main-btn" onClick={() => navigate("/apply")}>
             Отправить заявку
           </button>
         </div>
 
-        <div className="home-queen">👑</div>
+        <img className="home-girl" src={annaPhoto} alt="MISS TELEGRAM" />
       </div>
 
       <div className="home-grid">
@@ -93,6 +98,16 @@ function Home() {
           </p>
         </div>
       </div>
+
+      {isAdmin && (
+        <div className="home-wide-card" onClick={() => navigate("/admin")}>
+          <div className="home-icon">👮</div>
+          <div>
+            <h2>Модераторы</h2>
+            <p>Панель управления модераторами ›</p>
+          </div>
+        </div>
+      )}
 
       <h2 className="home-section-title">Конкурс в цифрах</h2>
 
@@ -1451,19 +1466,25 @@ function App() {
         />
       </Routes>
 
-      <nav className="bottom-nav">
-        <Link to="/">🏠 Главная</Link>
-        <Link to="/contestants">👑 Участницы</Link>
+<nav className="bottom-nav">
+  <Link to="/">🏠 Главная</Link>
 
-        {(userRole === "admin" || userRole === "moderator") && (
-          <Link to="/my-applications">
-            📋 Заявки {pendingCount > 0 ? `(${pendingCount})` : ""}
-          </Link>
-        )}
+  <Link to="/contestants">
+    👑 Участницы
+  </Link>
 
-        <Link to="/rating">🏆 Рейтинг</Link>
-        <Link to="/profile">👤 Профиль</Link>
-      </nav>
+  <Link to="/rating">
+    🏆 Рейтинг
+  </Link>
+
+  <Link to="/star-rating">
+    🎁 STAR
+  </Link>
+
+  <Link to="/profile">
+    👤 Профиль
+  </Link>
+</nav>
     </BrowserRouter>
   );
 }
