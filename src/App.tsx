@@ -1,5 +1,6 @@
 import { supabase } from "./lib/supabase";
 import { useState, useEffect } from "react";
+import heroGirl from "./assets/hero-girl-fireworks.png";
 
 import {
   BrowserRouter,
@@ -63,7 +64,7 @@ function Home() {
           </button>
         </div>
 
-        <img className="home-girl" src={annaPhoto} alt="MISS TELEGRAM" />
+        <img className="home-girl" src={heroGirl} alt="MISS TELEGRAM" />
       </div>
 
       <div className="home-grid">
