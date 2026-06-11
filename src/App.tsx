@@ -60,8 +60,49 @@ function Home() {
           className="vote-btn"
           onClick={() => navigate("/apply")}
         >
-          📝 Отправить заявку
+          🚀 Отправить заявку
         </button>
+      </div>
+
+      <div className="card">
+        <h2>👑 Участницы</h2>
+        <p>Смотри и поддерживай участниц конкурса</p>
+
+        <button
+          className="vote-btn"
+          onClick={() => navigate("/contestants")}
+        >
+          👑 Открыть участниц
+        </button>
+      </div>
+
+      <div className="card">
+        <h2>🏆 MISS TELEGRAM</h2>
+        <p>Рейтинг по голосам</p>
+
+        <button
+          className="vote-btn"
+          onClick={() => navigate("/rating")}
+        >
+          🏆 Открыть рейтинг
+        </button>
+      </div>
+
+      <div className="card">
+        <h2>🎁 MISS TELEGRAM STAR</h2>
+        <p>Рейтинг по подаркам</p>
+
+        <button
+          className="vote-btn"
+          onClick={() => navigate("/star-rating")}
+        >
+          🎁 Открыть STAR рейтинг
+        </button>
+      </div>
+
+      <div className="card">
+        <h2>📋 Мои заявки</h2>
+        <p>Просмотр и статус ваших заявок</p>
 
         <button
           className="vote-btn"
@@ -69,16 +110,56 @@ function Home() {
         >
           📋 Мои заявки
         </button>
+      </div>
 
-        {isAdmin && (
+      <div className="card">
+        <h2>🤝 Амбассадор</h2>
+        <p>
+          Приглашай участниц и зрителей
+          <br />
+          и получай вознаграждение
+        </p>
+
+        <button
+          className="vote-btn"
+          onClick={() => navigate("/ambassador")}
+        >
+          🤝 Стать амбассадором
+        </button>
+      </div>
+
+      <div className="card">
+        <h2>📜 Условия конкурса</h2>
+        <p>
+          • Правила участия
+          <br />
+          • Призовые фонды
+          <br />
+          • Выплаты
+          <br />
+          • Модерация
+        </p>
+
+        <button
+          className="vote-btn"
+          onClick={() => navigate("/rules")}
+        >
+          📜 Открыть условия
+        </button>
+      </div>
+
+      {isAdmin && (
+        <div className="card">
+          <h2>👮 Панель модерации</h2>
+
           <button
             className="vote-btn"
             onClick={() => navigate("/admin")}
           >
             👮 Модераторы
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -569,13 +650,23 @@ function MyApplications() {
       newStatus === "Одобрена" ? "Опубликована в конкурсе" : newStatus;
 
     const { error } = await supabase
-      .from("contestants")
-      .update({
-        status: finalStatus,
-        moderated_by: telegramUser.id,
-        moderated_by_name: getTelegramName(telegramUser),
-      })
-      .eq("id", id);
+  .from("contestants")
+  .update({
+    status: finalStatus,
+    moderated_by: telegramUser.id,
+    moderated_by_name: getTelegramName(telegramUser),
+
+    approval_notification_sent:
+      finalStatus === "Опубликована в конкурсе"
+        ? false
+        : null,
+
+    rejection_notification_sent:
+      finalStatus === "Отклонена"
+        ? false
+        : null,
+  })
+  .eq("id", id);
 
     if (error) {
       console.log(error);
@@ -1226,6 +1317,54 @@ function Profile({
   );
 }
 
+function StarRating() {
+  return (
+    <div className="page">
+      <h1>🎁 MISS TELEGRAM STAR</h1>
+      <p>Рейтинг по подаркам</p>
+
+      <div className="card">
+        <h2>Скоро будет доступно</h2>
+        <p>Здесь будет рейтинг участниц по подаркам и Stars.</p>
+      </div>
+    </div>
+  );
+}
+
+function Ambassador() {
+  return (
+    <div className="page">
+      <h1>🤝 Амбассадор</h1>
+
+      <div className="card">
+        <h2>Приглашай участниц и зрителей</h2>
+        <p>И получай вознаграждение за развитие MISS TELEGRAM.</p>
+      </div>
+    </div>
+  );
+}
+
+function Rules() {
+  return (
+    <div className="page">
+      <h1>📜 Условия конкурса</h1>
+
+      <div className="card">
+        <h2>Правила участия</h2>
+        <p>
+          • Участие 18+
+          <br />
+          • Фото проходят модерацию
+          <br />
+          • Призовые фонды будут объявлены отдельно
+          <br />
+          • Выплаты по правилам конкурса
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [balance, setBalance] = useState(() => {
     return Number(localStorage.getItem("balance")) || 1250;
@@ -1333,6 +1472,10 @@ function App() {
         />
 
         <Route path="/rating" element={<Rating />} />
+		
+<Route path="/star-rating" element={<StarRating />} />
+<Route path="/ambassador" element={<Ambassador />} />
+<Route path="/rules" element={<Rules />} />
 
         <Route
           path="/profile"
