@@ -745,7 +745,7 @@ function ContestantProfile({
   const contestant = allContestants.find((item) => item.slug === slug);
 
   const [votes, setVotes] = useState(0);
-  const [gifts, setGifts] = useState(320);
+  const [gifts, setGifts] = useState(0);
   const [message, setMessage] = useState("");
   const [voteMessage, setVoteMessage] = useState("");
 
@@ -765,8 +765,25 @@ function ContestantProfile({
     setVotes(count || 0);
   }
 
+  async function loadGifts() {
+    if (!contestant?.id) return;
+
+    const { count, error } = await supabase
+      .from("gifts")
+      .select("*", { count: "exact", head: true })
+      .eq("contestant_id", contestant.id);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setGifts(count || 0);
+  }
+
   useEffect(() => {
     loadVotes();
+    loadGifts();
   }, [contestant?.id]);
 
   if (!contestant) {
@@ -827,7 +844,7 @@ function ContestantProfile({
     setVoteMessage("🎉 Спасибо за голос! ⭐");
   }
 
-  function sendGift(giftName: string, price: number) {
+  async function sendGift(giftName: string, price: number) {
     setMessage("");
     setVoteMessage("");
 
@@ -836,11 +853,33 @@ function ContestantProfile({
       return;
     }
 
+    const telegramUser =
+      (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+    if (!telegramUser?.id) {
+      setMessage("Откройте приложение через Telegram");
+      return;
+    }
+
+    const { error } = await supabase.from("gifts").insert({
+      contestant_id: contestant.id,
+      telegram_id: telegramUser.id,
+      gift_name: giftName,
+      price,
+    });
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
     setBalance(balance - price);
     setSpentStars(spentStars + price);
     setSentGifts(sentGifts + 1);
-    setGifts(gifts + 1);
-    setMessage(`Подарок отправлен: ${giftName} 🎁`);
+
+    await loadGifts();
+
+    setMessage(`🎁 Подарок отправлен: ${giftName}`);
   }
 
   let photo = contestant.photo || annaPhoto;
