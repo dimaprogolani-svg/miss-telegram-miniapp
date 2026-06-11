@@ -749,7 +749,6 @@ function ContestantProfile({
   const [message, setMessage] = useState("");
   const [voteMessage, setVoteMessage] = useState("");
   const [giftMessage, setGiftMessage] = useState("");
-  const [showToast, setShowToast] = useState(false);
 
   async function loadVotes() {
     if (!contestant?.id) return;
@@ -854,12 +853,6 @@ function ContestantProfile({
 
     if (balance < price) {
       setGiftMessage("Недостаточно Stars ⭐");
-      setShowToast(true);
-
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
-
       return;
     }
 
@@ -868,12 +861,6 @@ function ContestantProfile({
 
     if (!telegramUser?.id) {
       setGiftMessage("Откройте приложение через Telegram");
-      setShowToast(true);
-
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
-
       return;
     }
 
@@ -886,12 +873,6 @@ function ContestantProfile({
 
     if (error) {
       setGiftMessage(error.message);
-      setShowToast(true);
-
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
-
       return;
     }
 
@@ -902,11 +883,6 @@ function ContestantProfile({
     await loadGifts();
 
     setGiftMessage(`🎁 Спасибо! Подарок отправлен: ${giftName}`);
-    setShowToast(true);
-
-    setTimeout(() => {
-      setShowToast(false);
-    }, 3000);
   }
 
   let photo = contestant.photo || annaPhoto;
@@ -961,6 +937,12 @@ function ContestantProfile({
       <div className="card">
         <h2>🎁 Подарки</h2>
 
+        {giftMessage && (
+          <p className="success-message" style={{ whiteSpace: "pre-line" }}>
+            {giftMessage}
+          </p>
+        )}
+
         <div className="gift-list">
           <button className="gift-btn" onClick={() => sendGift("Роза", 50)}>
             🌹 Роза — 50 Stars
@@ -987,30 +969,6 @@ function ContestantProfile({
           </button>
         </div>
       </div>
-
-      {showToast && (
-        <div
-          style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            background: "#1e0f2e",
-            color: "#ffd700",
-            padding: "22px 28px",
-            borderRadius: "22px",
-            border: "2px solid #ffd700",
-            zIndex: 9999,
-            textAlign: "center",
-            fontWeight: "bold",
-            fontSize: "18px",
-            boxShadow: "0 0 25px rgba(255,215,0,0.6)",
-            maxWidth: "85%",
-          }}
-        >
-          {giftMessage}
-        </div>
-      )}
     </div>
   );
 }
