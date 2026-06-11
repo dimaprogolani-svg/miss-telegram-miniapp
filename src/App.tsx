@@ -717,6 +717,7 @@ function ContestantProfile({
   const [votes, setVotes] = useState(0);
   const [gifts, setGifts] = useState(320);
   const [message, setMessage] = useState("");
+  const [voteMessage, setVoteMessage] = useState("");
 
   async function loadVotes() {
     if (!contestant?.id) return;
@@ -749,8 +750,11 @@ function ContestantProfile({
   async function vote() {
     const price = 100;
 
+    setVoteMessage("");
+    setMessage("");
+
     if (balance < price) {
-      setMessage("Недостаточно Stars ⭐");
+      setVoteMessage("Недостаточно Stars ⭐");
       return;
     }
 
@@ -758,7 +762,7 @@ function ContestantProfile({
       (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
     if (!telegramUser?.id) {
-      setMessage("Откройте приложение через Telegram");
+      setVoteMessage("Откройте приложение через Telegram");
       return;
     }
 
@@ -768,7 +772,7 @@ function ContestantProfile({
     });
 
     if (error) {
-      setMessage(error.message);
+      setVoteMessage(error.message);
       return;
     }
 
@@ -777,10 +781,13 @@ function ContestantProfile({
 
     await loadVotes();
 
-    setMessage("Спасибо за голос! ⭐");
+    setVoteMessage("🎉 Спасибо за голос! ⭐");
   }
 
   function sendGift(giftName: string, price: number) {
+    setMessage("");
+    setVoteMessage("");
+
     if (balance < price) {
       setMessage("Недостаточно Stars ⭐");
       return;
@@ -810,29 +817,32 @@ function ContestantProfile({
       <img className="profile-photo" src={photo} alt={contestant.name} />
 
       <div className="card">
+        <h2>🌍 {contestant.country}</h2>
+        <p>⭐ Голосов: {votes}</p>
+        <p>🎁 Подарков: {gifts}</p>
+        <p>🏆 Место: {contestant.id}</p>
+      </div>
+
+      <div className="card">
+        <h2>⭐ Голосование</h2>
+        <p>Сейчас у участницы: {votes} голосов</p>
+
+        <button className="vote-btn" onClick={vote}>
+          ⭐ Голосовать за 100 Stars
+        </button>
+
+        {voteMessage && <p className="success-message">{voteMessage}</p>}
+      </div>
+
+      <div className="card">
         <h2>⭐ Мой баланс</h2>
         <p>{balance} Stars</p>
         <p>Потрачено: {spentStars} Stars</p>
       </div>
 
       <div className="card">
-        <h2>🌍 {contestant.country}</h2>
-        <p>⭐ {votes} голосов</p>
-        <p>🎁 {gifts} подарков</p>
-        <p>🏆 Место: {contestant.id}</p>
-      </div>
-
-      <div className="card">
         <h2>О себе</h2>
         <p>Участница конкурса MISS TELEGRAM.</p>
-      </div>
-
-      <div className="card">
-        <h2>⭐ Голосование</h2>
-
-        <button className="vote-btn" onClick={vote}>
-          ⭐ Голосовать за 100 Stars
-        </button>
       </div>
 
       <div className="card">
