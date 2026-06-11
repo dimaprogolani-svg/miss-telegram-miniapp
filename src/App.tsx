@@ -309,20 +309,20 @@ function Apply() {
     const slug =
       name.toLowerCase().trim().replace(/\s+/g, "-") + "-" + Date.now();
 
-setMessage(
-  JSON.stringify(
-    {
-      id: telegramUser.id,
-      username: telegramUser.username,
-      first_name: telegramUser.first_name,
-      last_name: telegramUser.last_name,
-    },
-    null,
-    2
-  )
-);
+    setMessage(
+      JSON.stringify(
+        {
+          id: telegramUser.id,
+          username: telegramUser.username,
+          first_name: telegramUser.first_name,
+          last_name: telegramUser.last_name,
+        },
+        null,
+        2
+      )
+    );
 
-return;
+    return;
 
     const { error } = await supabase.from("contestants").insert({
       slug,
@@ -415,6 +415,14 @@ return;
     <div className="page">
       <h1>📝 Заявка участницы</h1>
 
+      {!canSubmitMany && existingApplication?.status === "Отклонена" && (
+        <div className="card">
+          <h2>Предыдущая заявка отклонена</h2>
+          <p>Вы можете отправить новую заявку.</p>
+          <p>Использовано заявок: {applicationsCount} из 5</p>
+        </div>
+      )}
+
       <div className="card">
         <input
           className="form-input"
@@ -466,60 +474,11 @@ return;
           🚀 Отправить заявку
         </button>
 
-        {message && <p className="success-message">{message}</p>}
-      </div>
-    </div>
-  );
-}
-
-  if (!canSubmitMany && applicationsCount >= 5) {
-    return (
-      <div className="page">
-        <h1>📝 Заявка участницы</h1>
-
-        <div className="card">
-          <h2>Лимит заявок исчерпан</h2>
-          <p>Вы уже отправили максимум 5 заявок.</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="page">
-      <h1>📝 Заявка участницы</h1>
-
-      {!canSubmitMany && existingApplication?.status === "Отклонена" && (
-        <div className="card">
-          <h2>Предыдущая заявка отклонена</h2>
-          <p>Вы можете отправить новую заявку.</p>
-          <p>Использовано заявок: {applicationsCount} из 5</p>
-        </div>
-      )}
-
-      <div className="card">
-        <input className="form-input" placeholder="Имя" value={name} onChange={(e) => setName(e.target.value)} />
-        <input className="form-input" placeholder="Возраст" value={age} onChange={(e) => setAge(e.target.value)} />
-        <input className="form-input" placeholder="Страна" value={country} onChange={(e) => setCountry(e.target.value)} />
-        <input className="form-input" placeholder="Город" value={city} onChange={(e) => setCity(e.target.value)} />
-        <textarea className="form-input" placeholder="О себе" value={about} onChange={(e) => setAbout(e.target.value)} />
-
-        <input
-          className="form-input"
-          type="file"
-          accept="image/*"
-          onChange={uploadPhoto}
-        />
-
-        {photo && (
-          <img className="profile-photo" src={photo} alt="Фото заявки" />
+        {message && (
+          <p className="success-message" style={{ whiteSpace: "pre-line" }}>
+            {message}
+          </p>
         )}
-
-        <button className="vote-btn" onClick={submitApplication}>
-          🚀 Отправить заявку
-        </button>
-
-        {message && <p className="success-message">{message}</p>}
       </div>
     </div>
   );
