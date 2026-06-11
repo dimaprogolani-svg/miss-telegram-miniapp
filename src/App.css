@@ -203,3 +203,112 @@ body {
     border-radius: 16px;
   }
 }
+.home-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px;
+  margin: 20px auto;
+  max-width: 620px;
+  border: 1px solid #d4af37;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #121212, #251329);
+  text-align: left;
+}
+
+.home-year {
+  font-size: 52px;
+  font-weight: 900;
+  color: #ffd700;
+  line-height: 1;
+  margin: 8px 0;
+}
+
+.home-queen {
+  font-size: 90px;
+  min-width: 110px;
+  text-align: center;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  max-width: 620px;
+  margin: 0 auto 16px;
+}
+
+.home-small-card,
+.home-wide-card {
+  border: 1px solid #d4af37;
+  border-radius: 20px;
+  background: #151217;
+  padding: 18px;
+  cursor: pointer;
+}
+
+.home-small-card {
+  text-align: left;
+}
+
+.home-small-card h2,
+.home-wide-card h2 {
+  color: #ffd700;
+  margin-bottom: 10px;
+}
+
+.home-wide-card {
+  max-width: 620px;
+  margin: 16px auto;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  text-align: left;
+}
+
+.home-icon {
+  font-size: 64px;
+  min-width: 78px;
+  text-align: center;
+}
+
+.home-section-title {
+  max-width: 620px;
+  margin: 24px auto 12px;
+  text-align: left;
+  color: white;
+}
+
+.home-stats {
+  max-width: 620px;
+  margin: 0 auto 90px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #151217;
+  border-radius: 20px;
+  border: 1px solid #2c2c2c;
+  overflow: hidden;
+}
+
+.home-stats div {
+  padding: 14px 6px;
+  text-align: center;
+  border-right: 1px solid #333;
+}
+
+.home-stats div:last-child {
+  border-right: none;
+}
+
+.home-stats strong {
+  display: block;
+  color: #ffd700;
+  font-size: 22px;
+  margin: 6px 0;
+}
+
+.home-stats span {
+  font-size: 13px;
+  color: #e6d6ff;
+}

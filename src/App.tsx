@@ -42,124 +42,85 @@ const contestants = [
 function Home() {
   const navigate = useNavigate();
 
-  const telegramUser =
-    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-
-  const isAdmin = telegramUser?.id === 678312754;
-
   return (
     <div className="page">
-      <h1>👑 МИСС ТЕЛЕГРАМ</h1>
+      <h1>👑 MISS TELEGRAM 👑</h1>
       <p>Международный конкурс красоты</p>
 
-      <div className="card">
-        <h2>🌍 Новый сезон 2026</h2>
-        <p>Регистрация участниц уже открыта</p>
+      <div className="home-hero">
+        <div>
+          <h2>🌍 Новый сезон</h2>
+          <div className="home-year">2026</div>
+          <p>Регистрируйся, участвуй и побеждай!</p>
 
-        <button
-          className="vote-btn"
-          onClick={() => navigate("/apply")}
-        >
-          🚀 Отправить заявку
-        </button>
-      </div>
-
-      <div className="card">
-        <h2>👑 Участницы</h2>
-        <p>Смотри и поддерживай участниц конкурса</p>
-
-        <button
-          className="vote-btn"
-          onClick={() => navigate("/contestants")}
-        >
-          👑 Открыть участниц
-        </button>
-      </div>
-
-      <div className="card">
-        <h2>🏆 MISS TELEGRAM</h2>
-        <p>Рейтинг по голосам</p>
-
-        <button
-          className="vote-btn"
-          onClick={() => navigate("/rating")}
-        >
-          🏆 Открыть рейтинг
-        </button>
-      </div>
-
-      <div className="card">
-        <h2>🎁 MISS TELEGRAM STAR</h2>
-        <p>Рейтинг по подаркам</p>
-
-        <button
-          className="vote-btn"
-          onClick={() => navigate("/star-rating")}
-        >
-          🎁 Открыть STAR рейтинг
-        </button>
-      </div>
-
-      <div className="card">
-        <h2>📋 Мои заявки</h2>
-        <p>Просмотр и статус ваших заявок</p>
-
-        <button
-          className="vote-btn"
-          onClick={() => navigate("/my-applications")}
-        >
-          📋 Мои заявки
-        </button>
-      </div>
-
-      <div className="card">
-        <h2>🤝 Амбассадор</h2>
-        <p>
-          Приглашай участниц и зрителей
-          <br />
-          и получай вознаграждение
-        </p>
-
-        <button
-          className="vote-btn"
-          onClick={() => navigate("/ambassador")}
-        >
-          🤝 Стать амбассадором
-        </button>
-      </div>
-
-      <div className="card">
-        <h2>📜 Условия конкурса</h2>
-        <p>
-          • Правила участия
-          <br />
-          • Призовые фонды
-          <br />
-          • Выплаты
-          <br />
-          • Модерация
-        </p>
-
-        <button
-          className="vote-btn"
-          onClick={() => navigate("/rules")}
-        >
-          📜 Открыть условия
-        </button>
-      </div>
-
-      {isAdmin && (
-        <div className="card">
-          <h2>👮 Панель модерации</h2>
-
-          <button
-            className="vote-btn"
-            onClick={() => navigate("/admin")}
-          >
-            👮 Модераторы
+          <button className="vote-btn" onClick={() => navigate("/apply")}>
+            Отправить заявку
           </button>
         </div>
-      )}
+
+        <div className="home-queen">👑</div>
+      </div>
+
+      <div className="home-grid">
+        <div className="home-small-card" onClick={() => navigate("/my-applications")}>
+          <h2>📝 Мои заявки</h2>
+          <p>Посмотреть свои заявки ›</p>
+        </div>
+
+        <div className="home-small-card" onClick={() => navigate("/contestants")}>
+          <h2>👥 Участницы</h2>
+          <p>Смотри и поддерживай ›</p>
+        </div>
+      </div>
+
+      <div className="home-wide-card" onClick={() => navigate("/ambassador")}>
+        <div className="home-icon">🤝</div>
+        <div>
+          <h2>Амбассадор</h2>
+          <p>Приглашай участниц и зрителей и получай вознаграждение ›</p>
+        </div>
+      </div>
+
+      <div className="home-wide-card" onClick={() => navigate("/rules")}>
+        <div className="home-icon">📜</div>
+        <div>
+          <h2>Условия конкурса</h2>
+          <p>
+            • Правила участия<br />
+            • Призовой фонд<br />
+            • Выплаты<br />
+            • Модерация ›
+          </p>
+        </div>
+      </div>
+
+      <h2 className="home-section-title">Конкурс в цифрах</h2>
+
+      <div className="home-stats">
+        <div>
+          <div>👑</div>
+          <strong>500+</strong>
+          <span>Участниц</span>
+        </div>
+
+        <div>
+          <div>⭐</div>
+          <strong>25K+</strong>
+          <span>Голосов</span>
+        </div>
+
+        <div>
+          <div>🎁</div>
+          <strong>10K+</strong>
+          <span>Подарков</span>
+        </div>
+
+        <div>
+          <div>👥</div>
+          <strong>50K+</strong>
+          <span>Зрителей</span>
+        </div>
+      </div>
     </div>
   );
 }
