@@ -636,6 +636,20 @@ function Contestants() {
     return count || 0;
   }
 
+  async function getGiftsCount(contestantId: number) {
+    const { count, error } = await supabase
+      .from("gifts")
+      .select("*", { count: "exact", head: true })
+      .eq("contestant_id", contestantId);
+
+    if (error) {
+      console.log(error);
+      return 0;
+    }
+
+    return count || 0;
+  }
+
   async function loadContestants() {
     setLoading(true);
 
@@ -655,20 +669,22 @@ function Contestants() {
 
     const allContestants = [...contestants, ...publishedFromSupabase];
 
-    const contestantsWithVotes = await Promise.all(
+    const contestantsWithStats = await Promise.all(
       allContestants.map(async (contestant) => {
         const realVotes = await getVotesCount(contestant.id);
+        const realGifts = await getGiftsCount(contestant.id);
 
         return {
           ...contestant,
           realVotes,
+          realGifts,
         };
       })
     );
 
-    contestantsWithVotes.sort((a, b) => b.realVotes - a.realVotes);
+    contestantsWithStats.sort((a, b) => b.realVotes - a.realVotes);
 
-    setContestantsList(contestantsWithVotes);
+    setContestantsList(contestantsWithStats);
     setLoading(false);
   }
 
@@ -714,6 +730,7 @@ function Contestants() {
           <h2>👑 {contestant.name}</h2>
           <p>🌍 {contestant.country}</p>
           <p>⭐ {contestant.realVotes} голосов</p>
+          <p>🎁 {contestant.realGifts} подарков</p>
         </div>
       ))}
     </div>
