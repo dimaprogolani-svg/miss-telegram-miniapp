@@ -748,6 +748,7 @@ function ContestantProfile({
   const [gifts, setGifts] = useState(0);
   const [message, setMessage] = useState("");
   const [voteMessage, setVoteMessage] = useState("");
+  const [giftMessage, setGiftMessage] = useState("");
 
   async function loadVotes() {
     if (!contestant?.id) return;
@@ -798,6 +799,7 @@ function ContestantProfile({
     const price = 100;
 
     setVoteMessage("");
+    setGiftMessage("");
     setMessage("");
 
     if (balance < price) {
@@ -847,9 +849,10 @@ function ContestantProfile({
   async function sendGift(giftName: string, price: number) {
     setMessage("");
     setVoteMessage("");
+    setGiftMessage("");
 
     if (balance < price) {
-      setMessage("Недостаточно Stars ⭐");
+      setGiftMessage("Недостаточно Stars ⭐");
       return;
     }
 
@@ -857,7 +860,7 @@ function ContestantProfile({
       (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
     if (!telegramUser?.id) {
-      setMessage("Откройте приложение через Telegram");
+      setGiftMessage("Откройте приложение через Telegram");
       return;
     }
 
@@ -869,7 +872,7 @@ function ContestantProfile({
     });
 
     if (error) {
-      setMessage(error.message);
+      setGiftMessage(error.message);
       return;
     }
 
@@ -879,7 +882,7 @@ function ContestantProfile({
 
     await loadGifts();
 
-    setMessage(`🎁 Подарок отправлен: ${giftName}`);
+    setGiftMessage(`🎁 Спасибо! Подарок отправлен: ${giftName}`);
   }
 
   let photo = contestant.photo || annaPhoto;
@@ -960,6 +963,7 @@ function ContestantProfile({
           </button>
         </div>
 
+        {giftMessage && <p className="success-message">{giftMessage}</p>}
         {message && <p className="success-message">{message}</p>}
       </div>
     </div>
