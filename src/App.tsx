@@ -780,7 +780,7 @@ function Contestants() {
 
     const publishedFromSupabase = data || [];
 
-    const allContestants = [...contestants, ...publishedFromSupabase];
+    const allContestants = publishedFromSupabase;
 
     const contestantsWithStats = await Promise.all(
       allContestants.map(async (contestant) => {
