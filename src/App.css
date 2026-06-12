@@ -278,9 +278,10 @@ body {
 }
 
 .home-main-btn {
-  font-size: 16px;
-  padding: 10px 14px;
-  max-width: 220px;
+  font-size: 15px;
+  padding: 8px 12px;
+  max-width: 200px;
+  min-height: 52px;
 }
 
 .home-girl {
@@ -431,11 +432,13 @@ body {
   }
 
   .bottom-nav a {
-    font-size: 12px;
+    font-size: 11px;
     flex: 1;
     text-align: center;
     overflow: hidden;
     white-space: nowrap;
+	letter-spacing: -0.3px;
+	padding: 0 1px;
   }
 
   .vote-btn {
