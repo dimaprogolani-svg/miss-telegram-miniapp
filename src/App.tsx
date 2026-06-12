@@ -1364,6 +1364,7 @@ function Profile({
 function StarRating() {
   const [rating, setRating] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchCode, setSearchCode] = useState("");
 
   async function loadStarRating() {
     setLoading(true);
@@ -1380,7 +1381,7 @@ function StarRating() {
 
     const { data: contestantData, error: contestantError } = await supabase
       .from("contestants")
-      .select("id, name, country")
+      .select("id, name, country, contestant_code")
       .eq("status", "Опубликована в конкурсе");
 
     if (contestantError) {
@@ -1414,6 +1415,15 @@ function StarRating() {
     loadStarRating();
   }, []);
 
+  const filteredRating = rating.filter((contestant) => {
+    const code = String(contestant.contestant_code || "").toLowerCase();
+    const search = searchCode.toLowerCase().trim();
+
+    if (!search) return true;
+
+    return code.includes(search);
+  });
+
   if (loading) {
     return (
       <div className="page">
@@ -1432,14 +1442,32 @@ function StarRating() {
       <h1>🎁 MISS TELEGRAM STAR</h1>
       <p>Рейтинг по подаркам</p>
 
-      {rating.map((contestant, index) => (
+      <div className="card">
+        <input
+          className="form-input"
+          placeholder="🔍 Поиск по коду участницы"
+          value={searchCode}
+          onChange={(e) => setSearchCode(e.target.value)}
+        />
+        <p>Введите код участницы, например: ВУО-123</p>
+      </div>
+
+      {filteredRating.length === 0 && (
+        <div className="card">
+          <h2>Ничего не найдено</h2>
+          <p>Проверьте код участницы.</p>
+        </div>
+      )}
+
+      {filteredRating.map((contestant, index) => (
         <div className="card" key={contestant.id}>
-          <h2>
-            {index + 1} место — {contestant.name}
-          </h2>
+          <h2>{index + 1} место — {contestant.name}</h2>
+
+          {contestant.contestant_code && (
+            <p>🆔 Код: {contestant.contestant_code}</p>
+          )}
 
           <p>🌍 {contestant.country}</p>
-
           <p>💎 {contestant.starPoints} Stars</p>
         </div>
       ))}
