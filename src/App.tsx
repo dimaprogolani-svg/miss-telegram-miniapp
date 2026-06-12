@@ -52,9 +52,9 @@ function Home() {
   return (
     <div className="page home-page">
       <h1 className="main-title">
-	  <img src={crownGold} alt="" className="main-crown" />
-	  MISS TELEGRAM
-	  <img src={crownGold} alt="" className="main-crown" />
+	  <img src={crownGold} alt="" className="main-crown main-crown-left" />
+	  <span>MISS TELEGRAM</span>
+	  <img src={crownGold} alt="" className="main-crown main-crown-right" />
 	  </h1>
       <p>Международный конкурс красоты</p>
 

@@ -407,51 +407,12 @@ body {
   color: var(--text-soft);
 }
 
-.main-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
 
-  white-space: nowrap;
-  flex-wrap: nowrap;
-
-  font-size: clamp(28px, 7.2vw, 52px);
-  font-weight: 900;
-  letter-spacing: 0.5px;
-
-  color: #fff3b0;
-
-  text-shadow:
-    0 1px 0 #6b3f00,
-    0 2px 0 #3d2300,
-    0 0 3px rgba(255, 255, 255, 1),
-    0 0 8px rgba(255, 230, 120, 1),
-    0 0 16px rgba(255, 215, 64, 1),
-    0 0 32px rgba(255, 196, 0, 0.9),
-    0 0 50px rgba(176, 92, 255, 0.7);
-
-  margin: 14px 0 8px;
-}
 
 .main-title img {
   flex-shrink: 0;
 }
 
-.main-crown {
-  width: 38px;
-  height: 38px;
-  object-fit: contain;
-
-  filter:
-    brightness(1.45)
-    contrast(1.35)
-    saturate(1.35)
-    drop-shadow(0 0 4px rgba(255, 255, 255, 1))
-    drop-shadow(0 0 10px rgba(255, 230, 120, 1))
-    drop-shadow(0 0 18px rgba(255, 196, 0, 1))
-    drop-shadow(0 0 28px rgba(176, 92, 255, 0.8));
-}
 
 @media (max-width: 480px) {
   .page {
@@ -614,5 +575,91 @@ body {
   .main-crown {
     width: 26px;
     height: 26px;
+  }
+}
+.main-title {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  margin: 14px auto 8px;
+
+  display: block;
+  text-align: center;
+
+  white-space: nowrap;
+  overflow: visible;
+
+  font-size: clamp(26px, 6vw, 42px);
+  font-weight: 900;
+  letter-spacing: 0.3px;
+
+  color: #fff3b0;
+
+  text-shadow:
+    0 1px 0 #6b3f00,
+    0 2px 0 #3d2300,
+    0 0 4px rgba(255, 255, 255, 1),
+    0 0 10px rgba(255, 230, 120, 1),
+    0 0 20px rgba(255, 196, 0, 0.95),
+    0 0 35px rgba(176, 92, 255, 0.75);
+}
+
+.main-title span {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.main-crown {
+  position: absolute;
+  top: 50%;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  transform: translateY(-50%);
+
+  filter:
+    brightness(1.5)
+    contrast(1.35)
+    saturate(1.35)
+    drop-shadow(0 0 6px rgba(255, 230, 120, 1))
+    drop-shadow(0 0 16px rgba(255, 196, 0, 1))
+    drop-shadow(0 0 24px rgba(176, 92, 255, 0.8));
+}
+
+.main-crown-left {
+  left: 8px;
+}
+
+.main-crown-right {
+  right: 8px;
+}
+
+@media (max-width: 480px) {
+  .main-title {
+    font-size: 27px;
+  }
+
+  .main-crown {
+    width: 34px;
+    height: 34px;
+  }
+
+  .main-crown-left {
+    left: 4px;
+  }
+
+  .main-crown-right {
+    right: 4px;
+  }
+}
+
+@media (max-width: 390px) {
+  .main-title {
+    font-size: 25px;
+  }
+
+  .main-crown {
+    width: 30px;
+    height: 30px;
   }
 }
