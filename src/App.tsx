@@ -867,25 +867,42 @@ function ContestantProfile({
 }) {
   const { slug } = useParams();
 
-  const savedPublished = localStorage.getItem("publishedContestants");
-  const publishedContestants = savedPublished ? JSON.parse(savedPublished) : [];
-
-  const allContestants = [...contestants, ...publishedContestants];
-
-  const contestant = allContestants.find((item) => item.slug === slug);
-
+  const [contestant, setContestant] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [votes, setVotes] = useState(0);
   const [gifts, setGifts] = useState(0);
   const [voteMessage, setVoteMessage] = useState("");
   const [giftMessage, setGiftMessage] = useState("");
 
-  async function loadVotes() {
-    if (!contestant?.id) return;
+  async function loadContestant() {
+    if (!slug) {
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("contestants")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) {
+      console.log(error);
+      setLoading(false);
+      return;
+    }
+
+    setContestant(data || null);
+    setLoading(false);
+  }
+
+  async function loadVotes(contestantId?: number) {
+    if (!contestantId) return;
 
     const { count, error } = await supabase
       .from("votes")
       .select("*", { count: "exact", head: true })
-      .eq("contestant_id", contestant.id);
+      .eq("contestant_id", contestantId);
 
     if (error) {
       setVoteMessage(error.message);
@@ -895,13 +912,13 @@ function ContestantProfile({
     setVotes(count || 0);
   }
 
-  async function loadGifts() {
-    if (!contestant?.id) return;
+  async function loadGifts(contestantId?: number) {
+    if (!contestantId) return;
 
     const { count, error } = await supabase
       .from("gifts")
       .select("*", { count: "exact", head: true })
-      .eq("contestant_id", contestant.id);
+      .eq("contestant_id", contestantId);
 
     if (error) {
       setGiftMessage(error.message);
@@ -912,9 +929,23 @@ function ContestantProfile({
   }
 
   useEffect(() => {
-    loadVotes();
-    loadGifts();
+    loadContestant();
+  }, [slug]);
+
+  useEffect(() => {
+    if (contestant?.id) {
+      loadVotes(contestant.id);
+      loadGifts(contestant.id);
+    }
   }, [contestant?.id]);
+
+  if (loading) {
+    return (
+      <div className="page">
+        <h1>Загрузка...</h1>
+      </div>
+    );
+  }
 
   if (!contestant) {
     return (
@@ -969,7 +1000,7 @@ function ContestantProfile({
     setBalance(balance - price);
     setSpentStars(spentStars + price);
 
-    await loadVotes();
+    await loadVotes(contestant.id);
 
     setVoteMessage("🎉 Спасибо за голос! ⭐");
   }
@@ -1007,20 +1038,12 @@ function ContestantProfile({
     setSpentStars(spentStars + price);
     setSentGifts(sentGifts + 1);
 
-    await loadGifts();
+    await loadGifts(contestant.id);
 
     setGiftMessage(`🎁 Спасибо! Подарок отправлен: ${giftName}`);
   }
 
-  let photo = contestant.photo || annaPhoto;
-
-  if (contestant.slug === "sofia") {
-    photo = sofiaPhoto;
-  }
-
-  if (contestant.slug === "maria") {
-    photo = mariaPhoto;
-  }
+  const photo = contestant.photo || annaPhoto;
 
   return (
     <div className="page">
@@ -1029,10 +1052,14 @@ function ContestantProfile({
       <img className="profile-photo" src={photo} alt={contestant.name} />
 
       <div className="card">
+        {contestant.contestant_code && (
+          <p>🆔 Код участницы: {contestant.contestant_code}</p>
+        )}
+
         <h2>🌍 {contestant.country}</h2>
+        <p>🏙️ {contestant.city}</p>
         <p>⭐ Голосов: {votes}</p>
         <p>🎁 Подарков: {gifts}</p>
-        <p>🏆 Место: {contestant.id}</p>
       </div>
 
       <div className="card">
@@ -1058,7 +1085,7 @@ function ContestantProfile({
 
       <div className="card">
         <h2>О себе</h2>
-        <p>Участница конкурса MISS TELEGRAM.</p>
+        <p>{contestant.description || "Участница конкурса MISS TELEGRAM."}</p>
       </div>
 
       <div className="card">
