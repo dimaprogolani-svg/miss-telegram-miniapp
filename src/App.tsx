@@ -16,29 +16,6 @@ import annaPhoto from "./images/anna.jpg";
 import sofiaPhoto from "./images/sofia.jpg";
 import mariaPhoto from "./images/maria.jpg";
 
-const contestants = [
-  {
-    id: 1,
-    slug: "anna",
-    name: "Анна",
-    country: "Израиль",
-    votes: 1543,
-  },
-  {
-    id: 2,
-    slug: "sofia",
-    name: "София",
-    country: "Украина",
-    votes: 1238,
-  },
-  {
-    id: 3,
-    slug: "maria",
-    name: "Мария",
-    country: "Польша",
-    votes: 987,
-  },
-];
 
 function Home() {
   const navigate = useNavigate();
@@ -1158,6 +1135,7 @@ function ContestantProfile({
 function Rating() {
   const [ratingList, setRatingList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchCode, setSearchCode] = useState("");
 
   async function getVotesCount(contestantId: number) {
     const { count, error } = await supabase
@@ -1187,12 +1165,8 @@ function Rating() {
       return;
     }
 
-    const publishedFromSupabase = data || [];
-
-    const allContestants = [...contestants, ...publishedFromSupabase];
-
     const contestantsWithVotes = await Promise.all(
-      allContestants.map(async (contestant) => {
+      (data || []).map(async (contestant) => {
         const realVotes = await getVotesCount(contestant.id);
 
         return {
@@ -1212,10 +1186,21 @@ function Rating() {
     loadRating();
   }, []);
 
+  const filteredRating = ratingList.filter((contestant) => {
+    const code = String(contestant.contestant_code || "").toLowerCase();
+    const search = searchCode.toLowerCase().trim();
+
+    if (!search) return true;
+
+    return code.includes(search);
+  });
+
   if (loading) {
     return (
       <div className="page">
-        <h1>🏆 Рейтинг</h1>
+        <h1>👑 MISS TELEGRAM</h1>
+        <p>Рейтинг по голосам</p>
+
         <div className="card">
           <h2>Загрузка...</h2>
         </div>
@@ -1225,13 +1210,33 @@ function Rating() {
 
   return (
     <div className="page">
-      <h1>🏆 Рейтинг</h1>
+      <h1>👑 MISS TELEGRAM</h1>
+      <p>Рейтинг по голосам</p>
 
-      {ratingList.map((contestant, index) => (
+      <div className="card">
+        <input
+          className="form-input"
+          placeholder="🔍 Поиск по коду участницы"
+          value={searchCode}
+          onChange={(e) => setSearchCode(e.target.value)}
+        />
+        <p>Введите код участницы, например: ВУО-123</p>
+      </div>
+
+      {filteredRating.length === 0 && (
+        <div className="card">
+          <h2>Ничего не найдено</h2>
+          <p>Проверьте код участницы.</p>
+        </div>
+      )}
+
+      {filteredRating.map((contestant, index) => (
         <div key={contestant.id} className="card">
-          <h2>
-            {index + 1} место — {contestant.name}
-          </h2>
+          <h2>{index + 1} место — {contestant.name}</h2>
+
+          {contestant.contestant_code && (
+            <p>🆔 Код: {contestant.contestant_code}</p>
+          )}
 
           <p>🌍 {contestant.country}</p>
           <p>⭐ {contestant.realVotes} голосов</p>
