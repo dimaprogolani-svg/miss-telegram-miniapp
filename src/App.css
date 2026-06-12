@@ -335,7 +335,7 @@ body {
 }
 
 .home-hero-text {
-  width: 40%;
+  width: 35%;
   z-index: 2;
 }
 
@@ -345,7 +345,7 @@ body {
 }
 
 .home-year {
-  font-size: 54px;
+  font-size: 46px;
   font-weight: 900;
   color: #ffd700;
   line-height: 1;
@@ -358,7 +358,7 @@ body {
 }
 
 .home-girl {
-  width: 55%;
+  width: 60%;
   height: 240px;
   object-fit: cover;
   object-position: center;
