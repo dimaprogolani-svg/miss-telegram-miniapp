@@ -1,6 +1,7 @@
 import { supabase } from "./lib/supabase";
 import { useState, useEffect } from "react";
 import heroGirl from "./assets/hero-girl-fireworks.png";
+import crownGold from "./assets/crown-gold.png";
 
 import {
   BrowserRouter,
@@ -50,7 +51,11 @@ function Home() {
 
   return (
     <div className="page home-page">
-      <h1>👑 MISS TELEGRAM 👑</h1>
+      <h1 className="main-title">
+	  <img src={crownGold} alt="" className="main-crown" />
+	  MISS TELEGRAM
+	  <img src={crownGold} alt="" className="main-crown" />
+	  </h1>
       <p>Международный конкурс красоты</p>
 
       <div className="home-hero">

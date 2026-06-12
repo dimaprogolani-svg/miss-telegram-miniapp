@@ -465,3 +465,33 @@ body {
     font-size: 12px;
   }
 }
+.main-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  color: var(--gold-2);
+
+  text-shadow:
+    0 0 8px rgba(212,175,55,.7),
+    0 0 16px rgba(212,175,55,.45);
+
+  margin-bottom: 8px;
+}
+
+.main-crown {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+
+  filter:
+    drop-shadow(0 0 6px rgba(212,175,55,.7))
+    drop-shadow(0 0 12px rgba(212,175,55,.45));
+}
+@media (max-width: 480px) {
+  .main-crown {
+    width: 34px;
+    height: 34px;
+  }
+}
