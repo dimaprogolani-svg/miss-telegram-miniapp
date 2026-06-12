@@ -1299,15 +1299,87 @@ function Profile({
 }
 
 function StarRating() {
+  const [rating, setRating] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  async function loadStarRating() {
+    setLoading(true);
+
+    const { data: giftData, error: giftError } = await supabase
+      .from("gifts")
+      .select("contestant_id, price");
+
+    if (giftError) {
+      console.log(giftError);
+      setLoading(false);
+      return;
+    }
+
+    const { data: contestantData, error: contestantError } = await supabase
+      .from("contestants")
+      .select("id, name, country")
+      .eq("status", "Опубликована в конкурсе");
+
+    if (contestantError) {
+      console.log(contestantError);
+      setLoading(false);
+      return;
+    }
+
+    const starsByContestant: any = {};
+
+    (giftData || []).forEach((gift: any) => {
+      const contestantId = gift.contestant_id;
+      const price = gift.price || 0;
+
+      starsByContestant[contestantId] =
+        (starsByContestant[contestantId] || 0) + price;
+    });
+
+    const result = (contestantData || [])
+      .map((contestant: any) => ({
+        ...contestant,
+        starPoints: starsByContestant[contestant.id] || 0,
+      }))
+      .sort((a: any, b: any) => b.starPoints - a.starPoints);
+
+    setRating(result);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    loadStarRating();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="page">
+        <h1>🎁 MISS TELEGRAM STAR</h1>
+        <p>Рейтинг по подаркам</p>
+
+        <div className="card">
+          <h2>Загрузка...</h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <h1>🎁 MISS TELEGRAM STAR</h1>
       <p>Рейтинг по подаркам</p>
 
-      <div className="card">
-        <h2>Скоро будет доступно</h2>
-        <p>Здесь будет рейтинг участниц по подаркам и Stars.</p>
-      </div>
+      {rating.map((contestant, index) => (
+        <div className="card" key={contestant.id}>
+          <h2>
+            {index + 1} место — {contestant.name}
+          </h2>
+
+          <p>🌍 {contestant.country}</p>
+
+          <p>💎 {contestant.starPoints} Stars</p>
+        </div>
+      ))}
     </div>
   );
 }
