@@ -526,140 +526,144 @@ body {
 }
 
 @media (max-width: 390px) {
-.main-title {
-  display: grid;
-  grid-template-columns: 38px auto 38px;
-  align-items: center;
-  justify-content: center;
-  column-gap: 6px;
+  .page h1 {
+    font-size: 30px;
+  }
 
-  white-space: nowrap;
+  .home-hero {
+    padding: 12px;
+    min-height: 240px;
+    gap: 8px;
+  }
 
-  font-size: clamp(27px, 7vw, 52px);
-  font-weight: 900;
-  letter-spacing: 0;
+  .home-hero-text {
+    width: 36%;
+  }
 
-  color: #fff3b0;
+  .home-hero-text h2 {
+    font-size: 20px;
+  }
 
-  text-shadow:
-    0 1px 0 #6b3f00,
-    0 2px 0 #3d2300,
-    0 0 3px rgba(255, 255, 255, 1),
-    0 0 8px rgba(255, 230, 120, 1),
-    0 0 16px rgba(255, 215, 64, 1),
-    0 0 32px rgba(255, 196, 0, 0.9),
-    0 0 50px rgba(176, 92, 255, 0.7);
+  .home-hero-text p {
+    font-size: 15px;
+    line-height: 1.2;
+  }
 
-  margin: 14px 0 8px;
+  .home-year {
+    font-size: 38px;
+  }
+
+  .home-girl {
+    width: 58%;
+    height: 220px;
+  }
+
+  .home-main-btn {
+    font-size: 14px;
+    padding: 9px 10px;
+  }
+
+  .home-small-card {
+    padding: 12px;
+    min-height: 95px;
+  }
+
+  .home-small-card h2 {
+    font-size: 18px;
+  }
+
+  .home-small-card p {
+    font-size: 15px;
+  }
+
+  .bottom-nav a {
+    font-size: 12px;
+  }
 }
-@media (max-width: 430px) {
-  .main-title {
-    grid-template-columns: 30px auto 30px;
-    column-gap: 5px;
-    font-size: 25px;
-  }
 
-  .main-crown {
-    width: 30px;
-    height: 30px;
-  }
-}
-
-@media (max-width: 375px) {
-  .main-title {
-    grid-template-columns: 26px auto 26px;
-    column-gap: 4px;
-    font-size: 23px;
-  }
-
-  .main-crown {
-    width: 26px;
-    height: 26px;
-  }
-}
-.main-title {
-  position: relative;
+/* Новый стабильный заголовок */
+.premium-title {
   width: 100%;
   max-width: 620px;
   margin: 14px auto 8px;
 
-  display: block;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 
   white-space: nowrap;
-  overflow: visible;
+  flex-wrap: nowrap;
+}
 
-  font-size: clamp(26px, 6vw, 42px);
+.premium-title-text {
+  display: inline-block;
+  white-space: nowrap;
+
+  font-size: clamp(28px, 6.2vw, 44px);
   font-weight: 900;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
 
   color: #fff3b0;
 
   text-shadow:
     0 1px 0 #6b3f00,
     0 2px 0 #3d2300,
-    0 0 4px rgba(255, 255, 255, 1),
-    0 0 10px rgba(255, 230, 120, 1),
-    0 0 20px rgba(255, 196, 0, 0.95),
-    0 0 35px rgba(176, 92, 255, 0.75);
+    0 0 5px rgba(255, 255, 255, 1),
+    0 0 12px rgba(255, 230, 120, 1),
+    0 0 24px rgba(255, 196, 0, 1),
+    0 0 40px rgba(176, 92, 255, 0.85);
 }
 
-.main-title span {
+.premium-crown {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+
   display: inline-block;
-  white-space: nowrap;
-}
 
-.main-crown {
-  position: absolute;
-  top: 50%;
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-  transform: translateY(-50%);
+  background-image: url("./assets/crown-gold.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 
   filter:
-    brightness(1.5)
-    contrast(1.35)
-    saturate(1.35)
-    drop-shadow(0 0 6px rgba(255, 230, 120, 1))
-    drop-shadow(0 0 16px rgba(255, 196, 0, 1))
-    drop-shadow(0 0 24px rgba(176, 92, 255, 0.8));
-}
-
-.main-crown-left {
-  left: 8px;
-}
-
-.main-crown-right {
-  right: 8px;
+    brightness(1.6)
+    contrast(1.4)
+    saturate(1.5)
+    drop-shadow(0 0 8px rgba(255, 230, 120, 1))
+    drop-shadow(0 0 18px rgba(255, 196, 0, 1))
+    drop-shadow(0 0 30px rgba(176, 92, 255, 0.9));
 }
 
 @media (max-width: 480px) {
-  .main-title {
-    font-size: 27px;
+  .premium-title {
+    gap: 8px;
   }
 
-  .main-crown {
-    width: 34px;
-    height: 34px;
+  .premium-title-text {
+    font-size: 30px;
   }
 
-  .main-crown-left {
-    left: 4px;
-  }
-
-  .main-crown-right {
-    right: 4px;
+  .premium-crown {
+    width: 54px;
+    height: 54px;
+    flex-basis: 54px;
   }
 }
 
 @media (max-width: 390px) {
-  .main-title {
-    font-size: 25px;
+  .premium-title {
+    gap: 6px;
   }
 
-  .main-crown {
-    width: 30px;
-    height: 30px;
+  .premium-title-text {
+    font-size: 27px;
+  }
+
+  .premium-crown {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
   }
 }
