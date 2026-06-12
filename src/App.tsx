@@ -734,6 +734,7 @@ function Contestants() {
 
   const [contestantsList, setContestantsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchCode, setSearchCode] = useState("");
 
   async function getVotesCount(contestantId: number) {
     const { count, error } = await supabase
@@ -778,12 +779,8 @@ function Contestants() {
       return;
     }
 
-    const publishedFromSupabase = data || [];
-
-    const allContestants = publishedFromSupabase;
-
     const contestantsWithStats = await Promise.all(
-      allContestants.map(async (contestant) => {
+      (data || []).map(async (contestant) => {
         const realVotes = await getVotesCount(contestant.id);
         const realGifts = await getGiftsCount(contestant.id);
 
@@ -812,6 +809,15 @@ function Contestants() {
     return annaPhoto;
   }
 
+  const filteredContestants = contestantsList.filter((contestant) => {
+    const code = String(contestant.contestant_code || "").toLowerCase();
+    const search = searchCode.toLowerCase().trim();
+
+    if (!search) return true;
+
+    return code.includes(search);
+  });
+
   if (loading) {
     return (
       <div className="page">
@@ -827,7 +833,24 @@ function Contestants() {
     <div className="page">
       <h1>👑 Участницы</h1>
 
-      {contestantsList.map((contestant) => (
+      <div className="card">
+        <input
+          className="form-input"
+          placeholder="🔍 Поиск по коду участницы"
+          value={searchCode}
+          onChange={(e) => setSearchCode(e.target.value)}
+        />
+        <p>Введите код участницы, например: ВУО-123</p>
+      </div>
+
+      {filteredContestants.length === 0 && (
+        <div className="card">
+          <h2>Ничего не найдено</h2>
+          <p>Проверьте код участницы.</p>
+        </div>
+      )}
+
+      {filteredContestants.map((contestant, index) => (
         <div
           key={`${contestant.slug}-${contestant.id}`}
           className="card"
@@ -840,8 +863,13 @@ function Contestants() {
             alt={contestant.name}
           />
 
-          <h2>👑 {contestant.name}</h2>
-          <p>🌍 {contestant.country}</p>
+          <h2>👑 {index + 1} место — {contestant.name}</h2>
+
+          {contestant.contestant_code && (
+            <p>🆔 Код: {contestant.contestant_code}</p>
+          )}
+
+          <p>🌍 {contestant.country}, {contestant.city}</p>
           <p>⭐ {contestant.realVotes} голосов</p>
           <p>🎁 {contestant.realGifts} подарков</p>
         </div>
