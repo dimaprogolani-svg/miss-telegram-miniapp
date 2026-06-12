@@ -411,16 +411,23 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 14px;
 
-  color: var(--gold-2);
+  color: #fff2b0;
+  font-weight: 900;
+  letter-spacing: 1px;
 
   text-shadow:
-    0 0 8px rgba(212, 175, 55, 0.7),
-    0 0 16px rgba(212, 175, 55, 0.45),
-    0 0 18px rgba(176, 92, 255, 0.22);
+    0 0 3px #000,
+    0 0 6px rgba(255, 242, 176, 0.9),
+    0 0 14px rgba(212, 175, 55, 0.8),
+    0 0 22px rgba(176, 92, 255, 0.35);
 
   margin-bottom: 8px;
+}
+
+.main-title img {
+  flex-shrink: 0;
 }
 
 .main-crown {
