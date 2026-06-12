@@ -370,7 +370,9 @@ function Apply() {
 
     const slug =
       name.toLowerCase().trim().replace(/\s+/g, "-") + "-" + Date.now();
+const codeLetters = `${name[0] || "X"}${country[0] || "X"}${city[0] || "X"}`.toUpperCase();
 
+const contestantCode = `${codeLetters}-${Date.now().toString().slice(-3)}`;
 
 
     const { error } = await supabase.from("contestants").insert({
@@ -383,6 +385,7 @@ function Apply() {
       photo,
       status: "На модерации",
       votes: 0,
+	  contestant_code: contestantCode,
       telegram_id: telegramUser.id,
       telegram_username: telegramUser.username || null,
       telegram_first_name: telegramUser.first_name || null,
