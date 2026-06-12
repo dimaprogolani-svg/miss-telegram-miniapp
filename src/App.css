@@ -481,8 +481,8 @@ body {
 }
 
 .main-crown {
-  width: 42px;
-  height: 42px;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
 
   filter:
@@ -491,7 +491,7 @@ body {
 }
 @media (max-width: 480px) {
   .main-crown {
-    width: 34px;
-    height: 34px;
+    width: 56px;
+    height: 56px;
   }
 }
