@@ -1471,13 +1471,13 @@ function App() {
         />
       </Routes>
 
-      <nav className="bottom-nav">
-        <Link to="/">🏠 Главная</Link>
-        <Link to="/contestants">👑 Участницы</Link>
-        <Link to="/rating">🏆 Рейтинг</Link>
-		<Link to="/star-rating">🎁 STAR</Link>
-        <Link to="/profile">👤 Профиль</Link>
-      </nav>
+<nav className="bottom-nav">
+  <Link to="/">🏠 Главная</Link>
+  <Link to="/contestants">👑 Участницы</Link>
+  <Link to="/rating">🏆 Рейтинг</Link>
+  <Link to="/star-rating">🎁 STAR</Link>
+  <Link to="/profile">👤 Профиль</Link>
+</nav>
     </BrowserRouter>
   );
 }
