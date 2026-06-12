@@ -420,30 +420,16 @@ body {
   font-weight: 900;
   letter-spacing: 0.5px;
 
-  color: #f8d46a;
-
-  background: linear-gradient(
-    180deg,
-    #fff7c7 0%,
-    #ffe27a 22%,
-    #f4bd22 45%,
-    #b87905 70%,
-    #fff0a8 100%
-  );
-
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-
-  -webkit-text-stroke: 1px rgba(80, 45, 0, 0.65);
+  color: #fff3b0;
 
   text-shadow:
     0 1px 0 #6b3f00,
     0 2px 0 #3d2300,
-    0 3px 0 #160b00,
-    0 0 8px rgba(255, 220, 92, 0.95),
-    0 0 18px rgba(212, 175, 55, 0.85),
-    0 0 30px rgba(176, 92, 255, 0.35);
+    0 0 3px rgba(255, 255, 255, 1),
+    0 0 8px rgba(255, 230, 120, 1),
+    0 0 16px rgba(255, 215, 64, 1),
+    0 0 32px rgba(255, 196, 0, 0.9),
+    0 0 50px rgba(176, 92, 255, 0.7);
 
   margin: 14px 0 8px;
 }
@@ -459,9 +445,13 @@ body {
   flex-shrink: 0;
 
   filter:
-    drop-shadow(0 0 6px rgba(255, 230, 120, 0.95))
-    drop-shadow(0 0 14px rgba(212, 175, 55, 0.8))
-    drop-shadow(0 0 12px rgba(176, 92, 255, 0.35));
+    brightness(1.45)
+    contrast(1.35)
+    saturate(1.35)
+    drop-shadow(0 0 4px rgba(255, 255, 255, 1))
+    drop-shadow(0 0 10px rgba(255, 230, 120, 1))
+    drop-shadow(0 0 18px rgba(255, 196, 0, 1))
+    drop-shadow(0 0 28px rgba(176, 92, 255, 0.8));
 }
 
 @media (max-width: 480px) {
