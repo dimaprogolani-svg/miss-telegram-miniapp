@@ -1306,8 +1306,8 @@ function Profile({
     const tg = (window as any).Telegram?.WebApp;
 
     if (!tg) {
-      setBalance(balance + 500);
-      setPaymentMessage("Тестовое пополнение: +500 Stars ✅");
+      setBalance(balance + 100);
+      setPaymentMessage("Тестовое пополнение: +100 Stars ✅");
       return;
     }
 
@@ -1342,7 +1342,7 @@ function Profile({
         <p>{balance} Stars</p>
 
         <button className="vote-btn" onClick={buyStars}>
-          💳 Купить 500 Stars
+          💳 Купить 100 Stars
         </button>
 
         {paymentMessage && <p className="success-message">{paymentMessage}</p>}
