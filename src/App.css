@@ -464,3 +464,58 @@ body {
   font-size: 16px;
   padding: 10px 14px;
 }
+@media (max-width: 390px) {
+  .page h1 {
+    font-size: 30px;
+  }
+
+  .home-hero {
+    padding: 12px;
+    min-height: 240px;
+    gap: 8px;
+  }
+
+  .home-hero-text {
+    width: 36%;
+  }
+
+  .home-hero-text h2 {
+    font-size: 20px;
+  }
+
+  .home-hero-text p {
+    font-size: 15px;
+    line-height: 1.2;
+  }
+
+  .home-year {
+    font-size: 38px;
+  }
+
+  .home-girl {
+    width: 58%;
+    height: 220px;
+  }
+
+  .home-main-btn {
+    font-size: 14px;
+    padding: 9px 10px;
+  }
+
+  .home-small-card {
+    padding: 12px;
+    min-height: 95px;
+  }
+
+  .home-small-card h2 {
+    font-size: 18px;
+  }
+
+  .home-small-card p {
+    font-size: 15px;
+  }
+
+  .bottom-nav a {
+    font-size: 12px;
+  }
+}
