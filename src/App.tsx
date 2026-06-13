@@ -317,19 +317,38 @@ function Apply() {
     checkAccess();
   }, []);
 
-  function uploadPhoto(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+  async function uploadPhoto(event: React.ChangeEvent<HTMLInputElement>) {
+  const file = event.target.files?.[0];
 
-    if (!file) return;
+  if (!file) return;
 
-    const reader = new FileReader();
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
-    reader.onload = () => {
-      setPhoto(String(reader.result));
-    };
-
-    reader.readAsDataURL(file);
+  if (!telegramUser?.id) {
+    setMessage("Откройте приложение через Telegram");
+    return;
   }
+
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${telegramUser.id}-${Date.now()}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("contestant-photos")
+    .upload(fileName, file);
+
+  if (uploadError) {
+    console.log(uploadError);
+    setMessage(uploadError.message || "Ошибка загрузки фото");
+    return;
+  }
+
+  const { data } = supabase.storage
+    .from("contestant-photos")
+    .getPublicUrl(fileName);
+
+  setPhoto(data.publicUrl);
+}
 
   async function submitApplication() {
     if (
@@ -416,6 +435,7 @@ function Apply() {
       description,
       photo,
       photo_1: photo,
+	  photo_url: photo,
       status: "На модерации",
       votes: 0,
       contestant_code: contestantCode,
