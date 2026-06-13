@@ -1045,11 +1045,10 @@ function Contestants() {
 	console.time("loadContestants");
     console.log("START loadContestants");
 
-    const { data: contestantsData, error: contestantsError } = await supabase
-      .from("contestants")
-      .select("id, slug, name, country, city, contestant_code, status, created_at")
-      .eq("status", "Опубликована в конкурсе")
-      .order("created_at", { ascending: false });
+   const { data: contestantsData, error: contestantsError } = await supabase
+   .from("contestants")
+   .select("id, slug, name, country, city, contestant_code, status,  created_at")
+   .order("created_at", { ascending: false });
 
     if (contestantsError) {
       console.log(contestantsError);
@@ -1057,8 +1056,9 @@ function Contestants() {
       return;
     }
 
-    const result = (contestantsData || [])
-      .map((contestant: any) => ({
+   const result = (contestantsData || [])
+    .filter((contestant: any) => contestant.status === "Опубликована в конкурсе")
+    .map((contestant: any) => ({
         ...contestant,
        realVotes: 0,
        realGifts: 0,
