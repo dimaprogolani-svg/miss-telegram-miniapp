@@ -13,8 +13,7 @@ import {
 
 import "./App.css";
 import annaPhoto from "./images/anna.jpg";
-import sofiaPhoto from "./images/sofia.jpg";
-import mariaPhoto from "./images/maria.jpg";
+
 
 
 function Home() {
@@ -1041,65 +1040,63 @@ function Contestants() {
   const [loading, setLoading] = useState(true);
   const [searchCode, setSearchCode] = useState("");
 
-  async function getVotesCount(contestantId: number) {
-    const { count, error } = await supabase
-      .from("votes")
-      .select("*", { count: "exact", head: true })
-      .eq("contestant_id", contestantId);
-
-    if (error) {
-      console.log(error);
-      return 0;
-    }
-
-    return count || 0;
-  }
-
-  async function getGiftsCount(contestantId: number) {
-    const { count, error } = await supabase
-      .from("gifts")
-      .select("*", { count: "exact", head: true })
-      .eq("contestant_id", contestantId);
-
-    if (error) {
-      console.log(error);
-      return 0;
-    }
-
-    return count || 0;
-  }
-
   async function loadContestants() {
     setLoading(true);
 
-    const { data, error } = await supabase
+    const { data: contestantsData, error: contestantsError } = await supabase
       .from("contestants")
       .select("*")
       .eq("status", "Опубликована в конкурсе")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.log(error);
+    if (contestantsError) {
+      console.log(contestantsError);
       setLoading(false);
       return;
     }
 
-    const contestantsWithStats = await Promise.all(
-      (data || []).map(async (contestant) => {
-        const realVotes = await getVotesCount(contestant.id);
-        const realGifts = await getGiftsCount(contestant.id);
+    const { data: votesData, error: votesError } = await supabase
+      .from("votes")
+      .select("contestant_id");
 
-        return {
-          ...contestant,
-          realVotes,
-          realGifts,
-        };
-      })
-    );
+    if (votesError) {
+      console.log(votesError);
+      setLoading(false);
+      return;
+    }
 
-    contestantsWithStats.sort((a, b) => b.realVotes - a.realVotes);
+    const { data: giftsData, error: giftsError } = await supabase
+      .from("gifts")
+      .select("contestant_id");
 
-    setContestantsList(contestantsWithStats);
+    if (giftsError) {
+      console.log(giftsError);
+      setLoading(false);
+      return;
+    }
+
+    const votesByContestant: any = {};
+    const giftsByContestant: any = {};
+
+    (votesData || []).forEach((vote: any) => {
+      votesByContestant[vote.contestant_id] =
+        (votesByContestant[vote.contestant_id] || 0) + 1;
+    });
+
+    (giftsData || []).forEach((gift: any) => {
+      giftsByContestant[gift.contestant_id] =
+        (giftsByContestant[gift.contestant_id] || 0) + 1;
+    });
+
+    const result = (contestantsData || [])
+      .map((contestant: any) => ({
+        ...contestant,
+        realVotes: votesByContestant[contestant.id] || 0,
+        realGifts: giftsByContestant[contestant.id] || 0,
+      }))
+      .sort((a: any, b: any) => b.realVotes - a.realVotes);
+
+    setContestantsList(result);
     setLoading(false);
   }
 
@@ -1108,9 +1105,8 @@ function Contestants() {
   }, []);
 
   function getPhoto(contestant: any) {
+    if (contestant.photo_1) return contestant.photo_1;
     if (contestant.photo) return contestant.photo;
-    if (contestant.slug === "sofia") return sofiaPhoto;
-    if (contestant.slug === "maria") return mariaPhoto;
     return annaPhoto;
   }
 
