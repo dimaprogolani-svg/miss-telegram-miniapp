@@ -1372,7 +1372,7 @@ function ContestantProfile({
     setGiftMessage(`🎁 Спасибо! Подарок отправлен: ${giftName}`);
   }
 
-  const photo = contestant.photo || annaPhoto;
+  const photo = contestant.photo_url || contestant.photo_1 || contestant.photo || annaPhoto;
 
   return (
     <div className="page">
