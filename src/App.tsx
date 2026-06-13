@@ -730,6 +730,7 @@ function MyApplications() {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState("user");
+  const [errorMessage, setErrorMessage] = useState("");
 
   function getTelegramUser() {
     return (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
@@ -762,85 +763,49 @@ ${link}`;
     window.open(shareUrl, "_blank");
   }
 
-  async function getVotesCount(contestantId: number) {
-    const { count, error } = await supabase
-      .from("votes")
-      .select("*", { count: "exact", head: true })
-      .eq("contestant_id", contestantId);
-
-    if (error) {
-      console.log(error);
-      return 0;
-    }
-
-    return count || 0;
-  }
-
-  async function getGiftsCount(contestantId: number) {
-    const { count, error } = await supabase
-      .from("gifts")
-      .select("*", { count: "exact", head: true })
-      .eq("contestant_id", contestantId);
-
-    if (error) {
-      console.log(error);
-      return 0;
-    }
-
-    return count || 0;
-  }
-
-  async function getGiftStars(contestantId: number) {
-    const { data, error } = await supabase
-      .from("gifts")
-      .select("price")
-      .eq("contestant_id", contestantId);
-
-    if (error) {
-      console.log(error);
-      return 0;
-    }
-
-    return (data || []).reduce((sum: number, gift: any) => {
-      return sum + (gift.price || 0);
-    }, 0);
-  }
-
   async function loadRole() {
-  const telegramUser = getTelegramUser();
+    const telegramUser = getTelegramUser();
 
-  if (!telegramUser?.id) {
-    setUserRole("user");
-    return "user";
+    if (!telegramUser?.id) {
+      setUserRole("user");
+      return "user";
+    }
+
+    if (telegramUser.id === 678312754) {
+      setUserRole("admin");
+      return "admin";
+    }
+
+    const { data, error } = await supabase
+      .from("moderators")
+      .select("role")
+      .eq("telegram_id", telegramUser.id)
+      .maybeSingle();
+
+    if (error) {
+      console.log(error);
+      setUserRole("user");
+      return "user";
+    }
+
+    const role = data?.role || "user";
+    setUserRole(role);
+    return role;
   }
-
-  if (telegramUser.id === 678312754) {
-    setUserRole("admin");
-    return "admin";
-  }
-
-  const { data, error } = await supabase
-    .from("moderators")
-    .select("role")
-    .eq("telegram_id", telegramUser.id)
-    .maybeSingle();
-
-  if (error) {
-    console.log(error);
-    setUserRole("user");
-    return "user";
-  }
-
-  const role = data?.role || "user";
-  setUserRole(role);
-  return role;
-}
 
   async function loadApplications() {
     setLoading(true);
+    setErrorMessage("");
 
     const telegramUser = getTelegramUser();
     const role = await loadRole();
+
+    if (!telegramUser?.id && role !== "admin") {
+      setApplications([]);
+      setErrorMessage("Откройте раздел через Telegram Mini App");
+      setLoading(false);
+      return;
+    }
 
     let query = supabase
       .from("contestants")
@@ -850,22 +815,10 @@ ${link}`;
     if (role === "admin") {
       // админ видит все заявки
     } else if (role === "moderator") {
-      if (!telegramUser?.id) {
-        setApplications([]);
-        setLoading(false);
-        return;
-      }
-
       query = query.or(
         `status.eq.На модерации,moderated_by.eq.${telegramUser.id}`
       );
     } else {
-      if (!telegramUser?.id) {
-        setApplications([]);
-        setLoading(false);
-        return;
-      }
-
       query = query.eq("telegram_id", telegramUser.id);
     }
 
@@ -873,24 +826,64 @@ ${link}`;
 
     if (error) {
       console.log(error);
+      setErrorMessage(error.message || "Ошибка загрузки заявок");
+      setApplications([]);
       setLoading(false);
       return;
     }
 
-    const applicationsWithStats = await Promise.all(
-      (data || []).map(async (application: any) => {
-        const votes = await getVotesCount(application.id);
-        const gifts = await getGiftsCount(application.id);
-        const giftStars = await getGiftStars(application.id);
+    const applicationIds = (data || []).map((item: any) => item.id);
 
-        return {
-          ...application,
-          realVotes: votes,
-          realGifts: gifts,
-          giftStars,
-        };
-      })
-    );
+    let votesData: any[] = [];
+    let giftsData: any[] = [];
+
+    if (applicationIds.length > 0) {
+      const { data: votes, error: votesError } = await supabase
+        .from("votes")
+        .select("contestant_id")
+        .in("contestant_id", applicationIds);
+
+      if (votesError) {
+        console.log(votesError);
+      } else {
+        votesData = votes || [];
+      }
+
+      const { data: gifts, error: giftsError } = await supabase
+        .from("gifts")
+        .select("contestant_id, price")
+        .in("contestant_id", applicationIds);
+
+      if (giftsError) {
+        console.log(giftsError);
+      } else {
+        giftsData = gifts || [];
+      }
+    }
+
+    const votesByContestant: any = {};
+    const giftsByContestant: any = {};
+    const giftStarsByContestant: any = {};
+
+    votesData.forEach((vote: any) => {
+      votesByContestant[vote.contestant_id] =
+        (votesByContestant[vote.contestant_id] || 0) + 1;
+    });
+
+    giftsData.forEach((gift: any) => {
+      giftsByContestant[gift.contestant_id] =
+        (giftsByContestant[gift.contestant_id] || 0) + 1;
+
+      giftStarsByContestant[gift.contestant_id] =
+        (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
+    });
+
+    const applicationsWithStats = (data || []).map((application: any) => ({
+      ...application,
+      realVotes: votesByContestant[application.id] || 0,
+      realGifts: giftsByContestant[application.id] || 0,
+      giftStars: giftStarsByContestant[application.id] || 0,
+    }));
 
     setApplications(applicationsWithStats);
     setLoading(false);
@@ -927,6 +920,7 @@ ${link}`;
 
     if (error) {
       console.log(error);
+      setErrorMessage(error.message || "Ошибка изменения статуса");
       return;
     }
 
@@ -944,13 +938,29 @@ ${link}`;
     );
   }
 
+  if (errorMessage) {
+    return (
+      <div className="page">
+        <h1>📋 Заявки</h1>
+        <div className="card">
+          <h2>Ошибка</h2>
+          <p>{errorMessage}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (applications.length === 0) {
     return (
       <div className="page">
         <h1>📋 Заявки</h1>
         <div className="card">
           <h2>Заявок пока нет</h2>
-          <p>Новых заявок на модерацию нет.</p>
+          <p>
+            {userRole === "admin" || userRole === "moderator"
+              ? "Новых заявок на модерацию нет."
+              : "У вас пока нет заявок."}
+          </p>
         </div>
       </div>
     );
@@ -962,11 +972,17 @@ ${link}`;
 
       {applications.map((application) => (
         <div className="card" key={application.id}>
-          <img
-            className="profile-photo"
-            src={application.photo_url || application.photo_1 || application.photo}
-            alt={application.name}
-          />
+          {(application.photo_url || application.photo_1 || application.photo) ? (
+            <img
+              className="profile-photo"
+              src={application.photo_url || application.photo_1 || application.photo}
+              alt={application.name}
+            />
+          ) : (
+            <div className="contestant-photo-placeholder">
+              👑
+            </div>
+          )}
 
           <h2>👑 {application.name}</h2>
 
@@ -1012,9 +1028,7 @@ ${link}`;
             8. Обращение к зрителям:{" "}
             {application.message_to_viewers || "не указано"}
           </p>
-          <p>
-            9. Соцсети: {application.social_link || "не указано"}
-          </p>
+          <p>9. Соцсети: {application.social_link || "не указано"}</p>
 
           {application.status === "Опубликована в конкурсе" && (
             <button
