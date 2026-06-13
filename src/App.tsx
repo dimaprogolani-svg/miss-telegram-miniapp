@@ -1045,7 +1045,7 @@ function Contestants() {
 
     const { data: contestantsData, error: contestantsError } = await supabase
       .from("contestants")
-      .select("id, slug, name, country, city, contestant_code, status, created_at")
+      .select("id, slug, name, country, city, contestant_code, status, created_at, photo_url")
       .order("created_at", { ascending: false });
 
     if (contestantsError) {
@@ -1152,9 +1152,17 @@ function Contestants() {
           onClick={() => navigate(`/contestant/${contestant.slug}`)}
           style={{ cursor: "pointer" }}
         >
-          <div className="contestant-photo-placeholder">
-            👑
-          </div>
+{contestant.photo_url ? (
+  <img
+    className="contestant-photo"
+    src={contestant.photo_url}
+    alt={contestant.name}
+  />
+) : (
+  <div className="contestant-photo-placeholder">
+    👑
+  </div>
+)}
 
           <h2>👑 {index + 1} место — {contestant.name}</h2>
 
