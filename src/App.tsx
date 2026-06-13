@@ -1146,16 +1146,28 @@ function Contestants() {
         (giftsByContestant[gift.contestant_id] || 0) + 1;
     });
 
-    const result = (contestantsData || [])
-      .filter((contestant: any) => contestant.status === "Опубликована в конкурсе")
-      .map((contestant: any) => ({
-        ...contestant,
-        realVotes: votesByContestant[contestant.id] || 0,
-        realGifts: giftsByContestant[contestant.id] || 0,
-      }))
-      .sort((a: any, b: any) => b.realVotes - a.realVotes);
+const result = (contestantsData || [])
+  .filter(
+    (contestant: any) =>
+      contestant.status === "Опубликована в конкурсе"
+  )
+  .map((contestant: any) => ({
+    ...contestant,
+    realVotes: votesByContestant[contestant.id] || 0,
+    realGifts: giftsByContestant[contestant.id] || 0,
+  }))
+  .sort((a: any, b: any) => {
+    if (b.realVotes !== a.realVotes) {
+      return b.realVotes - a.realVotes;
+    }
 
-    setContestantsList(result);
+    return (
+      new Date(a.created_at).getTime() -
+      new Date(b.created_at).getTime()
+    );
+  });
+  
+      setContestantsList(result);
     setLoading(false);
   }
 
@@ -1559,7 +1571,16 @@ function Rating() {
       })
     );
 
-    contestantsWithVotes.sort((a, b) => b.realVotes - a.realVotes);
+    contestantsWithVotes.sort((a: any, b: any) => {
+  if (b.realVotes !== a.realVotes) {
+    return b.realVotes - a.realVotes;
+  }
+
+  return (
+    new Date(a.created_at).getTime() -
+    new Date(b.created_at).getTime()
+  );
+});
 
     setRatingList(contestantsWithVotes);
     setLoading(false);
