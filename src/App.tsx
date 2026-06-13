@@ -788,29 +788,34 @@ ${link}`;
   }
 
   async function loadRole() {
-    const telegramUser = getTelegramUser();
+  const telegramUser = getTelegramUser();
 
-    if (!telegramUser?.id) {
-      setUserRole("user");
-      return "user";
-    }
-
-    const { data, error } = await supabase
-      .from("moderators")
-      .select("role")
-      .eq("telegram_id", telegramUser.id)
-      .maybeSingle();
-
-    if (error) {
-      console.log(error);
-      setUserRole("user");
-      return "user";
-    }
-
-    const role = data?.role || "user";
-    setUserRole(role);
-    return role;
+  if (!telegramUser?.id) {
+    setUserRole("user");
+    return "user";
   }
+
+  if (telegramUser.id === 678312754) {
+    setUserRole("admin");
+    return "admin";
+  }
+
+  const { data, error } = await supabase
+    .from("moderators")
+    .select("role")
+    .eq("telegram_id", telegramUser.id)
+    .maybeSingle();
+
+  if (error) {
+    console.log(error);
+    setUserRole("user");
+    return "user";
+  }
+
+  const role = data?.role || "user";
+  setUserRole(role);
+  return role;
+}
 
   async function loadApplications() {
     setLoading(true);
