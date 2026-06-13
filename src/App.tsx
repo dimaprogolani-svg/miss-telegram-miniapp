@@ -717,7 +717,74 @@ function MyApplications() {
   }
 
   function getTelegramName(user: any) {
-    return `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || user?.username || "Moderator";
+    return (
+      `${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
+      user?.username ||
+      "Moderator"
+    );
+  }
+
+  function shareContestant(application: any) {
+    const link = `https://miss-telegram-miniapp.vercel.app/contestant/${application.slug}`;
+
+    const text = `👑 Поддержите меня в международном конкурсе красоты MISS TELEGRAM!
+
+🆔 Мой номер участницы: ${application.contestant_code || "не указан"}
+
+Буду благодарна за ваш голос и поддержку ❤️
+
+⭐ Голосовать и отправлять подарки можно по ссылке:
+${link}`;
+
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
+      link
+    )}&text=${encodeURIComponent(text)}`;
+
+    window.open(shareUrl, "_blank");
+  }
+
+  async function getVotesCount(contestantId: number) {
+    const { count, error } = await supabase
+      .from("votes")
+      .select("*", { count: "exact", head: true })
+      .eq("contestant_id", contestantId);
+
+    if (error) {
+      console.log(error);
+      return 0;
+    }
+
+    return count || 0;
+  }
+
+  async function getGiftsCount(contestantId: number) {
+    const { count, error } = await supabase
+      .from("gifts")
+      .select("*", { count: "exact", head: true })
+      .eq("contestant_id", contestantId);
+
+    if (error) {
+      console.log(error);
+      return 0;
+    }
+
+    return count || 0;
+  }
+
+  async function getGiftStars(contestantId: number) {
+    const { data, error } = await supabase
+      .from("gifts")
+      .select("price")
+      .eq("contestant_id", contestantId);
+
+    if (error) {
+      console.log(error);
+      return 0;
+    }
+
+    return (data || []).reduce((sum: number, gift: any) => {
+      return sum + (gift.price || 0);
+    }, 0);
   }
 
   async function loadRole() {
@@ -786,7 +853,22 @@ function MyApplications() {
       return;
     }
 
-    setApplications(data || []);
+    const applicationsWithStats = await Promise.all(
+      (data || []).map(async (application: any) => {
+        const votes = await getVotesCount(application.id);
+        const gifts = await getGiftsCount(application.id);
+        const giftStars = await getGiftStars(application.id);
+
+        return {
+          ...application,
+          realVotes: votes,
+          realGifts: gifts,
+          giftStars,
+        };
+      })
+    );
+
+    setApplications(applicationsWithStats);
     setLoading(false);
   }
 
@@ -805,23 +887,19 @@ function MyApplications() {
       newStatus === "Одобрена" ? "Опубликована в конкурсе" : newStatus;
 
     const { error } = await supabase
-  .from("contestants")
-  .update({
-    status: finalStatus,
-    moderated_by: telegramUser.id,
-    moderated_by_name: getTelegramName(telegramUser),
+      .from("contestants")
+      .update({
+        status: finalStatus,
+        moderated_by: telegramUser.id,
+        moderated_by_name: getTelegramName(telegramUser),
 
-    approval_notification_sent:
-      finalStatus === "Опубликована в конкурсе"
-        ? false
-        : null,
+        approval_notification_sent:
+          finalStatus === "Опубликована в конкурсе" ? false : null,
 
-    rejection_notification_sent:
-      finalStatus === "Отклонена"
-        ? false
-        : null,
-  })
-  .eq("id", id);
+        rejection_notification_sent:
+          finalStatus === "Отклонена" ? false : null,
+      })
+      .eq("id", id);
 
     if (error) {
       console.log(error);
@@ -862,15 +940,66 @@ function MyApplications() {
         <div className="card" key={application.id}>
           <img
             className="profile-photo"
-            src={application.photo}
+            src={application.photo_1 || application.photo}
             alt={application.name}
           />
 
           <h2>👑 {application.name}</h2>
+
+          <p>🆔 Код: {application.contestant_code || "не указан"}</p>
           <p>🎂 Возраст: {application.age}</p>
-          <p>🌍 {application.country}, {application.city}</p>
-          <p>📝 {application.description}</p>
+          <p>
+            🌍 {application.country}, {application.city}
+          </p>
+          <p>📏 Рост: {application.height || "не указан"}</p>
+          <p>
+            💍 Семейное положение:{" "}
+            {application.marital_status || "не указано"}
+          </p>
+
           <p>🟡 Статус: {application.status}</p>
+
+          <hr />
+
+          <p>⭐ Голосов: {application.realVotes}</p>
+          <p>🎁 Подарков: {application.realGifts}</p>
+          <p>💎 Получено Stars: {application.giftStars}</p>
+          <p>👀 Просмотров карточки: {application.views || 0}</p>
+          <p>🔗 Переходов по ссылке: {application.link_clicks || 0}</p>
+
+          <hr />
+
+          <h3>📝 Анкета участницы</h3>
+
+          <p>1. Кратко о себе: {application.about_short || "не указано"}</p>
+          <p>2. Чем занимается: {application.occupation || "не указано"}</p>
+          <p>3. Хобби: {application.hobbies || "не указано"}</p>
+          <p>
+            4. Почему участвует:{" "}
+            {application.participation_reason || "не указано"}
+          </p>
+          <p>5. Мечта: {application.dream || "не указано"}</p>
+          <p>
+            6. Что для неё красота:{" "}
+            {application.beauty_meaning || "не указано"}
+          </p>
+          <p>7. Главный талант: {application.talent || "не указано"}</p>
+          <p>
+            8. Обращение к зрителям:{" "}
+            {application.message_to_viewers || "не указано"}
+          </p>
+          <p>
+            9. Соцсети: {application.social_link || "не указано"}
+          </p>
+
+          {application.status === "Опубликована в конкурсе" && (
+            <button
+              className="vote-btn"
+              onClick={() => shareContestant(application)}
+            >
+              🔗 Поделиться карточкой
+            </button>
+          )}
 
           {application.moderated_by_name && (
             <p>👮 Обработал: {application.moderated_by_name}</p>
