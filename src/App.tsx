@@ -1045,7 +1045,7 @@ function Contestants() {
 
     const { data: contestantsData, error: contestantsError } = await supabase
       .from("contestants")
-      .select("id, slug, name, country, city, contestant_code, photo, photo_1, status, created_at")
+      .select("id, slug, name, country, city, contestant_code, status, created_at")
       .eq("status", "Опубликована в конкурсе")
       .order("created_at", { ascending: false });
 
@@ -1104,12 +1104,6 @@ function Contestants() {
     loadContestants();
   }, []);
 
-  function getPhoto(contestant: any) {
-    if (contestant.photo_1) return contestant.photo_1;
-    if (contestant.photo) return contestant.photo;
-    return annaPhoto;
-  }
-
   const filteredContestants = contestantsList.filter((contestant) => {
     const code = String(contestant.contestant_code || "").toLowerCase();
     const search = searchCode.toLowerCase().trim();
@@ -1158,11 +1152,9 @@ function Contestants() {
           onClick={() => navigate(`/contestant/${contestant.slug}`)}
           style={{ cursor: "pointer" }}
         >
-          <img
-            className="contestant-photo"
-            src={getPhoto(contestant)}
-            alt={contestant.name}
-          />
+           <div className="contestant-photo-placeholder">
+           👑
+           </div>
 
           <h2>👑 {index + 1} место — {contestant.name}</h2>
 
