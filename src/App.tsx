@@ -807,10 +807,37 @@ ${link}`;
       return;
     }
 
-    let query = supabase
-      .from("contestants")
-      .select("*")
-      .order("created_at", { ascending: false });
+let query = supabase
+  .from("contestants")
+  .select(`
+    id,
+    slug,
+    name,
+    age,
+    country,
+    city,
+    status,
+    contestant_code,
+    photo_url,
+    height,
+    marital_status,
+    about_short,
+    occupation,
+    hobbies,
+    participation_reason,
+    dream,
+    beauty_meaning,
+    talent,
+    message_to_viewers,
+    social_link,
+    views,
+    link_clicks,
+    telegram_id,
+    moderated_by,
+    moderated_by_name,
+    created_at
+  `)
+  .order("created_at", { ascending: false });
 
     if (role === "admin") {
       // админ видит все заявки
@@ -975,7 +1002,7 @@ ${link}`;
           {(application.photo_url || application.photo_1 || application.photo) ? (
             <img
               className="profile-photo"
-              src={application.photo_url || application.photo_1 || application.photo}
+              src={application.photo_url}
               alt={application.name}
             />
           ) : (
