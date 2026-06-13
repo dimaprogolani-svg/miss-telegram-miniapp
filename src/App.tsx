@@ -1042,13 +1042,11 @@ function Contestants() {
 
   async function loadContestants() {
     setLoading(true);
-	console.time("loadContestants");
-    console.log("START loadContestants");
 
-   const { data: contestantsData, error: contestantsError } = await supabase
-   .from("contestants")
-   .select("id, slug, name, country, city, contestant_code, status,  created_at")
-   .order("created_at", { ascending: false });
+    const { data: contestantsData, error: contestantsError } = await supabase
+      .from("contestants")
+      .select("id, slug, name, country, city, contestant_code, status, created_at")
+      .order("created_at", { ascending: false });
 
     if (contestantsError) {
       console.log(contestantsError);
@@ -1056,18 +1054,48 @@ function Contestants() {
       return;
     }
 
-   const result = (contestantsData || [])
-    .filter((contestant: any) => contestant.status === "Опубликована в конкурсе")
-    .map((contestant: any) => ({
+    const { data: votesData, error: votesError } = await supabase
+      .from("votes")
+      .select("contestant_id");
+
+    if (votesError) {
+      console.log(votesError);
+      setLoading(false);
+      return;
+    }
+
+    const { data: giftsData, error: giftsError } = await supabase
+      .from("gifts")
+      .select("contestant_id");
+
+    if (giftsError) {
+      console.log(giftsError);
+      setLoading(false);
+      return;
+    }
+
+    const votesByContestant: any = {};
+    const giftsByContestant: any = {};
+
+    (votesData || []).forEach((vote: any) => {
+      votesByContestant[vote.contestant_id] =
+        (votesByContestant[vote.contestant_id] || 0) + 1;
+    });
+
+    (giftsData || []).forEach((gift: any) => {
+      giftsByContestant[gift.contestant_id] =
+        (giftsByContestant[gift.contestant_id] || 0) + 1;
+    });
+
+    const result = (contestantsData || [])
+      .filter((contestant: any) => contestant.status === "Опубликована в конкурсе")
+      .map((contestant: any) => ({
         ...contestant,
-       realVotes: 0,
-       realGifts: 0,
+        realVotes: votesByContestant[contestant.id] || 0,
+        realGifts: giftsByContestant[contestant.id] || 0,
       }))
       .sort((a: any, b: any) => b.realVotes - a.realVotes);
 
-    console.log("contestantsData", contestantsData);
-    console.timeEnd("loadContestants");
-	
     setContestantsList(result);
     setLoading(false);
   }
@@ -1124,9 +1152,9 @@ function Contestants() {
           onClick={() => navigate(`/contestant/${contestant.slug}`)}
           style={{ cursor: "pointer" }}
         >
-           <div className="contestant-photo-placeholder">
-           👑
-           </div>
+          <div className="contestant-photo-placeholder">
+            👑
+          </div>
 
           <h2>👑 {index + 1} место — {contestant.name}</h2>
 
