@@ -257,13 +257,29 @@ function Apply() {
   const [age, setAge] = useState("");
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
-  const [about, setAbout] = useState("");
+
+  const [height, setHeight] = useState("");
+  const [maritalStatus, setMaritalStatus] = useState("");
+
+  const [aboutShort, setAboutShort] = useState("");
+  const [occupation, setOccupation] = useState("");
+  const [hobbies, setHobbies] = useState("");
+  const [participationReason, setParticipationReason] = useState("");
+  const [dream, setDream] = useState("");
+  const [beautyMeaning, setBeautyMeaning] = useState("");
+  const [talent, setTalent] = useState("");
+  const [messageToViewers, setMessageToViewers] = useState("");
+  const [socialLink, setSocialLink] = useState("");
+
   const [photo, setPhoto] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [existingApplication, setExistingApplication] = useState<any>(null);
   const [applicationsCount, setApplicationsCount] = useState(0);
   const [canSubmitMany, setCanSubmitMany] = useState(false);
+
+  const [rulesAccepted, setRulesAccepted] = useState(false);
+  const [mediaPermission, setMediaPermission] = useState(false);
 
   async function checkAccess() {
     const telegramUser =
@@ -317,8 +333,29 @@ function Apply() {
   }
 
   async function submitApplication() {
-    if (!name || !age || !country || !city || !about || !photo) {
-      setMessage("Заполните все поля и загрузите фото");
+    if (
+      !name ||
+      !age ||
+      !country ||
+      !city ||
+      !height ||
+      !maritalStatus ||
+      !aboutShort ||
+      !occupation ||
+      !hobbies ||
+      !participationReason ||
+      !dream ||
+      !beautyMeaning ||
+      !talent ||
+      !messageToViewers ||
+      !photo
+    ) {
+      setMessage("Заполните все обязательные поля и загрузите фото");
+      return;
+    }
+
+    if (!rulesAccepted || !mediaPermission) {
+      setMessage("Нужно подтвердить согласие с правилами и разрешение на использование фото/видео");
       return;
     }
 
@@ -347,10 +384,29 @@ function Apply() {
 
     const slug =
       name.toLowerCase().trim().replace(/\s+/g, "-") + "-" + Date.now();
-const codeLetters = `${name[0] || "X"}${country[0] || "X"}${city[0] || "X"}`.toUpperCase();
 
-const contestantCode = `${codeLetters}-${Date.now().toString().slice(-3)}`;
+    const codeLetters = `${name[0] || "X"}${country[0] || "X"}${city[0] || "X"}`.toUpperCase();
+    const contestantCode = `${codeLetters}-${Date.now().toString().slice(-3)}`;
 
+    const description = `
+Кратко о себе: ${aboutShort}
+
+Чем занимается: ${occupation}
+
+Хобби: ${hobbies}
+
+Почему участвует: ${participationReason}
+
+Мечта: ${dream}
+
+Что для неё красота: ${beautyMeaning}
+
+Главный талант: ${talent}
+
+Обращение к зрителям: ${messageToViewers}
+
+Соцсети: ${socialLink || "не указано"}
+`;
 
     const { error } = await supabase.from("contestants").insert({
       slug,
@@ -358,11 +414,28 @@ const contestantCode = `${codeLetters}-${Date.now().toString().slice(-3)}`;
       age: Number(age),
       country,
       city,
-      description: about,
+      description,
       photo,
+      photo_1: photo,
       status: "На модерации",
       votes: 0,
-	  contestant_code: contestantCode,
+      contestant_code: contestantCode,
+
+      height,
+      marital_status: maritalStatus,
+      about_short: aboutShort,
+      occupation,
+      hobbies,
+      participation_reason: participationReason,
+      dream,
+      beauty_meaning: beautyMeaning,
+      talent,
+      message_to_viewers: messageToViewers,
+      social_link: socialLink || null,
+
+      rules_accepted: rulesAccepted,
+      media_permission: mediaPermission,
+
       telegram_id: telegramUser.id,
       telegram_username: telegramUser.username || null,
       telegram_first_name: telegramUser.first_name || null,
@@ -381,8 +454,20 @@ const contestantCode = `${codeLetters}-${Date.now().toString().slice(-3)}`;
     setAge("");
     setCountry("");
     setCity("");
-    setAbout("");
+    setHeight("");
+    setMaritalStatus("");
+    setAboutShort("");
+    setOccupation("");
+    setHobbies("");
+    setParticipationReason("");
+    setDream("");
+    setBeautyMeaning("");
+    setTalent("");
+    setMessageToViewers("");
+    setSocialLink("");
     setPhoto("");
+    setRulesAccepted(false);
+    setMediaPermission(false);
 
     await checkAccess();
   }
@@ -416,11 +501,13 @@ const contestantCode = `${codeLetters}-${Date.now().toString().slice(-3)}`;
 
           <h2>У вас уже есть активная заявка</h2>
           <p>👑 {existingApplication.name}</p>
+          <p>🆔 Код: {existingApplication.contestant_code}</p>
           <p>🎂 Возраст: {existingApplication.age}</p>
           <p>
             🌍 {existingApplication.country}, {existingApplication.city}
           </p>
-          <p>📝 {existingApplication.description}</p>
+          <p>📏 Рост: {existingApplication.height || "не указан"}</p>
+          <p>💍 Семейное положение: {existingApplication.marital_status || "не указано"}</p>
           <p>🟡 Статус: {existingApplication.status}</p>
         </div>
       </div>
@@ -453,6 +540,8 @@ const contestantCode = `${codeLetters}-${Date.now().toString().slice(-3)}`;
       )}
 
       <div className="card">
+        <h2>Основные данные</h2>
+
         <input
           className="form-input"
           placeholder="Имя"
@@ -481,12 +570,91 @@ const contestantCode = `${codeLetters}-${Date.now().toString().slice(-3)}`;
           onChange={(e) => setCity(e.target.value)}
         />
 
+        <input
+          className="form-input"
+          placeholder="Рост"
+          value={height}
+          onChange={(e) => setHeight(e.target.value)}
+        />
+
+        <input
+          className="form-input"
+          placeholder="Семейное положение"
+          value={maritalStatus}
+          onChange={(e) => setMaritalStatus(e.target.value)}
+        />
+      </div>
+
+      <div className="card">
+        <h2>Анкета участницы</h2>
+
         <textarea
           className="form-input"
-          placeholder="О себе"
-          value={about}
-          onChange={(e) => setAbout(e.target.value)}
+          placeholder="1. Кратко о себе"
+          value={aboutShort}
+          onChange={(e) => setAboutShort(e.target.value)}
         />
+
+        <textarea
+          className="form-input"
+          placeholder="2. Чем вы занимаетесь?"
+          value={occupation}
+          onChange={(e) => setOccupation(e.target.value)}
+        />
+
+        <textarea
+          className="form-input"
+          placeholder="3. Ваши хобби?"
+          value={hobbies}
+          onChange={(e) => setHobbies(e.target.value)}
+        />
+
+        <textarea
+          className="form-input"
+          placeholder="4. Почему вы участвуете в MISS TELEGRAM?"
+          value={participationReason}
+          onChange={(e) => setParticipationReason(e.target.value)}
+        />
+
+        <textarea
+          className="form-input"
+          placeholder="5. Ваша мечта?"
+          value={dream}
+          onChange={(e) => setDream(e.target.value)}
+        />
+
+        <textarea
+          className="form-input"
+          placeholder="6. Что для вас красота?"
+          value={beautyMeaning}
+          onChange={(e) => setBeautyMeaning(e.target.value)}
+        />
+
+        <textarea
+          className="form-input"
+          placeholder="7. Какой ваш главный талант?"
+          value={talent}
+          onChange={(e) => setTalent(e.target.value)}
+        />
+
+        <textarea
+          className="form-input"
+          placeholder="8. Что вы хотите сказать зрителям?"
+          value={messageToViewers}
+          onChange={(e) => setMessageToViewers(e.target.value)}
+        />
+
+        <input
+          className="form-input"
+          placeholder="9. Instagram / Telegram / TikTok (необязательно)"
+          value={socialLink}
+          onChange={(e) => setSocialLink(e.target.value)}
+        />
+      </div>
+
+      <div className="card">
+        <h2>Фото</h2>
+        <p>📸 Фото №1 — обязательно</p>
 
         <input
           className="form-input"
@@ -498,7 +666,33 @@ const contestantCode = `${codeLetters}-${Date.now().toString().slice(-3)}`;
         {photo && (
           <img className="profile-photo" src={photo} alt="Фото заявки" />
         )}
+      </div>
 
+      <div className="card">
+        <h2>Согласие</h2>
+
+        <label>
+          <input
+            type="checkbox"
+            checked={rulesAccepted}
+            onChange={(e) => setRulesAccepted(e.target.checked)}
+          />
+          {" "}Я согласна с правилами конкурса
+        </label>
+
+        <br />
+
+        <label>
+          <input
+            type="checkbox"
+            checked={mediaPermission}
+            onChange={(e) => setMediaPermission(e.target.checked)}
+          />
+          {" "}Разрешаю использовать мои фото и видео в рамках MISS TELEGRAM
+        </label>
+      </div>
+
+      <div className="card">
         <button className="vote-btn" onClick={submitApplication}>
           🚀 Отправить заявку
         </button>
