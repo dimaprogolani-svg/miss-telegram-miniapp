@@ -944,7 +944,7 @@ ${link}`;
         <div className="card" key={application.id}>
           <img
             className="profile-photo"
-            src={application.photo_1 || application.photo}
+            src={application.photo_url || application.photo_1 || application.photo}
             alt={application.name}
           />
 
