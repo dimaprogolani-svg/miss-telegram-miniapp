@@ -1045,7 +1045,7 @@ function Contestants() {
 
     const { data: contestantsData, error: contestantsError } = await supabase
       .from("contestants")
-      .select("*")
+      .select("id, slug, name, country, city, contestant_code, photo, photo_1, status, created_at")
       .eq("status", "Опубликована в конкурсе")
       .order("created_at", { ascending: false });
 
