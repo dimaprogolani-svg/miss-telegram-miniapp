@@ -1055,44 +1055,11 @@ function Contestants() {
       return;
     }
 
-    const { data: votesData, error: votesError } = await supabase
-      .from("votes")
-      .select("contestant_id");
-
-    if (votesError) {
-      console.log(votesError);
-      setLoading(false);
-      return;
-    }
-
-    const { data: giftsData, error: giftsError } = await supabase
-      .from("gifts")
-      .select("contestant_id");
-
-    if (giftsError) {
-      console.log(giftsError);
-      setLoading(false);
-      return;
-    }
-
-    const votesByContestant: any = {};
-    const giftsByContestant: any = {};
-
-    (votesData || []).forEach((vote: any) => {
-      votesByContestant[vote.contestant_id] =
-        (votesByContestant[vote.contestant_id] || 0) + 1;
-    });
-
-    (giftsData || []).forEach((gift: any) => {
-      giftsByContestant[gift.contestant_id] =
-        (giftsByContestant[gift.contestant_id] || 0) + 1;
-    });
-
     const result = (contestantsData || [])
       .map((contestant: any) => ({
         ...contestant,
-        realVotes: votesByContestant[contestant.id] || 0,
-        realGifts: giftsByContestant[contestant.id] || 0,
+       realVotes: 0,
+       realGifts: 0,
       }))
       .sort((a: any, b: any) => b.realVotes - a.realVotes);
 
