@@ -1042,6 +1042,8 @@ function Contestants() {
 
   async function loadContestants() {
     setLoading(true);
+	console.time("loadContestants");
+    console.log("START loadContestants");
 
     const { data: contestantsData, error: contestantsError } = await supabase
       .from("contestants")
@@ -1063,6 +1065,9 @@ function Contestants() {
       }))
       .sort((a: any, b: any) => b.realVotes - a.realVotes);
 
+    console.log("contestantsData", contestantsData);
+    console.timeEnd("loadContestants");
+	
     setContestantsList(result);
     setLoading(false);
   }
