@@ -793,10 +793,10 @@ function MyApplications() {
     );
   }
 
-  function shareContestant(application: any) {
-    const link = `https://miss-telegram-miniapp.vercel.app/contestant/${application.slug}`;
+function shareContestant(application: any) {
+  const link = `https://miss-telegram-miniapp.vercel.app/contestant/${application.slug}`;
 
-    const text = `👑 Поддержите меня в международном конкурсе красоты MISS TELEGRAM!
+  const text = `👑 Поддержите меня в международном конкурсе красоты MISS TELEGRAM!
 
 🆔 Мой номер участницы: ${application.contestant_code || "не указан"}
 
@@ -805,12 +805,19 @@ function MyApplications() {
 ⭐ Голосовать и отправлять подарки можно по ссылке:
 ${link}`;
 
-    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
-      link
-    )}&text=${encodeURIComponent(text)}`;
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
+    link
+  )}&text=${encodeURIComponent(text)}`;
 
-    window.open(shareUrl, "_blank");
-  }
+  supabase
+    .from("contestants")
+    .update({
+      link_clicks: (application.link_clicks || 0) + 1,
+    })
+    .eq("id", application.id);
+
+  window.open(shareUrl, "_blank");
+}
 
   async function loadRole() {
     const telegramUser = getTelegramUser();
@@ -1421,16 +1428,23 @@ function ContestantProfile({
     setGifts(count || 0);
   }
 
-  useEffect(() => {
-    loadContestant();
-  }, [slug]);
+useEffect(() => {
+  loadContestant();
+}, [slug]);
 
-  useEffect(() => {
-    if (contestant?.id) {
-      loadVotes(contestant.id);
-      loadGifts(contestant.id);
-    }
-  }, [contestant?.id]);
+useEffect(() => {
+  if (contestant?.id) {
+    loadVotes(contestant.id);
+    loadGifts(contestant.id);
+
+    supabase
+      .from("contestants")
+      .update({
+        views: (contestant.views || 0) + 1,
+      })
+      .eq("id", contestant.id);
+  }
+}, [contestant?.id]);
 
   if (loading) {
     return (
