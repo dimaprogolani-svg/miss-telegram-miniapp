@@ -27,6 +27,7 @@ function Home() {
 useEffect(() => {
   const startParam =
     (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
+	console.log("START PARAM:", startParam);
 
   if (!startParam || !startParam.startsWith("contestant_")) {
     return;
