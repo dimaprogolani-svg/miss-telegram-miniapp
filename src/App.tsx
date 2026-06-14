@@ -23,40 +23,57 @@ function Home() {
     (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
   const isAdmin = telegramUser?.id === 678312754;
+  console.log("HOME INIT DATA:", (window as any).Telegram?.WebApp?.initDataUnsafe);
+console.log("HOME START PARAM:", (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param);
+console.log("HOME URL:", window.location.href);
+console.log("HOME SEARCH:", window.location.search);
+console.log("HOME HASH:", window.location.hash);
+  
+useEffect(() => {
+  const startParam =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
+	
+	console.log("START PARAM:", startParam);
+	
+	console.log(
+  "INIT DATA:",
+  (window as any).Telegram?.WebApp?.initDataUnsafe
+);
 
-  useEffect(() => {
-    const startParam =
-      (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
+  if (!startParam || !startParam.startsWith("contestant_")) {
+    return;
+  }
 
-    if (!startParam || !startParam.startsWith("contestant_")) {
-      return;
-    }
 
-    const contestantId = startParam.replace("contestant_", "");
+  const contestantId = startParam.replace("contestant_", "");
+  console.log("CONTESTANT ID:", contestantId);
 
-    supabase.rpc("increment_contestant_link_clicks", {
-      p_id: Number(contestantId),
-    });
+console.log("CALL RPC WITH ID:", Number(contestantId));
 
-    const alreadyHandled = sessionStorage.getItem(`startapp_${startParam}`);
+supabase.rpc("increment_contestant_link_clicks", {
+  p_id: Number(contestantId),
+}).then((res) => {
+  console.log("RPC RESULT:", res);
+});
 
-    if (alreadyHandled) {
-      return;
-    }
+  const alreadyHandled = sessionStorage.getItem(`startapp_${startParam}`);
 
-    sessionStorage.setItem(`startapp_${startParam}`, "1");
+  if (alreadyHandled) {
+    return;
+  }
 
-    navigate(`/contestant/${contestantId}`);
-  }, [navigate]);
+  sessionStorage.setItem(`startapp_${startParam}`, "1");
+
+  navigate(`/contestant/${contestantId}`);
+}, [navigate]);
 
   return (
     <div className="page home-page">
       <h1 className="premium-title">
-        <span className="premium-crown"></span>
-        <span className="premium-title-text">MISS TELEGRAM</span>
-        <span className="premium-crown"></span>
-      </h1>
-
+	  <span className="premium-crown"></span>
+	  <span className="premium-title-text">MISS TELEGRAM</span>
+	   <span className="premium-crown"></span>
+	  </h1>
       <p>Международный конкурс красоты</p>
 
       <div className="home-hero">
@@ -65,10 +82,7 @@ function Home() {
           <div className="home-year">2026</div>
           <p>Регистрируйся, участвуй и побеждай!</p>
 
-          <button
-            className="vote-btn home-main-btn"
-            onClick={() => navigate("/apply")}
-          >
+          <button className="vote-btn home-main-btn" onClick={() => navigate("/apply")}>
             Отправить заявку
           </button>
         </div>
@@ -77,18 +91,12 @@ function Home() {
       </div>
 
       <div className="home-grid">
-        <div
-          className="home-small-card"
-          onClick={() => navigate("/my-applications")}
-        >
+        <div className="home-small-card" onClick={() => navigate("/my-applications")}>
           <h2>📝 Мои заявки</h2>
           <p>Посмотреть свои заявки ›</p>
         </div>
 
-        <div
-          className="home-small-card"
-          onClick={() => navigate("/contestants")}
-        >
+        <div className="home-small-card" onClick={() => navigate("/contestants")}>
           <h2>👥 Участницы</h2>
           <p>Смотри и поддерживай ›</p>
         </div>
@@ -98,7 +106,7 @@ function Home() {
         <div className="home-icon">🤝</div>
         <div>
           <h2>Амбассадор</h2>
-          <p>Приглашай участниц и зрителей ›</p>
+          <p>Приглашай участниц и зрителей  ›</p>
         </div>
       </div>
 
