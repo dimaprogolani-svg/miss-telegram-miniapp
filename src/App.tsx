@@ -1462,6 +1462,15 @@ useEffect(() => {
     supabase.rpc("increment_contestant_views", {
       p_id: contestant.id,
     });
+	
+	const startParam =
+  (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
+
+if (startParam && startParam.startsWith("contestant_")) {
+  supabase.rpc("increment_contestant_link_clicks", {
+    p_id: contestant.id,
+  });
+}
 
 
     loadVotes(contestant.id);
