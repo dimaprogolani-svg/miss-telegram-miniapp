@@ -271,6 +271,10 @@ function Apply() {
   const [socialLink, setSocialLink] = useState("");
 
   const [photo, setPhoto] = useState("");
+  const [photo2, setPhoto2] = useState("");
+  const [photo3, setPhoto3] = useState("");
+  const [photo4, setPhoto4] = useState("");
+  const [photo5, setPhoto5] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [existingApplication, setExistingApplication] = useState<any>(null);
@@ -317,7 +321,10 @@ function Apply() {
     checkAccess();
   }, []);
 
-  async function uploadPhoto(event: React.ChangeEvent<HTMLInputElement>) {
+async function uploadPhoto(
+  event: React.ChangeEvent<HTMLInputElement>,
+  setPhotoFunction: React.Dispatch<React.SetStateAction<string>>
+) {
   const file = event.target.files?.[0];
 
   if (!file) return;
@@ -347,7 +354,7 @@ function Apply() {
     .from("contestant-photos")
     .getPublicUrl(fileName);
 
-  setPhoto(data.publicUrl);
+  setPhotoFunction(data.publicUrl);
 }
 
   async function submitApplication() {
@@ -433,9 +440,15 @@ function Apply() {
       country,
       city,
       description,
+
       photo,
       photo_1: photo,
-	  photo_url: photo,
+      photo_2: photo2 || null,
+      photo_3: photo3 || null,
+      photo_4: photo4 || null,
+      photo_5: photo5 || null,
+      photo_url: photo,
+
       status: "На модерации",
       votes: 0,
       contestant_code: contestantCode,
@@ -485,6 +498,10 @@ function Apply() {
     setMessageToViewers("");
     setSocialLink("");
     setPhoto("");
+	setPhoto2("");
+    setPhoto3("");
+    setPhoto4("");
+    setPhoto5("");
     setRulesAccepted(false);
     setMediaPermission(false);
 
@@ -671,21 +688,53 @@ function Apply() {
         />
       </div>
 
-      <div className="card">
-        <h2>Фото</h2>
-        <p>📸 Фото №1 — обязательно</p>
+<div className="card">
+  <h2>Фото</h2>
 
-        <input
-          className="form-input"
-          type="file"
-          accept="image/*"
-          onChange={uploadPhoto}
-        />
+  <p>📸 Фото №1 — обязательно</p>
+  <input
+    className="form-input"
+    type="file"
+    accept="image/*"
+    onChange={(e) => uploadPhoto(e, setPhoto)}
+  />
 
-        {photo && (
-          <img className="profile-photo" src={photo} alt="Фото заявки" />
-        )}
-      </div>
+  <p>📸 Фото №2 — по желанию</p>
+  <input
+    className="form-input"
+    type="file"
+    accept="image/*"
+    onChange={(e) => uploadPhoto(e, setPhoto2)}
+  />
+
+  <p>📸 Фото №3 — по желанию</p>
+  <input
+    className="form-input"
+    type="file"
+    accept="image/*"
+    onChange={(e) => uploadPhoto(e, setPhoto3)}
+  />
+
+  <p>📸 Фото №4 — по желанию</p>
+  <input
+    className="form-input"
+    type="file"
+    accept="image/*"
+    onChange={(e) => uploadPhoto(e, setPhoto4)}
+  />
+
+  <p>📸 Фото №5 — по желанию</p>
+  <input
+    className="form-input"
+    type="file"
+    accept="image/*"
+    onChange={(e) => uploadPhoto(e, setPhoto5)}
+  />
+
+  {photo && (
+    <img className="profile-photo" src={photo} alt="Фото заявки" />
+  )}
+</div>
 
       <div className="card">
         <h2>Согласие</h2>
