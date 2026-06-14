@@ -1434,15 +1434,18 @@ useEffect(() => {
 
 useEffect(() => {
   if (contestant?.id) {
-  
-  console.log("VIEW UPDATE", contestant.id);
-  
+
+    console.log("VIEW UPDATE", contestant.id);
+
+    supabase.rpc("increment_contestant_views", {
+      p_id: contestant.id,
+    }).then((res) => {
+      console.log("VIEW RPC RESULT", res);
+    });
+
     loadVotes(contestant.id);
     loadGifts(contestant.id);
 
-supabase.rpc("increment_contestant_views", {
-  p_id: contestant.id,
-});
   }
 }, [contestant?.id]);
 
