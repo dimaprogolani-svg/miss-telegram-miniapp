@@ -33,6 +33,7 @@ useEffect(() => {
   const startParam =
     (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
 	alert("START PARAM = " + startParam);
+	console.log("START PARAM:", startParam);
 	
 	console.log(
   "INIT DATA:",
@@ -52,10 +53,15 @@ useEffect(() => {
   sessionStorage.setItem(`startapp_${startParam}`, "1");
 
   const contestantId = startParam.replace("contestant_", "");
+  console.log("CONTESTANT ID:", contestantId);
 
-  supabase.rpc("increment_contestant_link_clicks", {
-    p_id: Number(contestantId),
-  });
+console.log("CALL RPC WITH ID:", Number(contestantId));
+
+supabase.rpc("increment_contestant_link_clicks", {
+  p_id: Number(contestantId),
+}).then((res) => {
+  console.log("RPC RESULT:", res);
+});
 
   navigate(`/contestant/${contestantId}`);
 }, [navigate]);
