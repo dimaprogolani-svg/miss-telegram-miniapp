@@ -1434,6 +1434,9 @@ useEffect(() => {
 
 useEffect(() => {
   if (contestant?.id) {
+  
+  console.log("VIEW UPDATE", contestant.id);
+  
     loadVotes(contestant.id);
     loadGifts(contestant.id);
 
