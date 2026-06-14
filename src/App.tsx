@@ -794,7 +794,7 @@ function MyApplications() {
   }
 
 function shareContestant(application: any) {
-  const link = `https://miss-telegram-miniapp.vercel.app/contestant/${application.slug}`;
+ const link = `https://t.me/MissTelegramOfficialBot/app?startapp=contestant_${application.slug}`;
 
   const text = `👑 Поддержите меня в международном конкурсе красоты MISS TELEGRAM!
 
