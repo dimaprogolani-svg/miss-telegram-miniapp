@@ -816,6 +816,9 @@ ${link}`;
     })
     .eq("id", application.id);
 
+supabase.rpc("increment_contestant_link_clicks", {
+  p_id: application.id,
+});
   window.open(shareUrl, "_blank");
 }
 
