@@ -23,6 +23,15 @@ function Home() {
     (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
   const isAdmin = telegramUser?.id === 678312754;
+  useEffect(() => {
+  const startParam =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
+
+  if (startParam && startParam.startsWith("contestant_")) {
+    const contestantId = startParam.replace("contestant_", "");
+    navigate(`/contestant/${contestantId}`);
+  }
+}, [navigate]);
 
   return (
     <div className="page home-page">
@@ -794,7 +803,8 @@ function MyApplications() {
   }
 
 function shareContestant(application: any) {
- const link = `https://t.me/MissTelegramOfficialBot/app?startapp=contestant_${application.slug}`;
+ const link =
+  `https://t.me/MissTelegramOfficialBot?startapp=contestant_${application.id}`;
 
   const text = `👑 Поддержите меня в международном конкурсе красоты MISS TELEGRAM!
 
@@ -1383,11 +1393,17 @@ function ContestantProfile({
       return;
     }
 
-    const { data, error } = await supabase
-      .from("contestants")
-      .select("*")
-      .eq("slug", slug)
-      .maybeSingle();
+let query = supabase
+  .from("contestants")
+  .select("*");
+
+if (/^\d+$/.test(String(slug))) {
+  query = query.eq("id", Number(slug));
+} else {
+  query = query.eq("slug", slug);
+}
+
+const { data, error } = await query.maybeSingle();
 
     if (error) {
       console.log(error);
