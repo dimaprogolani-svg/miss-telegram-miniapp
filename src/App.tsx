@@ -28,15 +28,25 @@ useEffect(() => {
   const startParam =
     (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
 
-  if (startParam && startParam.startsWith("contestant_")) {
-    const contestantId = startParam.replace("contestant_", "");
-
-    supabase.rpc("increment_contestant_link_clicks", {
-      p_id: Number(contestantId),
-    });
-
-    navigate(`/contestant/${contestantId}`);
+  if (!startParam || !startParam.startsWith("contestant_")) {
+    return;
   }
+
+  const alreadyHandled = sessionStorage.getItem(`startapp_${startParam}`);
+
+  if (alreadyHandled) {
+    return;
+  }
+
+  sessionStorage.setItem(`startapp_${startParam}`, "1");
+
+  const contestantId = startParam.replace("contestant_", "");
+
+  supabase.rpc("increment_contestant_link_clicks", {
+    p_id: Number(contestantId),
+  });
+
+  navigate(`/contestant/${contestantId}`);
 }, [navigate]);
 
   return (
@@ -1463,15 +1473,6 @@ useEffect(() => {
       p_id: contestant.id,
     });
 	
-	const startParam =
-  (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
-
-if (startParam && startParam.startsWith("contestant_")) {
-  supabase.rpc("increment_contestant_link_clicks", {
-    p_id: contestant.id,
-  });
-}
-
 
     loadVotes(contestant.id);
     loadGifts(contestant.id);
