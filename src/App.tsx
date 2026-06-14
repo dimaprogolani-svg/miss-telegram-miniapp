@@ -32,6 +32,7 @@ console.log("HOME HASH:", window.location.hash);
 useEffect(() => {
   const startParam =
     (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
+	alert("START PARAM = " + startParam);
 	
 	console.log(
   "INIT DATA:",
