@@ -23,6 +23,11 @@ function Home() {
     (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
   const isAdmin = telegramUser?.id === 678312754;
+  console.log("HOME INIT DATA:", (window as any).Telegram?.WebApp?.initDataUnsafe);
+console.log("HOME START PARAM:", (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param);
+console.log("HOME URL:", window.location.href);
+console.log("HOME SEARCH:", window.location.search);
+console.log("HOME HASH:", window.location.hash);
   
 useEffect(() => {
   const startParam =
