@@ -23,57 +23,39 @@ function Home() {
     (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
   const isAdmin = telegramUser?.id === 678312754;
-  console.log("HOME INIT DATA:", (window as any).Telegram?.WebApp?.initDataUnsafe);
-console.log("HOME START PARAM:", (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param);
-console.log("HOME URL:", window.location.href);
-console.log("HOME SEARCH:", window.location.search);
-console.log("HOME HASH:", window.location.hash);
-  
-useEffect(() => {
-  const startParam =
-    (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
-	
-	console.log("START PARAM:", startParam);
-	
-	console.log(
-  "INIT DATA:",
-  (window as any).Telegram?.WebApp?.initDataUnsafe
-);
 
-  if (!startParam || !startParam.startsWith("contestant_")) {
-    return;
-  }
+  useEffect(() => {
+    const startParam =
+      (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
 
+    if (!startParam || !startParam.startsWith("contestant_")) {
+      return;
+    }
 
-  const contestantId = startParam.replace("contestant_", "");
-  console.log("CONTESTANT ID:", contestantId);
+    const contestantId = startParam.replace("contestant_", "");
 
-console.log("CALL RPC WITH ID:", Number(contestantId));
+    supabase.rpc("increment_contestant_link_clicks", {
+      p_id: Number(contestantId),
+    });
 
-supabase.rpc("increment_contestant_link_clicks", {
-  p_id: Number(contestantId),
-}).then((res) => {
-  console.log("RPC RESULT:", res);
-});
+    const alreadyHandled = sessionStorage.getItem(`startapp_${startParam}`);
 
-  const alreadyHandled = sessionStorage.getItem(`startapp_${startParam}`);
+    if (alreadyHandled) {
+      return;
+    }
 
-  if (alreadyHandled) {
-    return;
-  }
+    sessionStorage.setItem(`startapp_${startParam}`, "1");
 
-  sessionStorage.setItem(`startapp_${startParam}`, "1");
-
-  navigate(`/contestant/${contestantId}`);
-}, [navigate]);
+    navigate(`/contestant/${contestantId}`);
+  }, [navigate]);
 
   return (
     <div className="page home-page">
       <h1 className="premium-title">
-	  <span className="premium-crown"></span>
-	  <span className="premium-title-text">MISS TELEGRAM</span>
-	   <span className="premium-crown"></span>
-	  </h1>
+        <span className="premium-crown"></span>
+        <span className="premium-title-text">MISS TELEGRAM</span>
+        <span className="premium-crown"></span>
+      </h1>
       <p>Международный конкурс красоты</p>
 
       <div className="home-hero">
@@ -163,7 +145,6 @@ supabase.rpc("increment_contestant_link_clicks", {
     </div>
   );
 }
-
 function Admin() {
   const [telegramId, setTelegramId] = useState("");
   const [name, setName] = useState("");
