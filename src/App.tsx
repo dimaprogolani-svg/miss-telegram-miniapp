@@ -908,61 +908,96 @@ ${link}`;
       return;
     }
 
-    const applicationIds = (data || []).map((item: any) => item.id);
+const { data: allContestantsData } = await supabase
+  .from("contestants")
+  .select("id, status, created_at")
+  .eq("status", "Опубликована в конкурсе");
 
-    let votesData: any[] = [];
-    let giftsData: any[] = [];
+const { data: allVotesData } = await supabase
+  .from("votes")
+  .select("contestant_id");
 
-    if (applicationIds.length > 0) {
-      const { data: votes, error: votesError } = await supabase
-        .from("votes")
-        .select("contestant_id")
-        .in("contestant_id", applicationIds);
+const { data: allGiftsData } = await supabase
+  .from("gifts")
+  .select("contestant_id, price");
 
-      if (votesError) {
-        console.log(votesError);
-      } else {
-        votesData = votes || [];
-      }
+const votesByContestant: any = {};
+const giftsByContestant: any = {};
+const giftStarsByContestant: any = {};
 
-      const { data: gifts, error: giftsError } = await supabase
-        .from("gifts")
-        .select("contestant_id, price")
-        .in("contestant_id", applicationIds);
+(allVotesData || []).forEach((vote: any) => {
+  votesByContestant[vote.contestant_id] =
+    (votesByContestant[vote.contestant_id] || 0) + 1;
+});
 
-      if (giftsError) {
-        console.log(giftsError);
-      } else {
-        giftsData = gifts || [];
-      }
+(allGiftsData || []).forEach((gift: any) => {
+  giftsByContestant[gift.contestant_id] =
+    (giftsByContestant[gift.contestant_id] || 0) + 1;
+
+  giftStarsByContestant[gift.contestant_id] =
+    (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
+});
+
+const voteRanking = (allContestantsData || [])
+  .map((contestant: any) => ({
+    ...contestant,
+    realVotes: votesByContestant[contestant.id] || 0,
+  }))
+  .sort((a: any, b: any) => {
+    if (b.realVotes !== a.realVotes) {
+      return b.realVotes - a.realVotes;
     }
 
-    const votesByContestant: any = {};
-    const giftsByContestant: any = {};
-    const giftStarsByContestant: any = {};
+    return (
+      new Date(a.created_at).getTime() -
+      new Date(b.created_at).getTime()
+    );
+  });
 
-    votesData.forEach((vote: any) => {
-      votesByContestant[vote.contestant_id] =
-        (votesByContestant[vote.contestant_id] || 0) + 1;
-    });
+const giftRanking = (allContestantsData || [])
+  .map((contestant: any) => ({
+    ...contestant,
+    giftStars: giftStarsByContestant[contestant.id] || 0,
+  }))
+  .sort((a: any, b: any) => {
+    if (b.giftStars !== a.giftStars) {
+      return b.giftStars - a.giftStars;
+    }
 
-    giftsData.forEach((gift: any) => {
-      giftsByContestant[gift.contestant_id] =
-        (giftsByContestant[gift.contestant_id] || 0) + 1;
+    return (
+      new Date(a.created_at).getTime() -
+      new Date(b.created_at).getTime()
+    );
+  });
 
-      giftStarsByContestant[gift.contestant_id] =
-        (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
-    });
+const votePlaceByContestant: any = {};
+const giftPlaceByContestant: any = {};
 
-    const applicationsWithStats = (data || []).map((application: any) => ({
-      ...application,
-      realVotes: votesByContestant[application.id] || 0,
-      realGifts: giftsByContestant[application.id] || 0,
-      giftStars: giftStarsByContestant[application.id] || 0,
-    }));
+voteRanking.forEach((contestant: any, index: number) => {
+  votePlaceByContestant[contestant.id] = index + 1;
+});
 
-    setApplications(applicationsWithStats);
-    setLoading(false);
+giftRanking.forEach((contestant: any, index: number) => {
+  giftPlaceByContestant[contestant.id] = index + 1;
+});
+
+const applicationsWithStats = (data || []).map((application: any) => ({
+  ...application,
+  realVotes: votesByContestant[application.id] || 0,
+  realGifts: giftsByContestant[application.id] || 0,
+  giftStars: giftStarsByContestant[application.id] || 0,
+  votePlace:
+    application.status === "Опубликована в конкурсе"
+      ? votePlaceByContestant[application.id] || null
+      : null,
+  giftPlace:
+    application.status === "Опубликована в конкурсе"
+      ? giftPlaceByContestant[application.id] || null
+      : null,
+}));
+
+setApplications(applicationsWithStats);
+setLoading(false);
   }
 
   useEffect(() => {
@@ -1078,6 +1113,15 @@ ${link}`;
           <p>⭐ Голосов: {application.realVotes}</p>
           <p>🎁 Подарков: {application.realGifts}</p>
           <p>💎 Получено Stars: {application.giftStars}</p>
+		  <p>
+          🏆 Место по голосам:{" "}
+          {application.votePlace ? application.votePlace : "после публикации"}
+          </p>
+
+          <p>
+          🏆 Место по подаркам:{" "}
+          {application.giftPlace ? application.giftPlace : "после публикации"}
+          </p>
           <p>👀 Просмотров карточки: {application.views || 0}</p>
           <p>🔗 Переходов по ссылке: {application.link_clicks || 0}</p>
 
