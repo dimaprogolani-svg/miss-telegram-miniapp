@@ -1440,12 +1440,9 @@ useEffect(() => {
     loadVotes(contestant.id);
     loadGifts(contestant.id);
 
-    supabase
-      .from("contestants")
-      .update({
-        views: (contestant.views || 0) + 1,
-      })
-      .eq("id", contestant.id);
+supabase.rpc("increment_contestant_views", {
+  p_id: contestant.id,
+});
   }
 }, [contestant?.id]);
 
