@@ -1486,15 +1486,16 @@ useEffect(() => {
 }, [slug]);
 
 useEffect(() => {
-  if (contestant?.id) {
-    supabase.rpc("increment_contestant_views", {
-      p_id: contestant.id,
-    });
-	
-
-    loadVotes(contestant.id);
-    loadGifts(contestant.id);
+  if (!contestant?.id) {
+    return;
   }
+
+  supabase.rpc("increment_contestant_views", {
+    p_id: Number(contestant.id),
+  });
+
+  loadVotes(contestant.id);
+  loadGifts(contestant.id);
 }, [contestant?.id]);
 
   if (loading) {
