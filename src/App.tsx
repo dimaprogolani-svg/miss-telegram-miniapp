@@ -32,7 +32,7 @@ console.log("HOME HASH:", window.location.hash);
 useEffect(() => {
   const startParam =
     (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
-	alert("START PARAM = " + startParam);
+	
 	console.log("START PARAM:", startParam);
 	
 	console.log(
@@ -44,13 +44,6 @@ useEffect(() => {
     return;
   }
 
-  const alreadyHandled = sessionStorage.getItem(`startapp_${startParam}`);
-
-  if (alreadyHandled) {
-    return;
-  }
-
-  sessionStorage.setItem(`startapp_${startParam}`, "1");
 
   const contestantId = startParam.replace("contestant_", "");
   console.log("CONTESTANT ID:", contestantId);
@@ -62,6 +55,14 @@ supabase.rpc("increment_contestant_link_clicks", {
 }).then((res) => {
   console.log("RPC RESULT:", res);
 });
+
+  const alreadyHandled = sessionStorage.getItem(`startapp_${startParam}`);
+
+  if (alreadyHandled) {
+    return;
+  }
+
+  sessionStorage.setItem(`startapp_${startParam}`, "1");
 
   navigate(`/contestant/${contestantId}`);
 }, [navigate]);
