@@ -1445,8 +1445,20 @@ const { data, error } = await query.maybeSingle();
       return;
     }
 
-    setContestant(data || null);
-    setLoading(false);
+if (data?.id) {
+  await supabase.rpc("increment_contestant_views", {
+    p_id: Number(data.id),
+  });
+
+  setContestant({
+    ...data,
+    views: (data.views || 0) + 1,
+  });
+} else {
+  setContestant(null);
+}
+
+setLoading(false);
   }
 
   async function loadVotes(contestantId?: number) {
@@ -1489,10 +1501,6 @@ useEffect(() => {
   if (!contestant?.id) {
     return;
   }
-
-  supabase.rpc("increment_contestant_views", {
-    p_id: Number(contestant.id),
-  });
 
   loadVotes(contestant.id);
   loadGifts(contestant.id);
