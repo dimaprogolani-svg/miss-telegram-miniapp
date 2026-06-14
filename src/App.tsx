@@ -23,12 +23,18 @@ function Home() {
     (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
   const isAdmin = telegramUser?.id === 678312754;
-  useEffect(() => {
+  
+useEffect(() => {
   const startParam =
     (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
 
   if (startParam && startParam.startsWith("contestant_")) {
     const contestantId = startParam.replace("contestant_", "");
+
+    supabase.rpc("increment_contestant_link_clicks", {
+      p_id: Number(contestantId),
+    });
+
     navigate(`/contestant/${contestantId}`);
   }
 }, [navigate]);
@@ -1457,9 +1463,6 @@ useEffect(() => {
       p_id: contestant.id,
     });
 
-    supabase.rpc("increment_contestant_link_clicks", {
-      p_id: contestant.id,
-    });
 
     loadVotes(contestant.id);
     loadGifts(contestant.id);
