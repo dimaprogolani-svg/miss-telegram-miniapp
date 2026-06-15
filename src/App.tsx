@@ -437,28 +437,32 @@ async function uploadVideo(
 
   setVideoUrl(data.publicUrl);
 }
-
-  async function submitApplication() {
-    if (
-      !name ||
-      !age ||
-      !country ||
-      !city ||
-      !height ||
-      !maritalStatus ||
-      !aboutShort ||
-      !occupation ||
-      !hobbies ||
-      !participationReason ||
-      !dream ||
-      !beautyMeaning ||
-      !talent ||
-      !messageToViewers ||
-      !photo
-    ) {
-      setMessage("Заполните все обязательные поля и загрузите фото");
-      return;
-    }
+async function submitApplication() {
+if (
+  !name ||
+  !age ||
+  !country ||
+  !city ||
+  !height ||
+  !maritalStatus ||
+  !aboutShort ||
+  !occupation ||
+  !hobbies ||
+  !participationReason ||
+  !dream ||
+  !beautyMeaning ||
+  !talent ||
+  !messageToViewers ||
+  !photo ||
+  !photo2 ||
+  !photo3 ||
+  !photo4 ||
+  !photo5 ||
+  !videoUrl
+) {
+  setMessage("Заполните все обязательные поля: 5 фото, и видео");
+  return;
+}
 
     if (!rulesAccepted || !mediaPermission) {
       setMessage("Нужно подтвердить согласие с правилами и разрешение на использование фото/видео");
@@ -782,7 +786,7 @@ async function uploadVideo(
     onChange={(e) => uploadPhoto(e, setPhoto)}
   />
 
-  <p>📸 Фото №2 — по желанию</p>
+  <p>📸 Фото №2 — обязательно</p>
   <input
     className="form-input"
     type="file"
@@ -790,7 +794,7 @@ async function uploadVideo(
     onChange={(e) => uploadPhoto(e, setPhoto2)}
   />
 
-  <p>📸 Фото №3 — по желанию</p>
+  <p>📸 Фото №3 — обязательно</p>
   <input
     className="form-input"
     type="file"
@@ -798,7 +802,7 @@ async function uploadVideo(
     onChange={(e) => uploadPhoto(e, setPhoto3)}
   />
 
-  <p>📸 Фото №4 — по желанию</p>
+  <p>📸 Фото №4 — обязательно</p>
   <input
     className="form-input"
     type="file"
@@ -806,7 +810,7 @@ async function uploadVideo(
     onChange={(e) => uploadPhoto(e, setPhoto4)}
   />
 
-  <p>📸 Фото №5 — по желанию</p>
+  <p>📸 Фото №5 — обязательно</p>
   <input
     className="form-input"
     type="file"
@@ -822,7 +826,7 @@ async function uploadVideo(
 <div className="card">
   <h2>Видео-кружочек</h2>
 
-  <p>🎥 Видео — по желанию</p>
+  <p>🎥 Видео — обязательно</p>
   <input
     className="form-input"
     type="file"
