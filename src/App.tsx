@@ -2041,9 +2041,9 @@ function Rating() {
         </div>
       )}
 
-      {filteredRating.map((contestant, index) => (
+      {filteredRating.map((contestant) => (
         <div key={contestant.id} className="card">
-          <h2>{index + 1} место — {contestant.name}</h2>
+          <h2>{contestant.place} место — {contestant.name}</h2>
 
           {contestant.contestant_code && (
             <p>🆔 Код: {contestant.contestant_code}</p>
@@ -2270,9 +2270,9 @@ function StarRating() {
         </div>
       )}
 
-      {filteredRating.map((contestant, index) => (
+      {filteredRating.map((contestant) => (
         <div className="card" key={contestant.id}>
-          <h2>{index + 1} место — {contestant.name}</h2>
+          <h2>{contestant.place} место — {contestant.name}</h2>
 
           {contestant.contestant_code && (
             <p>🆔 Код: {contestant.contestant_code}</p>
