@@ -1194,6 +1194,7 @@ setLoading(false);
 
       {applications.map((application) => (
         <div className="card" key={application.id}>
+		
           {application.photo_url ? (
             <img
               className="profile-photo"
@@ -1203,13 +1204,12 @@ setLoading(false);
           ) : (
             <div className="contestant-photo-placeholder">👑</div>
           )}
-		 {application.video_url && (
-  <video
-    className="profile-photo"
-    src={application.video_url}
-    controls
-  />
-)} 
+		  
+          {application.video_url && (
+          <video className="profile-photo" controls playsInline>
+          <source src={application.video_url} type="video/mp4" />
+     </video>
+)}
 
           <h2>👑 {application.name}</h2>
 
@@ -1801,11 +1801,9 @@ const photos = Array.from(
         )}
 		
 		{contestant.video_url && (
-  <video
-    className="profile-photo"
-    src={contestant.video_url}
-    controls
-  />
+<video className="profile-photo" controls playsInline>
+  <source src={contestant.video_url} type="video/mp4" />
+</video>
 )}
 		
       </div>
