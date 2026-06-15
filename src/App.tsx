@@ -318,6 +318,7 @@ function Apply() {
   const [photo3, setPhoto3] = useState("");
   const [photo4, setPhoto4] = useState("");
   const [photo5, setPhoto5] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [existingApplication, setExistingApplication] = useState<any>(null);
@@ -398,6 +399,43 @@ async function uploadPhoto(
     .getPublicUrl(fileName);
 
   setPhotoFunction(data.publicUrl);
+}
+
+async function uploadVideo(
+  event: React.ChangeEvent<HTMLInputElement>
+) {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  if (!telegramUser?.id) {
+    setMessage("Откройте приложение через Telegram");
+    return;
+  }
+
+  const fileExt = file.name.split(".").pop();
+
+  const fileName =
+    `${telegramUser.id}-${Date.now()}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("contestant-videos")
+    .upload(fileName, file);
+
+  if (uploadError) {
+    console.log(uploadError);
+    setMessage(uploadError.message || "Ошибка загрузки видео");
+    return;
+  }
+
+  const { data } = supabase.storage
+    .from("contestant-videos")
+    .getPublicUrl(fileName);
+
+  setVideoUrl(data.publicUrl);
 }
 
   async function submitApplication() {
@@ -491,6 +529,7 @@ async function uploadPhoto(
       photo_4: photo4 || null,
       photo_5: photo5 || null,
       photo_url: photo,
+	  video_url: videoUrl || null,
 
       status: "На модерации",
       votes: 0,
@@ -545,6 +584,7 @@ async function uploadPhoto(
     setPhoto3("");
     setPhoto4("");
     setPhoto5("");
+	setVideoUrl("");
     setRulesAccepted(false);
     setMediaPermission(false);
 
@@ -779,6 +819,22 @@ async function uploadPhoto(
   )}
 </div>
 
+<div className="card">
+  <h2>Видео-кружочек</h2>
+
+  <p>🎥 Видео — по желанию</p>
+  <input
+    className="form-input"
+    type="file"
+    accept="video/*"
+    onChange={uploadVideo}
+  />
+
+  {videoUrl && (
+    <video className="profile-photo" src={videoUrl} controls />
+  )}
+</div>
+
       <div className="card">
         <h2>Согласие</h2>
 
@@ -922,6 +978,7 @@ supabase.rpc("increment_contestant_link_clicks", {
         status,
         contestant_code,
         photo_url,
+		video_url,
         height,
         marital_status,
         about_short,
@@ -1146,6 +1203,13 @@ setLoading(false);
           ) : (
             <div className="contestant-photo-placeholder">👑</div>
           )}
+		 {application.video_url && (
+  <video
+    className="profile-photo"
+    src={application.video_url}
+    controls
+  />
+)} 
 
           <h2>👑 {application.name}</h2>
 
@@ -1720,7 +1784,8 @@ const photos = Array.from(
       <h1>👑 {contestant.name}</h1>
 
       <div className="card">
-        {photos.length > 0 ? (
+        
+		{photos.length > 0 ? (
           <div>
             {photos.map((photoItem: string, index: number) => (
               <img
@@ -1734,8 +1799,16 @@ const photos = Array.from(
         ) : (
           <div className="contestant-photo-placeholder">👑</div>
         )}
+		
+		{contestant.video_url && (
+  <video
+    className="profile-photo"
+    src={contestant.video_url}
+    controls
+  />
+)}
+		
       </div>
-
       <div className="card">
         <h2>👑 {contestant.name}</h2>
         <p>🆔 Код: {contestant.contestant_code || "не указан"}</p>
