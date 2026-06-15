@@ -12,7 +12,7 @@ import {
 } from "react-router-dom";
 
 import "./App.css";
-import annaPhoto from "./images/anna.jpg";
+
 
 
 
@@ -1445,6 +1445,9 @@ function ContestantProfile({
   const [loading, setLoading] = useState(true);
   const [votes, setVotes] = useState(0);
   const [gifts, setGifts] = useState(0);
+  const [giftStars, setGiftStars] = useState(0);
+  const [votePlace, setVotePlace] = useState<any>(null);
+  const [giftPlace, setGiftPlace] = useState<any>(null);
   const [voteMessage, setVoteMessage] = useState("");
   const [giftMessage, setGiftMessage] = useState("");
 
@@ -1454,17 +1457,15 @@ function ContestantProfile({
       return;
     }
 
-let query = supabase
-  .from("contestants")
-  .select("*");
+    let query = supabase.from("contestants").select("*");
 
-if (/^\d+$/.test(String(slug))) {
-  query = query.eq("id", Number(slug));
-} else {
-  query = query.eq("slug", slug);
-}
+    if (/^\d+$/.test(String(slug))) {
+      query = query.eq("id", Number(slug));
+    } else {
+      query = query.eq("slug", slug);
+    }
 
-const { data, error } = await query.maybeSingle();
+    const { data, error } = await query.maybeSingle();
 
     if (error) {
       console.log(error);
@@ -1472,66 +1473,109 @@ const { data, error } = await query.maybeSingle();
       return;
     }
 
-if (data?.id) {
-  await supabase.rpc("increment_contestant_views", {
-    p_id: Number(data.id),
-  });
+    if (data?.id) {
+      await supabase.rpc("increment_contestant_views", {
+        p_id: Number(data.id),
+      });
 
-  setContestant({
-    ...data,
-    views: (data.views || 0) + 1,
-  });
-} else {
-  setContestant(null);
-}
+      setContestant({
+        ...data,
+        views: (data.views || 0) + 1,
+      });
+    } else {
+      setContestant(null);
+    }
 
-setLoading(false);
+    setLoading(false);
   }
 
-  async function loadVotes(contestantId?: number) {
-    if (!contestantId) return;
-
-    const { count, error } = await supabase
+  async function loadStats(contestantId: number) {
+    const { data: votesData } = await supabase
       .from("votes")
-      .select("*", { count: "exact", head: true })
-      .eq("contestant_id", contestantId);
+      .select("contestant_id");
 
-    if (error) {
-      setVoteMessage(error.message);
-      return;
-    }
-
-    setVotes(count || 0);
-  }
-
-  async function loadGifts(contestantId?: number) {
-    if (!contestantId) return;
-
-    const { count, error } = await supabase
+    const { data: giftsData } = await supabase
       .from("gifts")
-      .select("*", { count: "exact", head: true })
-      .eq("contestant_id", contestantId);
+      .select("contestant_id, price");
 
-    if (error) {
-      setGiftMessage(error.message);
+    const { data: contestantsData } = await supabase
+      .from("contestants")
+      .select("id, status, created_at")
+      .eq("status", "Опубликована в конкурсе");
+
+    const votesByContestant: any = {};
+    const giftsByContestant: any = {};
+    const giftStarsByContestant: any = {};
+
+    (votesData || []).forEach((vote: any) => {
+      votesByContestant[vote.contestant_id] =
+        (votesByContestant[vote.contestant_id] || 0) + 1;
+    });
+
+    (giftsData || []).forEach((gift: any) => {
+      giftsByContestant[gift.contestant_id] =
+        (giftsByContestant[gift.contestant_id] || 0) + 1;
+
+      giftStarsByContestant[gift.contestant_id] =
+        (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
+    });
+
+    const voteRanking = (contestantsData || [])
+      .map((item: any) => ({
+        ...item,
+        realVotes: votesByContestant[item.id] || 0,
+      }))
+      .sort((a: any, b: any) => {
+        if (b.realVotes !== a.realVotes) {
+          return b.realVotes - a.realVotes;
+        }
+
+        return (
+          new Date(a.created_at).getTime() -
+          new Date(b.created_at).getTime()
+        );
+      });
+
+    const giftRanking = (contestantsData || [])
+      .map((item: any) => ({
+        ...item,
+        giftStars: giftStarsByContestant[item.id] || 0,
+      }))
+      .sort((a: any, b: any) => {
+        if (b.giftStars !== a.giftStars) {
+          return b.giftStars - a.giftStars;
+        }
+
+        return (
+          new Date(a.created_at).getTime() -
+          new Date(b.created_at).getTime()
+        );
+      });
+
+    const currentVotePlace =
+      voteRanking.findIndex((item: any) => item.id === contestantId) + 1;
+
+    const currentGiftPlace =
+      giftRanking.findIndex((item: any) => item.id === contestantId) + 1;
+
+    setVotes(votesByContestant[contestantId] || 0);
+    setGifts(giftsByContestant[contestantId] || 0);
+    setGiftStars(giftStarsByContestant[contestantId] || 0);
+    setVotePlace(currentVotePlace > 0 ? currentVotePlace : null);
+    setGiftPlace(currentGiftPlace > 0 ? currentGiftPlace : null);
+  }
+
+  useEffect(() => {
+    loadContestant();
+  }, [slug]);
+
+  useEffect(() => {
+    if (!contestant?.id) {
       return;
     }
 
-    setGifts(count || 0);
-  }
-
-useEffect(() => {
-  loadContestant();
-}, [slug]);
-
-useEffect(() => {
-  if (!contestant?.id) {
-    return;
-  }
-
-  loadVotes(contestant.id);
-  loadGifts(contestant.id);
-}, [contestant?.id]);
+    loadStats(contestant.id);
+  }, [contestant?.id]);
 
   if (loading) {
     return (
@@ -1594,7 +1638,7 @@ useEffect(() => {
     setBalance(balance - price);
     setSpentStars(spentStars + price);
 
-    await loadVotes(contestant.id);
+    await loadStats(contestant.id);
 
     setVoteMessage("🎉 Спасибо за голос! ⭐");
   }
@@ -1632,28 +1676,113 @@ useEffect(() => {
     setSpentStars(spentStars + price);
     setSentGifts(sentGifts + 1);
 
-    await loadGifts(contestant.id);
+    await loadStats(contestant.id);
 
     setGiftMessage(`🎁 Спасибо! Подарок отправлен: ${giftName}`);
   }
 
-  const photo = contestant.photo_url || contestant.photo_1 || contestant.photo || annaPhoto;
+  function shareContestant() {
+    const link = `https://t.me/MissTelegramOfficialBot?startapp=contestant_${contestant.id}`;
+
+    const text = `👑 Поддержите участницу MISS TELEGRAM!
+
+🆔 Код участницы: ${contestant.contestant_code || "не указан"}
+
+⭐ Голосовать и отправлять подарки можно по ссылке:
+${link}`;
+
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
+      link
+    )}&text=${encodeURIComponent(text)}`;
+
+    window.open(shareUrl, "_blank");
+  }
+
+  const photos = [
+    contestant.photo_url,
+    contestant.photo_1,
+    contestant.photo_2,
+    contestant.photo_3,
+    contestant.photo_4,
+    contestant.photo_5,
+  ].filter(Boolean);
+
+  const createdDate = contestant.created_at
+    ? new Date(contestant.created_at).toLocaleDateString("ru-RU")
+    : "не указана";
 
   return (
     <div className="page">
       <h1>👑 {contestant.name}</h1>
 
-      <img className="profile-photo" src={photo} alt={contestant.name} />
+      <div className="card">
+        {photos.length > 0 ? (
+          <div>
+            {photos.map((photoItem: string, index: number) => (
+              <img
+                key={`${photoItem}-${index}`}
+                className="profile-photo"
+                src={photoItem}
+                alt={`${contestant.name} фото ${index + 1}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="contestant-photo-placeholder">👑</div>
+        )}
+      </div>
 
       <div className="card">
-        {contestant.contestant_code && (
-          <p>🆔 Код участницы: {contestant.contestant_code}</p>
-        )}
+        <h2>👑 {contestant.name}</h2>
+        <p>🆔 Код: {contestant.contestant_code || "не указан"}</p>
+        <p>📅 Дата регистрации: {createdDate}</p>
+        <p>🎂 Возраст: {contestant.age || "не указан"}</p>
+        <p>
+          🌍 {contestant.country || "не указана"},{" "}
+          {contestant.city || "не указан"}
+        </p>
+        <p>📏 Рост: {contestant.height || "не указан"}</p>
+        <p>
+          💍 Семейное положение:{" "}
+          {contestant.marital_status || "не указано"}
+        </p>
+        <p>🟡 Статус: {contestant.status || "не указан"}</p>
 
-        <h2>🌍 {contestant.country}</h2>
-        <p>🏙️ {contestant.city}</p>
+        <hr />
+
         <p>⭐ Голосов: {votes}</p>
         <p>🎁 Подарков: {gifts}</p>
+        <p>💎 Получено Stars: {giftStars}</p>
+        <p>🏆 Место по голосам: {votePlace || "нет"}</p>
+        <p>🏆 Место по подаркам: {giftPlace || "нет"}</p>
+        <p>👀 Просмотров карточки: {contestant.views || 0}</p>
+        <p>🔗 Переходов по ссылке: {contestant.link_clicks || 0}</p>
+
+        <button className="vote-btn" onClick={shareContestant}>
+          🔗 Поделиться карточкой
+        </button>
+      </div>
+
+      <div className="card">
+        <h2>📝 Анкета участницы</h2>
+        <p>1. Кратко о себе: {contestant.about_short || "не указано"}</p>
+        <p>2. Чем занимается: {contestant.occupation || "не указано"}</p>
+        <p>3. Хобби: {contestant.hobbies || "не указано"}</p>
+        <p>
+          4. Почему участвует:{" "}
+          {contestant.participation_reason || "не указано"}
+        </p>
+        <p>5. Мечта: {contestant.dream || "не указано"}</p>
+        <p>
+          6. Что для неё красота:{" "}
+          {contestant.beauty_meaning || "не указано"}
+        </p>
+        <p>7. Главный талант: {contestant.talent || "не указано"}</p>
+        <p>
+          8. Обращение к зрителям:{" "}
+          {contestant.message_to_viewers || "не указано"}
+        </p>
+        <p>9. Соцсети: {contestant.social_link || "не указано"}</p>
       </div>
 
       <div className="card">
@@ -1675,11 +1804,6 @@ useEffect(() => {
         <h2>⭐ Мой баланс</h2>
         <p>{balance} Stars</p>
         <p>Потрачено: {spentStars} Stars</p>
-      </div>
-
-      <div className="card">
-        <h2>О себе</h2>
-        <p>{contestant.description || "Участница конкурса MISS TELEGRAM."}</p>
       </div>
 
       <div className="card">
