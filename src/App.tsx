@@ -1316,8 +1316,8 @@ function Contestants() {
     const { data: contestantsData, error: contestantsError } = await supabase
       .from("contestants")
       .select(
-        "id, slug, name, country, city, contestant_code, status, created_at, photo_url"
-      )
+  "id, slug, name, country, city, contestant_code, status, created_at, photo_url, video_url"
+)
       .order("created_at", { ascending: false });
 
     if (contestantsError) {
@@ -1472,6 +1472,12 @@ function Contestants() {
           ) : (
             <div className="contestant-photo-placeholder">👑</div>
           )}
+
+{contestant.video_url && (
+  <video className="profile-photo" controls playsInline>
+    <source src={contestant.video_url} type="video/mp4" />
+  </video>
+)}
 
           <h2>👑 {index + 1} место — {contestant.name}</h2>
 
