@@ -422,7 +422,7 @@ async function uploadVideo(
     `${telegramUser.id}-${Date.now()}.${fileExt}`;
 
   const { error: uploadError } = await supabase.storage
-    .from("contestant-videos")
+    .from("видео участников")
     .upload(fileName, file);
 
   if (uploadError) {
@@ -432,7 +432,7 @@ async function uploadVideo(
   }
 
   const { data } = supabase.storage
-    .from("contestant-videos")
+    .from("видео участников")
     .getPublicUrl(fileName);
 
   setVideoUrl(data.publicUrl);
