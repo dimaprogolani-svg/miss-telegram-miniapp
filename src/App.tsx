@@ -1698,14 +1698,18 @@ ${link}`;
     window.open(shareUrl, "_blank");
   }
 
-  const photos = [
-    contestant.photo_url,
-    contestant.photo_1,
-    contestant.photo_2,
-    contestant.photo_3,
-    contestant.photo_4,
-    contestant.photo_5,
-  ].filter(Boolean);
+const photos = Array.from(
+  new Set(
+    [
+      contestant.photo_url,
+      contestant.photo_1,
+      contestant.photo_2,
+      contestant.photo_3,
+      contestant.photo_4,
+      contestant.photo_5,
+    ].filter(Boolean)
+  )
+);
 
   const createdDate = contestant.created_at
     ? new Date(contestant.created_at).toLocaleDateString("ru-RU")
