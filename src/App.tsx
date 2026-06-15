@@ -2216,7 +2216,11 @@ function StarRating() {
         ...contestant,
         starPoints: starsByContestant[contestant.id] || 0,
       }))
-      .sort((a: any, b: any) => b.starPoints - a.starPoints);
+     .sort((a: any, b: any) => b.starPoints - a.starPoints)
+.map((contestant: any, index: number) => ({
+  ...contestant,
+  place: index + 1,
+}));
 
     setRating(result);
     setLoading(false);
