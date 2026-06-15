@@ -1978,7 +1978,7 @@ function Rating() {
       })
     );
 
-    contestantsWithVotes.sort((a: any, b: any) => {
+contestantsWithVotes.sort((a: any, b: any) => {
   if (b.realVotes !== a.realVotes) {
     return b.realVotes - a.realVotes;
   }
@@ -1989,7 +1989,14 @@ function Rating() {
   );
 });
 
-    setRatingList(contestantsWithVotes);
+const contestantsWithPlaces = contestantsWithVotes.map(
+  (contestant: any, index: number) => ({
+    ...contestant,
+    place: index + 1,
+  })
+);
+
+setRatingList(contestantsWithPlaces);
     setLoading(false);
   }
 
