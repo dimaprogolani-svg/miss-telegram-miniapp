@@ -1251,7 +1251,9 @@ function Contestants() {
 
     const { data: contestantsData, error: contestantsError } = await supabase
       .from("contestants")
-      .select("id, slug, name, country, city, contestant_code, status, created_at, photo_url")
+      .select(
+        "id, slug, name, country, city, contestant_code, status, created_at, photo_url"
+      )
       .order("created_at", { ascending: false });
 
     if (contestantsError) {
@@ -1272,7 +1274,7 @@ function Contestants() {
 
     const { data: giftsData, error: giftsError } = await supabase
       .from("gifts")
-      .select("contestant_id");
+      .select("contestant_id, price");
 
     if (giftsError) {
       console.log(giftsError);
@@ -1282,6 +1284,7 @@ function Contestants() {
 
     const votesByContestant: any = {};
     const giftsByContestant: any = {};
+    const giftStarsByContestant: any = {};
 
     (votesData || []).forEach((vote: any) => {
       votesByContestant[vote.contestant_id] =
@@ -1291,30 +1294,56 @@ function Contestants() {
     (giftsData || []).forEach((gift: any) => {
       giftsByContestant[gift.contestant_id] =
         (giftsByContestant[gift.contestant_id] || 0) + 1;
+
+      giftStarsByContestant[gift.contestant_id] =
+        (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
     });
 
-const result = (contestantsData || [])
-  .filter(
-    (contestant: any) =>
-      contestant.status === "Опубликована в конкурсе"
-  )
-  .map((contestant: any) => ({
-    ...contestant,
-    realVotes: votesByContestant[contestant.id] || 0,
-    realGifts: giftsByContestant[contestant.id] || 0,
-  }))
-  .sort((a: any, b: any) => {
-    if (b.realVotes !== a.realVotes) {
-      return b.realVotes - a.realVotes;
-    }
+    const result = (contestantsData || [])
+      .filter(
+        (contestant: any) =>
+          contestant.status === "Опубликована в конкурсе"
+      )
+      .map((contestant: any) => ({
+        ...contestant,
+        realVotes: votesByContestant[contestant.id] || 0,
+        realGifts: giftsByContestant[contestant.id] || 0,
+        giftStars: giftStarsByContestant[contestant.id] || 0,
+      }))
+      .sort((a: any, b: any) => {
+        if (b.realVotes !== a.realVotes) {
+          return b.realVotes - a.realVotes;
+        }
 
-    return (
-      new Date(a.created_at).getTime() -
-      new Date(b.created_at).getTime()
-    );
-  });
-  
-      setContestantsList(result);
+        return (
+          new Date(a.created_at).getTime() -
+          new Date(b.created_at).getTime()
+        );
+      });
+
+    const giftRanking = [...result].sort((a: any, b: any) => {
+      if (b.giftStars !== a.giftStars) {
+        return b.giftStars - a.giftStars;
+      }
+
+      return (
+        new Date(a.created_at).getTime() -
+        new Date(b.created_at).getTime()
+      );
+    });
+
+    const giftPlaceByContestant: any = {};
+
+    giftRanking.forEach((contestant: any, index: number) => {
+      giftPlaceByContestant[contestant.id] = index + 1;
+    });
+
+    const finalResult = result.map((contestant: any) => ({
+      ...contestant,
+      giftPlace: giftPlaceByContestant[contestant.id] || null,
+    }));
+
+    setContestantsList(finalResult);
     setLoading(false);
   }
 
@@ -1370,27 +1399,25 @@ const result = (contestantsData || [])
           onClick={() => navigate(`/contestant/${contestant.slug}`)}
           style={{ cursor: "pointer" }}
         >
-{contestant.photo_url ? (
-  <img
-    className="contestant-photo"
-    src={contestant.photo_url}
-    alt={contestant.name}
-  />
-) : (
-  <div className="contestant-photo-placeholder">
-    👑
-  </div>
-)}
+          {contestant.photo_url ? (
+            <img
+              className="contestant-photo"
+              src={contestant.photo_url}
+              alt={contestant.name}
+            />
+          ) : (
+            <div className="contestant-photo-placeholder">👑</div>
+          )}
 
           <h2>👑 {index + 1} место — {contestant.name}</h2>
 
-          {contestant.contestant_code && (
-            <p>🆔 Код: {contestant.contestant_code}</p>
-          )}
-
-          <p>🌍 {contestant.country}, {contestant.city}</p>
-          <p>⭐ {contestant.realVotes} голосов</p>
-          <p>🎁 {contestant.realGifts} подарков</p>
+          <p>🆔 Код: {contestant.contestant_code || "не указан"}</p>
+          <p>🌍 Страна: {contestant.country || "не указана"}</p>
+          <p>🏙️ Город: {contestant.city || "не указан"}</p>
+          <p>⭐ Голосов: {contestant.realVotes}</p>
+          <p>🎁 Подарков: {contestant.realGifts}</p>
+          <p>💎 Получено Stars: {contestant.giftStars}</p>
+          <p>🏆 Место по подаркам: {contestant.giftPlace || "нет"}</p>
         </div>
       ))}
     </div>
