@@ -1387,7 +1387,11 @@ function Contestants() {
           new Date(a.created_at).getTime() -
           new Date(b.created_at).getTime()
         );
-      });
+        })
+  .map((contestant: any, index: number) => ({
+    ...contestant,
+    place: index + 1,
+  }));
 
     const giftRanking = [...result].sort((a: any, b: any) => {
       if (b.giftStars !== a.giftStars) {
@@ -1460,7 +1464,7 @@ function Contestants() {
         </div>
       )}
 
-      {filteredContestants.map((contestant, index) => (
+      {filteredContestants.map((contestant) => (
         <div
           key={`${contestant.slug}-${contestant.id}`}
           className="card"
@@ -1483,7 +1487,7 @@ function Contestants() {
   </video>
 )}
 
-          <h2>👑 {index + 1} место — {contestant.name}</h2>
+          <h2>👑 {contestant.place} место — {contestant.name}</h2>
 
           <p>🆔 Код: {contestant.contestant_code || "не указан"}</p>
           <p>🌍 Страна: {contestant.country || "не указана"}</p>
