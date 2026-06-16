@@ -1238,25 +1238,6 @@ ${link}`;
       return;
     }
 
-    const contestantIds = (data || []).map((item: any) => item.id);
-
-let pendingEditsData: any[] = [];
-
-if (contestantIds.length > 0) {
-  const { data: editsData } = await supabase
-    .from("contestant_edits")
-    .select("contestant_id, status")
-    .in("contestant_id", contestantIds.slice(0, 50))
-    .eq("status", "На модерации");
-
-  pendingEditsData = editsData || [];
-}
-
-    const pendingEditByContestant: any = {};
-
-    (pendingEditsData || []).forEach((edit: any) => {
-      pendingEditByContestant[edit.contestant_id] = true;
-    });
 
     const { data: allContestantsData } = await supabase
       .from("contestants")
@@ -1333,7 +1314,7 @@ if (contestantIds.length > 0) {
 
     const applicationsWithStats = (data || []).map((application: any) => ({
       ...application,
-      pendingEdit: pendingEditByContestant[application.id] || false,
+      pendingEdit: false,
       realVotes: votesByContestant[application.id] || 0,
       realGifts: giftsByContestant[application.id] || 0,
       giftStars: giftStarsByContestant[application.id] || 0,
