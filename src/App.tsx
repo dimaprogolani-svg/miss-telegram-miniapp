@@ -879,6 +879,7 @@ if (
 }
 
 function MyApplications() {
+throw new Error("MYAPPLICATIONS TEST");
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState("user");
@@ -1234,10 +1235,15 @@ console.log("TELEGRAM USER:", getTelegramUser());
 
     console.log("LOAD APPLICATIONS STEP 1: before contestants query");
 
+console.log("BEFORE CONTESTANTS QUERY", {
+  role,
+  telegramId: telegramUser?.id,
+});
+
 const { data, error } = await query;
 
-console.log("LOAD APPLICATIONS STEP 2: after contestants query", {
-  data,
+console.log("AFTER CONTESTANTS QUERY", {
+  dataLength: data?.length,
   error,
 });
 
