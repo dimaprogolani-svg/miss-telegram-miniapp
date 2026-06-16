@@ -1239,18 +1239,9 @@ ${link}`;
     }
 
 
-    const { data: allContestantsData } = await supabase
-      .from("contestants")
-      .select("id, status, created_at")
-      .eq("status", "Опубликована в конкурсе");
-
-    const { data: allVotesData } = await supabase
-      .from("votes")
-      .select("contestant_id");
-
-    const { data: allGiftsData } = await supabase
-      .from("gifts")
-      .select("contestant_id, price");
+   const allContestantsData: any[] = [];
+const allVotesData: any[] = [];
+const allGiftsData: any[] = [];
 
     const votesByContestant: any = {};
     const giftsByContestant: any = {};
