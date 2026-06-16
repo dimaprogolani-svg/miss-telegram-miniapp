@@ -879,7 +879,6 @@ if (
 }
 
 function MyApplications() {
-throw new Error("MYAPPLICATIONS TEST");
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState("user");
