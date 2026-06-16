@@ -1166,16 +1166,23 @@ ${link}`;
     return role;
   }
 
-  async function loadApplications() {
-  console.log("MY APPLICATIONS LOAD START");
-console.log("TELEGRAM USER:", getTelegramUser());
-    setLoading(true);
-    setErrorMessage("");
+async function loadApplications() {
+  console.log("STEP 1");
 
-    const telegramUser = getTelegramUser();
-    const role = await loadRole();
+  setLoading(true);
+  setErrorMessage("");
 
-    if (!telegramUser?.id && role !== "admin") {
+  console.log("STEP 2");
+
+  const telegramUser = getTelegramUser();
+
+  console.log("STEP 3 TELEGRAM USER:", telegramUser);
+
+  const role = await loadRole();
+
+  console.log("STEP 4 ROLE:", role);
+
+  if (!telegramUser?.id && role !== "admin") {
       setApplications([]);
       setErrorMessage("Откройте раздел через Telegram Mini App");
       setLoading(false);
