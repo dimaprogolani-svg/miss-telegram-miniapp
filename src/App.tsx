@@ -1037,7 +1037,9 @@ function MyApplications() {
       !editingApplication.edit_photo_5 ||
       !editingApplication.edit_video_url
     ) {
-      setErrorMessage("Для редактирования обязательны: все поля, 5 фото, видео и соцсеть");
+      setErrorMessage(
+        "Для редактирования обязательны: все поля, 5 фото, видео и соцсеть"
+      );
       return;
     }
 
@@ -1112,8 +1114,7 @@ function MyApplications() {
   }
 
   function shareContestant(application: any) {
-    const link =
-      `https://t.me/MissTelegramOfficialBot?startapp=contestant_${application.id}`;
+    const link = `https://t.me/MissTelegramOfficialBot?startapp=contestant_${application.id}`;
 
     const text = `👑 Поддержите меня в международном конкурсе красоты MISS TELEGRAM!
 
@@ -1216,15 +1217,16 @@ ${link}`;
         moderated_by_name,
         created_at
       `)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(50);
 
-    if (role === "admin") {
-      // админ видит все заявки
-    } else if (role === "moderator") {
+    if (role === "moderator") {
       query = query.or(
         `status.eq.На модерации,moderated_by.eq.${telegramUser.id}`
       );
-    } else {
+    }
+
+    if (role !== "admin" && role !== "moderator") {
       query = query.eq("telegram_id", telegramUser.id);
     }
 
@@ -1238,85 +1240,14 @@ ${link}`;
       return;
     }
 
-
-   const allContestantsData: any[] = [];
-const allVotesData: any[] = [];
-const allGiftsData: any[] = [];
-
-    const votesByContestant: any = {};
-    const giftsByContestant: any = {};
-    const giftStarsByContestant: any = {};
-
-    (allVotesData || []).forEach((vote: any) => {
-      votesByContestant[vote.contestant_id] =
-        (votesByContestant[vote.contestant_id] || 0) + 1;
-    });
-
-    (allGiftsData || []).forEach((gift: any) => {
-      giftsByContestant[gift.contestant_id] =
-        (giftsByContestant[gift.contestant_id] || 0) + 1;
-
-      giftStarsByContestant[gift.contestant_id] =
-        (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
-    });
-
-    const voteRanking = (allContestantsData || [])
-      .map((contestant: any) => ({
-        ...contestant,
-        realVotes: votesByContestant[contestant.id] || 0,
-      }))
-      .sort((a: any, b: any) => {
-        if (b.realVotes !== a.realVotes) {
-          return b.realVotes - a.realVotes;
-        }
-
-        return (
-          new Date(a.created_at).getTime() -
-          new Date(b.created_at).getTime()
-        );
-      });
-
-    const giftRanking = (allContestantsData || [])
-      .map((contestant: any) => ({
-        ...contestant,
-        giftStars: giftStarsByContestant[contestant.id] || 0,
-      }))
-      .sort((a: any, b: any) => {
-        if (b.giftStars !== a.giftStars) {
-          return b.giftStars - a.giftStars;
-        }
-
-        return (
-          new Date(a.created_at).getTime() -
-          new Date(b.created_at).getTime()
-        );
-      });
-
-    const votePlaceByContestant: any = {};
-    const giftPlaceByContestant: any = {};
-
-    voteRanking.forEach((contestant: any, index: number) => {
-      votePlaceByContestant[contestant.id] = index + 1;
-    });
-
-    giftRanking.forEach((contestant: any, index: number) => {
-      giftPlaceByContestant[contestant.id] = index + 1;
-    });
-
     const applicationsWithStats = (data || []).map((application: any) => ({
       ...application,
       pendingEdit: false,
-      realVotes: votesByContestant[application.id] || 0,
-      realGifts: giftsByContestant[application.id] || 0,
-      giftStars: giftStarsByContestant[application.id] || 0,
-      votePlace:
-        application.status === "Опубликована в конкурсе"
-          ? votePlaceByContestant[application.id] || null
-          : null,
-      giftPlace:
-        application.status === "Опубликована в конкурсе"
-          ? giftPlaceByContestant[application.id] || null
-          : null,
+      realVotes: 0,
+      realGifts: 0,
+      giftStars: 0,
+      votePlace: null,
+      giftPlace: null,
     }));
 
     setApplications(applicationsWithStats);
