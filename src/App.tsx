@@ -1167,6 +1167,8 @@ ${link}`;
   }
 
   async function loadApplications() {
+  console.log("MY APPLICATIONS LOAD START");
+console.log("TELEGRAM USER:", getTelegramUser());
     setLoading(true);
     setErrorMessage("");
 
