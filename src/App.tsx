@@ -1240,11 +1240,17 @@ ${link}`;
 
     const contestantIds = (data || []).map((item: any) => item.id);
 
-    const { data: pendingEditsData } = await supabase
-      .from("contestant_edits")
-      .select("contestant_id, status")
-      .in("contestant_id", contestantIds)
-      .eq("status", "На модерации");
+let pendingEditsData: any[] = [];
+
+if (contestantIds.length > 0) {
+  const { data: editsData } = await supabase
+    .from("contestant_edits")
+    .select("contestant_id, status")
+    .in("contestant_id", contestantIds.slice(0, 50))
+    .eq("status", "На модерации");
+
+  pendingEditsData = editsData || [];
+}
 
     const pendingEditByContestant: any = {};
 
