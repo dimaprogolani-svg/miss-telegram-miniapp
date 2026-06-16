@@ -883,6 +883,7 @@ function MyApplications() {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState("user");
   const [errorMessage, setErrorMessage] = useState("");
+  const [editingApplication, setEditingApplication] = useState<any>(null);
 
   function getTelegramUser() {
     return (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
@@ -896,11 +897,225 @@ function MyApplications() {
     );
   }
 
-function shareContestant(application: any) {
- const link =
-  `https://t.me/MissTelegramOfficialBot?startapp=contestant_${application.id}`;
+  function startEditApplication(application: any) {
+    setEditingApplication({
+      ...application,
+      edit_name: application.name || "",
+      edit_age: application.age || "",
+      edit_country: application.country || "",
+      edit_city: application.city || "",
+      edit_height: application.height || "",
+      edit_marital_status: application.marital_status || "",
+      edit_about_short: application.about_short || "",
+      edit_occupation: application.occupation || "",
+      edit_hobbies: application.hobbies || "",
+      edit_participation_reason: application.participation_reason || "",
+      edit_dream: application.dream || "",
+      edit_beauty_meaning: application.beauty_meaning || "",
+      edit_talent: application.talent || "",
+      edit_message_to_viewers: application.message_to_viewers || "",
+      edit_social_link: application.social_link || "",
+      edit_photo: application.photo || application.photo_url || "",
+      edit_photo_1: application.photo_1 || application.photo_url || "",
+      edit_photo_2: application.photo_2 || "",
+      edit_photo_3: application.photo_3 || "",
+      edit_photo_4: application.photo_4 || "",
+      edit_photo_5: application.photo_5 || "",
+      edit_photo_url: application.photo_url || "",
+      edit_video_url: application.video_url || "",
+    });
+  }
 
-  const text = `👑 Поддержите меня в международном конкурсе красоты MISS TELEGRAM!
+  function updateEditField(field: string, value: any) {
+    setEditingApplication((prev: any) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
+  async function uploadEditPhoto(
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: string
+  ) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const telegramUser = getTelegramUser();
+
+    if (!telegramUser?.id) {
+      setErrorMessage("Откройте приложение через Telegram");
+      return;
+    }
+
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${telegramUser.id}-edit-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("contestant-photos")
+      .upload(fileName, file);
+
+    if (uploadError) {
+      setErrorMessage(uploadError.message || "Ошибка загрузки фото");
+      return;
+    }
+
+    const { data } = supabase.storage
+      .from("contestant-photos")
+      .getPublicUrl(fileName);
+
+    updateEditField(field, data.publicUrl);
+
+    if (field === "edit_photo_1") {
+      updateEditField("edit_photo", data.publicUrl);
+      updateEditField("edit_photo_url", data.publicUrl);
+    }
+  }
+
+  async function uploadEditVideo(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const telegramUser = getTelegramUser();
+
+    if (!telegramUser?.id) {
+      setErrorMessage("Откройте приложение через Telegram");
+      return;
+    }
+
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${telegramUser.id}-edit-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("contestant-videos")
+      .upload(fileName, file, {
+        contentType: file.type || "video/mp4",
+        upsert: true,
+      });
+
+    if (uploadError) {
+      setErrorMessage(uploadError.message || "Ошибка загрузки видео");
+      return;
+    }
+
+    const { data } = supabase.storage
+      .from("contestant-videos")
+      .getPublicUrl(fileName);
+
+    updateEditField("edit_video_url", data.publicUrl);
+  }
+
+  async function submitEditApplication() {
+    if (!editingApplication) return;
+
+    const telegramUser = getTelegramUser();
+
+    if (!telegramUser?.id) {
+      setErrorMessage("Откройте приложение через Telegram");
+      return;
+    }
+
+    if (
+      !editingApplication.edit_name ||
+      !editingApplication.edit_age ||
+      !editingApplication.edit_country ||
+      !editingApplication.edit_city ||
+      !editingApplication.edit_height ||
+      !editingApplication.edit_marital_status ||
+      !editingApplication.edit_about_short ||
+      !editingApplication.edit_occupation ||
+      !editingApplication.edit_hobbies ||
+      !editingApplication.edit_participation_reason ||
+      !editingApplication.edit_dream ||
+      !editingApplication.edit_beauty_meaning ||
+      !editingApplication.edit_talent ||
+      !editingApplication.edit_message_to_viewers ||
+      !editingApplication.edit_social_link ||
+      !editingApplication.edit_photo_1 ||
+      !editingApplication.edit_photo_2 ||
+      !editingApplication.edit_photo_3 ||
+      !editingApplication.edit_photo_4 ||
+      !editingApplication.edit_photo_5 ||
+      !editingApplication.edit_video_url
+    ) {
+      setErrorMessage("Для редактирования обязательны: все поля, 5 фото, видео и соцсеть");
+      return;
+    }
+
+    const description = `
+Кратко о себе: ${editingApplication.edit_about_short}
+
+Чем занимается: ${editingApplication.edit_occupation}
+
+Хобби: ${editingApplication.edit_hobbies}
+
+Почему участвует: ${editingApplication.edit_participation_reason}
+
+Мечта: ${editingApplication.edit_dream}
+
+Что для неё красота: ${editingApplication.edit_beauty_meaning}
+
+Главный талант: ${editingApplication.edit_talent}
+
+Обращение к зрителям: ${editingApplication.edit_message_to_viewers}
+
+Соцсети: ${editingApplication.edit_social_link}
+`;
+
+    const { error } = await supabase.from("contestant_edits").insert({
+      contestant_id: editingApplication.id,
+      status: "На модерации",
+
+      name: editingApplication.edit_name,
+      age: Number(editingApplication.edit_age),
+      country: editingApplication.edit_country,
+      city: editingApplication.edit_city,
+      description,
+
+      photo: editingApplication.edit_photo_1,
+      photo_1: editingApplication.edit_photo_1,
+      photo_2: editingApplication.edit_photo_2,
+      photo_3: editingApplication.edit_photo_3,
+      photo_4: editingApplication.edit_photo_4,
+      photo_5: editingApplication.edit_photo_5,
+      photo_url: editingApplication.edit_photo_1,
+      video_url: editingApplication.edit_video_url,
+
+      height: editingApplication.edit_height,
+      marital_status: editingApplication.edit_marital_status,
+      about_short: editingApplication.edit_about_short,
+      occupation: editingApplication.edit_occupation,
+      hobbies: editingApplication.edit_hobbies,
+      participation_reason: editingApplication.edit_participation_reason,
+      dream: editingApplication.edit_dream,
+      beauty_meaning: editingApplication.edit_beauty_meaning,
+      talent: editingApplication.edit_talent,
+      message_to_viewers: editingApplication.edit_message_to_viewers,
+      social_link: editingApplication.edit_social_link,
+
+      telegram_id: telegramUser.id,
+      telegram_username: telegramUser.username || null,
+      telegram_first_name: telegramUser.first_name || null,
+      telegram_last_name: telegramUser.last_name || null,
+
+      notification_sent: false,
+    });
+
+    if (error) {
+      console.log(error);
+      setErrorMessage(error.message || "Ошибка отправки изменений");
+      return;
+    }
+
+    setEditingApplication(null);
+    setErrorMessage("");
+    await loadApplications();
+  }
+
+  function shareContestant(application: any) {
+    const link =
+      `https://t.me/MissTelegramOfficialBot?startapp=contestant_${application.id}`;
+
+    const text = `👑 Поддержите меня в международном конкурсе красоты MISS TELEGRAM!
 
 🆔 Мой номер участницы: ${application.contestant_code || "не указан"}
 
@@ -909,22 +1124,16 @@ function shareContestant(application: any) {
 ⭐ Голосовать и отправлять подарки можно по ссылке:
 ${link}`;
 
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
-    link
-  )}&text=${encodeURIComponent(text)}`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
+      link
+    )}&text=${encodeURIComponent(text)}`;
 
-  supabase
-    .from("contestants")
-    .update({
-      link_clicks: (application.link_clicks || 0) + 1,
-    })
-    .eq("id", application.id);
+    supabase.rpc("increment_contestant_link_clicks", {
+      p_id: application.id,
+    });
 
-supabase.rpc("increment_contestant_link_clicks", {
-  p_id: application.id,
-});
-  window.open(shareUrl, "_blank");
-}
+    window.open(shareUrl, "_blank");
+  }
 
   async function loadRole() {
     const telegramUser = getTelegramUser();
@@ -981,8 +1190,14 @@ supabase.rpc("increment_contestant_link_clicks", {
         city,
         status,
         contestant_code,
+        photo,
+        photo_1,
+        photo_2,
+        photo_3,
+        photo_4,
+        photo_5,
         photo_url,
-		video_url,
+        video_url,
         height,
         marital_status,
         about_short,
@@ -1023,96 +1238,111 @@ supabase.rpc("increment_contestant_link_clicks", {
       return;
     }
 
-const { data: allContestantsData } = await supabase
-  .from("contestants")
-  .select("id, status, created_at")
-  .eq("status", "Опубликована в конкурсе");
+    const contestantIds = (data || []).map((item: any) => item.id);
 
-const { data: allVotesData } = await supabase
-  .from("votes")
-  .select("contestant_id");
+    const { data: pendingEditsData } = await supabase
+      .from("contestant_edits")
+      .select("contestant_id, status")
+      .in("contestant_id", contestantIds)
+      .eq("status", "На модерации");
 
-const { data: allGiftsData } = await supabase
-  .from("gifts")
-  .select("contestant_id, price");
+    const pendingEditByContestant: any = {};
 
-const votesByContestant: any = {};
-const giftsByContestant: any = {};
-const giftStarsByContestant: any = {};
+    (pendingEditsData || []).forEach((edit: any) => {
+      pendingEditByContestant[edit.contestant_id] = true;
+    });
 
-(allVotesData || []).forEach((vote: any) => {
-  votesByContestant[vote.contestant_id] =
-    (votesByContestant[vote.contestant_id] || 0) + 1;
-});
+    const { data: allContestantsData } = await supabase
+      .from("contestants")
+      .select("id, status, created_at")
+      .eq("status", "Опубликована в конкурсе");
 
-(allGiftsData || []).forEach((gift: any) => {
-  giftsByContestant[gift.contestant_id] =
-    (giftsByContestant[gift.contestant_id] || 0) + 1;
+    const { data: allVotesData } = await supabase
+      .from("votes")
+      .select("contestant_id");
 
-  giftStarsByContestant[gift.contestant_id] =
-    (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
-});
+    const { data: allGiftsData } = await supabase
+      .from("gifts")
+      .select("contestant_id, price");
 
-const voteRanking = (allContestantsData || [])
-  .map((contestant: any) => ({
-    ...contestant,
-    realVotes: votesByContestant[contestant.id] || 0,
-  }))
-  .sort((a: any, b: any) => {
-    if (b.realVotes !== a.realVotes) {
-      return b.realVotes - a.realVotes;
-    }
+    const votesByContestant: any = {};
+    const giftsByContestant: any = {};
+    const giftStarsByContestant: any = {};
 
-    return (
-      new Date(a.created_at).getTime() -
-      new Date(b.created_at).getTime()
-    );
-  });
+    (allVotesData || []).forEach((vote: any) => {
+      votesByContestant[vote.contestant_id] =
+        (votesByContestant[vote.contestant_id] || 0) + 1;
+    });
 
-const giftRanking = (allContestantsData || [])
-  .map((contestant: any) => ({
-    ...contestant,
-    giftStars: giftStarsByContestant[contestant.id] || 0,
-  }))
-  .sort((a: any, b: any) => {
-    if (b.giftStars !== a.giftStars) {
-      return b.giftStars - a.giftStars;
-    }
+    (allGiftsData || []).forEach((gift: any) => {
+      giftsByContestant[gift.contestant_id] =
+        (giftsByContestant[gift.contestant_id] || 0) + 1;
 
-    return (
-      new Date(a.created_at).getTime() -
-      new Date(b.created_at).getTime()
-    );
-  });
+      giftStarsByContestant[gift.contestant_id] =
+        (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
+    });
 
-const votePlaceByContestant: any = {};
-const giftPlaceByContestant: any = {};
+    const voteRanking = (allContestantsData || [])
+      .map((contestant: any) => ({
+        ...contestant,
+        realVotes: votesByContestant[contestant.id] || 0,
+      }))
+      .sort((a: any, b: any) => {
+        if (b.realVotes !== a.realVotes) {
+          return b.realVotes - a.realVotes;
+        }
 
-voteRanking.forEach((contestant: any, index: number) => {
-  votePlaceByContestant[contestant.id] = index + 1;
-});
+        return (
+          new Date(a.created_at).getTime() -
+          new Date(b.created_at).getTime()
+        );
+      });
 
-giftRanking.forEach((contestant: any, index: number) => {
-  giftPlaceByContestant[contestant.id] = index + 1;
-});
+    const giftRanking = (allContestantsData || [])
+      .map((contestant: any) => ({
+        ...contestant,
+        giftStars: giftStarsByContestant[contestant.id] || 0,
+      }))
+      .sort((a: any, b: any) => {
+        if (b.giftStars !== a.giftStars) {
+          return b.giftStars - a.giftStars;
+        }
 
-const applicationsWithStats = (data || []).map((application: any) => ({
-  ...application,
-  realVotes: votesByContestant[application.id] || 0,
-  realGifts: giftsByContestant[application.id] || 0,
-  giftStars: giftStarsByContestant[application.id] || 0,
-  votePlace:
-    application.status === "Опубликована в конкурсе"
-      ? votePlaceByContestant[application.id] || null
-      : null,
-  giftPlace:
-    application.status === "Опубликована в конкурсе"
-      ? giftPlaceByContestant[application.id] || null
-      : null,
-}));
+        return (
+          new Date(a.created_at).getTime() -
+          new Date(b.created_at).getTime()
+        );
+      });
 
-setApplications(applicationsWithStats);
-setLoading(false);
+    const votePlaceByContestant: any = {};
+    const giftPlaceByContestant: any = {};
+
+    voteRanking.forEach((contestant: any, index: number) => {
+      votePlaceByContestant[contestant.id] = index + 1;
+    });
+
+    giftRanking.forEach((contestant: any, index: number) => {
+      giftPlaceByContestant[contestant.id] = index + 1;
+    });
+
+    const applicationsWithStats = (data || []).map((application: any) => ({
+      ...application,
+      pendingEdit: pendingEditByContestant[application.id] || false,
+      realVotes: votesByContestant[application.id] || 0,
+      realGifts: giftsByContestant[application.id] || 0,
+      giftStars: giftStarsByContestant[application.id] || 0,
+      votePlace:
+        application.status === "Опубликована в конкурсе"
+          ? votePlaceByContestant[application.id] || null
+          : null,
+      giftPlace:
+        application.status === "Опубликована в конкурсе"
+          ? giftPlaceByContestant[application.id] || null
+          : null,
+    }));
+
+    setApplications(applicationsWithStats);
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -1172,6 +1402,218 @@ setLoading(false);
           <h2>Ошибка</h2>
           <p>{errorMessage}</p>
         </div>
+
+        <button className="vote-btn" onClick={() => setErrorMessage("")}>
+          Закрыть ошибку
+        </button>
+      </div>
+    );
+  }
+
+  if (editingApplication) {
+    return (
+      <div className="page">
+        <h1>✏️ Редактировать заявку</h1>
+
+        <div className="card">
+          <input
+            className="form-input"
+            placeholder="Имя"
+            value={editingApplication.edit_name}
+            onChange={(e) => updateEditField("edit_name", e.target.value)}
+          />
+
+          <input
+            className="form-input"
+            placeholder="Возраст"
+            value={editingApplication.edit_age}
+            onChange={(e) => updateEditField("edit_age", e.target.value)}
+          />
+
+          <input
+            className="form-input"
+            placeholder="Страна"
+            value={editingApplication.edit_country}
+            onChange={(e) => updateEditField("edit_country", e.target.value)}
+          />
+
+          <input
+            className="form-input"
+            placeholder="Город"
+            value={editingApplication.edit_city}
+            onChange={(e) => updateEditField("edit_city", e.target.value)}
+          />
+
+          <input
+            className="form-input"
+            placeholder="Рост"
+            value={editingApplication.edit_height}
+            onChange={(e) => updateEditField("edit_height", e.target.value)}
+          />
+
+          <input
+            className="form-input"
+            placeholder="Семейное положение"
+            value={editingApplication.edit_marital_status}
+            onChange={(e) =>
+              updateEditField("edit_marital_status", e.target.value)
+            }
+          />
+        </div>
+
+        <div className="card">
+          <textarea
+            className="form-input"
+            placeholder="1. Кратко о себе"
+            value={editingApplication.edit_about_short}
+            onChange={(e) =>
+              updateEditField("edit_about_short", e.target.value)
+            }
+          />
+
+          <textarea
+            className="form-input"
+            placeholder="2. Чем занимается"
+            value={editingApplication.edit_occupation}
+            onChange={(e) =>
+              updateEditField("edit_occupation", e.target.value)
+            }
+          />
+
+          <textarea
+            className="form-input"
+            placeholder="3. Хобби"
+            value={editingApplication.edit_hobbies}
+            onChange={(e) => updateEditField("edit_hobbies", e.target.value)}
+          />
+
+          <textarea
+            className="form-input"
+            placeholder="4. Почему участвует"
+            value={editingApplication.edit_participation_reason}
+            onChange={(e) =>
+              updateEditField("edit_participation_reason", e.target.value)
+            }
+          />
+
+          <textarea
+            className="form-input"
+            placeholder="5. Мечта"
+            value={editingApplication.edit_dream}
+            onChange={(e) => updateEditField("edit_dream", e.target.value)}
+          />
+
+          <textarea
+            className="form-input"
+            placeholder="6. Что для неё красота"
+            value={editingApplication.edit_beauty_meaning}
+            onChange={(e) =>
+              updateEditField("edit_beauty_meaning", e.target.value)
+            }
+          />
+
+          <textarea
+            className="form-input"
+            placeholder="7. Главный талант"
+            value={editingApplication.edit_talent}
+            onChange={(e) => updateEditField("edit_talent", e.target.value)}
+          />
+
+          <textarea
+            className="form-input"
+            placeholder="8. Обращение к зрителям"
+            value={editingApplication.edit_message_to_viewers}
+            onChange={(e) =>
+              updateEditField("edit_message_to_viewers", e.target.value)
+            }
+          />
+
+          <input
+            className="form-input"
+            placeholder="9. Instagram / Telegram / TikTok — обязательно"
+            value={editingApplication.edit_social_link}
+            onChange={(e) =>
+              updateEditField("edit_social_link", e.target.value)
+            }
+          />
+        </div>
+
+        <div className="card">
+          <h2>Фото</h2>
+
+          <p>Фото №1</p>
+          <input
+            className="form-input"
+            type="file"
+            accept="image/*"
+            onChange={(e) => uploadEditPhoto(e, "edit_photo_1")}
+          />
+
+          <p>Фото №2</p>
+          <input
+            className="form-input"
+            type="file"
+            accept="image/*"
+            onChange={(e) => uploadEditPhoto(e, "edit_photo_2")}
+          />
+
+          <p>Фото №3</p>
+          <input
+            className="form-input"
+            type="file"
+            accept="image/*"
+            onChange={(e) => uploadEditPhoto(e, "edit_photo_3")}
+          />
+
+          <p>Фото №4</p>
+          <input
+            className="form-input"
+            type="file"
+            accept="image/*"
+            onChange={(e) => uploadEditPhoto(e, "edit_photo_4")}
+          />
+
+          <p>Фото №5</p>
+          <input
+            className="form-input"
+            type="file"
+            accept="image/*"
+            onChange={(e) => uploadEditPhoto(e, "edit_photo_5")}
+          />
+        </div>
+
+        <div className="card">
+          <h2>Видео</h2>
+
+          <input
+            className="form-input"
+            type="file"
+            accept="video/*"
+            onChange={uploadEditVideo}
+          />
+
+          {editingApplication.edit_video_url && (
+            <video className="profile-photo" controls playsInline>
+              <source
+                src={editingApplication.edit_video_url}
+                type="video/mp4"
+              />
+            </video>
+          )}
+        </div>
+
+        <div className="card">
+          <button className="vote-btn" onClick={submitEditApplication}>
+            🕒 Отправить изменения на модерацию
+          </button>
+
+          <button
+            className="gift-btn"
+            onClick={() => setEditingApplication(null)}
+          >
+            Отмена
+          </button>
+        </div>
       </div>
     );
   }
@@ -1198,7 +1640,6 @@ setLoading(false);
 
       {applications.map((application) => (
         <div className="card" key={application.id}>
-		
           {application.photo_url ? (
             <img
               className="profile-photo"
@@ -1208,12 +1649,12 @@ setLoading(false);
           ) : (
             <div className="contestant-photo-placeholder">👑</div>
           )}
-		  
+
           {application.video_url && (
-          <video className="profile-photo" controls playsInline>
-          <source src={application.video_url} type="video/mp4" />
-     </video>
-)}
+            <video className="profile-photo" controls playsInline>
+              <source src={application.video_url} type="video/mp4" />
+            </video>
+          )}
 
           <h2>👑 {application.name}</h2>
 
@@ -1230,19 +1671,25 @@ setLoading(false);
 
           <p>🟡 Статус: {application.status}</p>
 
+          {application.pendingEdit && (
+            <p className="success-message">
+              🕒 Изменения отправлены на модерацию
+            </p>
+          )}
+
           <hr />
 
           <p>⭐ Голосов: {application.realVotes}</p>
           <p>🎁 Подарков: {application.realGifts}</p>
           <p>💎 Получено Stars: {application.giftStars}</p>
-		  <p>
-          🏆 Место по голосам:{" "}
-          {application.votePlace ? application.votePlace : "после публикации"}
+          <p>
+            🏆 Место по голосам:{" "}
+            {application.votePlace ? application.votePlace : "после публикации"}
           </p>
 
           <p>
-          🏆 Место по подаркам:{" "}
-          {application.giftPlace ? application.giftPlace : "после публикации"}
+            🏆 Место по подаркам:{" "}
+            {application.giftPlace ? application.giftPlace : "после публикации"}
           </p>
           <p>👀 Просмотров карточки: {application.views || 0}</p>
           <p>🔗 Переходов по ссылке: {application.link_clicks || 0}</p>
@@ -1269,6 +1716,15 @@ setLoading(false);
             {application.message_to_viewers || "не указано"}
           </p>
           <p>9. Соцсети: {application.social_link || "не указано"}</p>
+
+          {application.status !== "На модерации" && !application.pendingEdit && (
+            <button
+              className="vote-btn"
+              onClick={() => startEditApplication(application)}
+            >
+              ✏️ Редактировать заявку
+            </button>
+          )}
 
           {application.status === "Опубликована в конкурсе" && (
             <button
