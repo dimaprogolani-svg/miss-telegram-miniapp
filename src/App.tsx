@@ -1230,10 +1230,17 @@ ${link}`;
       query = query.eq("telegram_id", telegramUser.id);
     }
 
-    const { data, error } = await query;
+    console.log("LOAD APPLICATIONS STEP 1: before contestants query");
+
+const { data, error } = await query;
+
+console.log("LOAD APPLICATIONS STEP 2: after contestants query", {
+  data,
+  error,
+});
 
     if (error) {
-      console.log(error);
+  console.log("CONTESTANTS QUERY ERROR:", error);
       setErrorMessage(error.message || "Ошибка загрузки заявок");
       setApplications([]);
       setLoading(false);
