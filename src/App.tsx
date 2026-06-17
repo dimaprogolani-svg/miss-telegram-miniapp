@@ -924,6 +924,9 @@ function MyApplications() {
       edit_photo_url: application.photo_url || "",
       edit_video_url: application.video_url || "",
     });
+	setTimeout(() => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}, 100);
   }
 
   function updateEditField(field: string, value: any) {
