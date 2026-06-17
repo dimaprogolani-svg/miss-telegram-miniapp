@@ -1177,45 +1177,16 @@ async function loadApplications() {
       return;
     }
 
-    let query = supabase
-      .from("contestants")
-      .select(`
-        id,
-        slug,
-        name,
-        age,
-        country,
-        city,
-        status,
-        contestant_code,
-        photo,
-        photo_1,
-        photo_2,
-        photo_3,
-        photo_4,
-        photo_5,
-        photo_url,
-        video_url,
-        height,
-        marital_status,
-        about_short,
-        occupation,
-        hobbies,
-        participation_reason,
-        dream,
-        beauty_meaning,
-        talent,
-        message_to_viewers,
-        social_link,
-        views,
-        link_clicks,
-        telegram_id,
-        moderated_by,
-        moderated_by_name,
-        created_at
-      `)
-      .order("created_at", { ascending: false })
-      .limit(50);
+let query = supabase
+  .from("contestants")
+  .select(`
+    id,
+    name,
+    status,
+    telegram_id
+  `)
+  .order("created_at", { ascending: false })
+  .limit(50);
 
     if (role !== "admin") {
   query = query.eq("telegram_id", telegramUser.id);
