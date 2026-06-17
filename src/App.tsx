@@ -1182,8 +1182,26 @@ let query = supabase
   .select(`
     id,
     name,
+    age,
+    country,
+    city,
     status,
-    telegram_id
+    contestant_code,
+    photo_url,
+    video_url,
+    height,
+    marital_status,
+    about_short,
+    occupation,
+    hobbies,
+    participation_reason,
+    dream,
+    beauty_meaning,
+    talent,
+    message_to_viewers,
+    social_link,
+    telegram_id,
+    created_at
   `)
   .order("created_at", { ascending: false })
   .limit(50);
