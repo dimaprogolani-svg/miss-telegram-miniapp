@@ -1168,6 +1168,7 @@ async function loadApplications() {
   const role = await loadRole();
 
   console.log("STEP 4 ROLE:", role);
+  console.log("STEP 5 BEFORE CONTESTANTS");
 
   if (!telegramUser?.id && role !== "admin") {
       setApplications([]);
@@ -1228,6 +1229,9 @@ console.log("BEFORE CONTESTANTS QUERY", {
 });
 
 const { data, error } = await query;
+console.log("STEP 6 AFTER CONTESTANTS");
+console.log("CONTESTANTS ERROR:", error);
+console.log("CONTESTANTS COUNT:", data?.length);
 
 console.log("AFTER CONTESTANTS QUERY", {
   dataLength: data?.length,
