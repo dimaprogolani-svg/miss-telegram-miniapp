@@ -1207,7 +1207,9 @@ let query = supabase
   .limit(50);
 
     if (role !== "admin") {
-  query = query.eq("telegram_id", telegramUser.id);
+  query = query
+    .eq("telegram_id", telegramUser.id)
+    .neq("status", "Отклонена");
 }
 
     console.log("LOAD APPLICATIONS STEP 1: before contestants query");
@@ -1621,7 +1623,7 @@ console.log("AFTER CONTESTANTS QUERY", {
           </p>
           <p>9. Соцсети: {application.social_link || "не указано"}</p>
 
-          {application.status !== "На модерации" && !application.pendingEdit && (
+          {application.status === "Опубликована в конкурсе" && !application.pendingEdit && (
             <button
               className="vote-btn"
               onClick={() => startEditApplication(application)}
