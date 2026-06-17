@@ -1204,9 +1204,11 @@ height,
     beauty_meaning,
     talent,
     message_to_viewers,
-    social_link,
-    telegram_id,
-    created_at
+social_link,
+views,
+link_clicks,
+telegram_id,
+created_at
   `)
   .order("created_at", { ascending: false })
   .limit(50);
