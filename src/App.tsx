@@ -1242,18 +1242,47 @@ console.log("AFTER CONTESTANTS QUERY", {
       return;
     }
 
-    const applicationsWithStats = (data || []).map((application: any) => ({
-      ...application,
-      pendingEdit: false,
-      realVotes: 0,
-      realGifts: 0,
-      giftStars: 0,
-      votePlace: null,
-      giftPlace: null,
-    }));
+    const applicationIds = (data || []).map((application: any) => application.id);
 
-    setApplications(applicationsWithStats);
-    setLoading(false);
+const { data: votesData } = await supabase
+  .from("votes")
+  .select("contestant_id")
+  .in("contestant_id", applicationIds);
+
+const { data: giftsData } = await supabase
+  .from("gifts")
+  .select("contestant_id, price")
+  .in("contestant_id", applicationIds);
+
+const votesByContestant: any = {};
+const giftsByContestant: any = {};
+const giftStarsByContestant: any = {};
+
+(votesData || []).forEach((vote: any) => {
+  votesByContestant[vote.contestant_id] =
+    (votesByContestant[vote.contestant_id] || 0) + 1;
+});
+
+(giftsData || []).forEach((gift: any) => {
+  giftsByContestant[gift.contestant_id] =
+    (giftsByContestant[gift.contestant_id] || 0) + 1;
+
+  giftStarsByContestant[gift.contestant_id] =
+    (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
+});
+
+const applicationsWithStats = (data || []).map((application: any) => ({
+  ...application,
+  pendingEdit: false,
+  realVotes: votesByContestant[application.id] || 0,
+  realGifts: giftsByContestant[application.id] || 0,
+  giftStars: giftStarsByContestant[application.id] || 0,
+  votePlace: null,
+  giftPlace: null,
+}));
+
+setApplications(applicationsWithStats);
+setLoading(false);
   }
 
   useEffect(() => {
