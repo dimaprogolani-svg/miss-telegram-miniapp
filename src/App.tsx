@@ -1546,21 +1546,28 @@ console.log("AFTER CONTESTANTS QUERY", {
 
       {applications.map((application) => (
         <div className="card" key={application.id}>
-          {application.photo_url ? (
-            <img
-              className="profile-photo"
-              src={application.photo_url}
-              alt={application.name}
-            />
-          ) : (
-            <div className="contestant-photo-placeholder">👑</div>
-          )}
+          {[
+  application.photo_1 || application.photo_url,
+  application.photo_2,
+  application.photo_3,
+  application.photo_4,
+  application.photo_5,
+]
+  .filter(Boolean)
+  .map((photoUrl, index) => (
+    <img
+      key={index}
+      className="profile-photo"
+      src={photoUrl}
+      alt={application.name}
+    />
+  ))}
 
-          {application.video_url && (
-            <video className="profile-photo" controls playsInline>
-              <source src={application.video_url} type="video/mp4" />
-            </video>
-          )}
+{application.video_url && (
+  <video className="profile-photo" controls playsInline>
+    <source src={application.video_url} type="video/mp4" />
+  </video>
+)}
 
           <h2>👑 {application.name}</h2>
 
