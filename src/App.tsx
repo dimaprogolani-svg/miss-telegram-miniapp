@@ -1249,7 +1249,17 @@ console.log("AFTER CONTESTANTS QUERY", {
     }
 
     const applicationIds = (data || []).map((application: any) => application.id);
+const { data: pendingEditsData } = await supabase
+  .from("contestant_edits")
+  .select("contestant_id")
+  .eq("status", "На модерации")
+  .in("contestant_id", applicationIds);
 
+const pendingEditByContestant: any = {};
+
+(pendingEditsData || []).forEach((edit: any) => {
+  pendingEditByContestant[edit.contestant_id] = true;
+});
 const { data: votesData } = await supabase
   .from("votes")
   .select("contestant_id")
@@ -1279,7 +1289,7 @@ const giftStarsByContestant: any = {};
 
 const applicationsWithStats = (data || []).map((application: any) => ({
   ...application,
-  pendingEdit: false,
+  pendingEdit: pendingEditByContestant[application.id] || false,
   realVotes: votesByContestant[application.id] || 0,
   realGifts: giftsByContestant[application.id] || 0,
   giftStars: giftStarsByContestant[application.id] || 0,
@@ -1680,14 +1690,29 @@ setLoading(false);
             </button>
           )}
 
-          {application.status === "Опубликована в конкурсе" && (
-            <button
-              className="vote-btn"
-              onClick={() => shareContestant(application)}
-            >
-              🔗 Поделиться карточкой
-            </button>
-          )}
+         {application.status === "Опубликована в конкурсе" && (
+  <>
+    {application.pendingEdit && (
+      <div
+        style={{
+          color: "#ffd700",
+          textAlign: "center",
+          marginBottom: "10px",
+          fontWeight: "bold",
+        }}
+      >
+        🕒 Изменения отправлены на модерацию
+      </div>
+    )}
+
+    <button
+      className="vote-btn"
+      onClick={() => shareContestant(application)}
+    >
+      🔗 Поделиться карточкой
+    </button>
+  </>
+)}
 
           {application.moderated_by_name && (
             <p>👮 Обработал: {application.moderated_by_name}</p>
