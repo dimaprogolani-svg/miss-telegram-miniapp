@@ -1019,34 +1019,33 @@ function MyApplications() {
       return;
     }
 
-    if (
-      !editingApplication.edit_name ||
-      !editingApplication.edit_age ||
-      !editingApplication.edit_country ||
-      !editingApplication.edit_city ||
-      !editingApplication.edit_height ||
-      !editingApplication.edit_marital_status ||
-      !editingApplication.edit_about_short ||
-      !editingApplication.edit_occupation ||
-      !editingApplication.edit_hobbies ||
-      !editingApplication.edit_participation_reason ||
-      !editingApplication.edit_dream ||
-      !editingApplication.edit_beauty_meaning ||
-      !editingApplication.edit_talent ||
-      !editingApplication.edit_message_to_viewers ||
-      !editingApplication.edit_social_link ||
-      !editingApplication.edit_photo_1 ||
-      !editingApplication.edit_photo_2 ||
-      !editingApplication.edit_photo_3 ||
-      !editingApplication.edit_photo_4 ||
-      !editingApplication.edit_photo_5 ||
-      !editingApplication.edit_video_url
-    ) {
-      setErrorMessage(
-        "Для редактирования обязательны: все поля, 5 фото, видео и соцсеть"
-      );
-      return;
-    }
+const hasChanges =
+  editingApplication.edit_name !== editingApplication.name ||
+  Number(editingApplication.edit_age) !== Number(editingApplication.age) ||
+  editingApplication.edit_country !== editingApplication.country ||
+  editingApplication.edit_city !== editingApplication.city ||
+  editingApplication.edit_height !== editingApplication.height ||
+  editingApplication.edit_marital_status !== editingApplication.marital_status ||
+  editingApplication.edit_about_short !== editingApplication.about_short ||
+  editingApplication.edit_occupation !== editingApplication.occupation ||
+  editingApplication.edit_hobbies !== editingApplication.hobbies ||
+  editingApplication.edit_participation_reason !== editingApplication.participation_reason ||
+  editingApplication.edit_dream !== editingApplication.dream ||
+  editingApplication.edit_beauty_meaning !== editingApplication.beauty_meaning ||
+  editingApplication.edit_talent !== editingApplication.talent ||
+  editingApplication.edit_message_to_viewers !== editingApplication.message_to_viewers ||
+  editingApplication.edit_social_link !== editingApplication.social_link ||
+  editingApplication.edit_photo_1 !== (editingApplication.photo_1 || editingApplication.photo_url) ||
+  editingApplication.edit_photo_2 !== editingApplication.photo_2 ||
+  editingApplication.edit_photo_3 !== editingApplication.photo_3 ||
+  editingApplication.edit_photo_4 !== editingApplication.photo_4 ||
+  editingApplication.edit_photo_5 !== editingApplication.photo_5 ||
+  editingApplication.edit_video_url !== editingApplication.video_url;
+
+if (!hasChanges) {
+  setErrorMessage("Сначала измените хотя бы одно поле, фото или видео");
+  return;
+}
 
     const description = `
 Кратко о себе: ${editingApplication.edit_about_short}
