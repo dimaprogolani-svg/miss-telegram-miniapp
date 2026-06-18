@@ -884,7 +884,8 @@ function MyApplications() {
   const [userRole, setUserRole] = useState("user");
   const [errorMessage, setErrorMessage] = useState("");
   const [editingApplication, setEditingApplication] = useState<any>(null);
-
+  const [editField, setEditField] = useState("");
+  
   function getTelegramUser() {
     return (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
   }
@@ -924,6 +925,7 @@ function MyApplications() {
       edit_photo_url: application.photo_url || "",
       edit_video_url: application.video_url || "",
     });
+	setEditField("");
 	setTimeout(() => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }, 100);
@@ -1359,6 +1361,25 @@ setLoading(false);
     return (
       <div className="page">
         <h1>✏️ Редактировать заявку</h1>
+		<div className="card">
+  <h2>Что изменить?</h2>
+
+  <select
+    className="form-input"
+    value={editField}
+    onChange={(e) => setEditField(e.target.value)}
+  >
+    <option value="">Выберите пункт</option>
+    <option value="name">Имя</option>
+    <option value="photo_1">Фото №1</option>
+    <option value="photo_2">Фото №2</option>
+    <option value="photo_3">Фото №3</option>
+    <option value="photo_4">Фото №4</option>
+    <option value="photo_5">Фото №5</option>
+    <option value="video">Видео</option>
+    <option value="social_link">Соцсеть</option>
+  </select>
+</div>
 
         <div className="card">
           <input
