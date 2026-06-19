@@ -884,6 +884,7 @@ function MyApplications() {
   const [userRole, setUserRole] = useState("user");
   const [errorMessage, setErrorMessage] = useState("");
   const [editingApplication, setEditingApplication] = useState<any>(null);
+
   
   
   function getTelegramUser() {
@@ -1231,6 +1232,7 @@ console.log("BEFORE CONTESTANTS QUERY", {
 });
 
 const { data, error } = await query;
+
 console.log("STEP 6 AFTER CONTESTANTS");
 console.log("CONTESTANTS ERROR:", error);
 console.log("CONTESTANTS COUNT:", data?.length);
@@ -1298,6 +1300,13 @@ const applicationsWithStats = (data || []).map((application: any) => ({
   votePlace: null,
   giftPlace: null,
 }));
+
+if (
+  (userRole === "admin" || userRole === "moderator") &&
+  pendingEditsData?.length
+) {
+  console.log("PENDING EDITS:", pendingEditsData);
+}
 
 setApplications(applicationsWithStats);
 setLoading(false);
