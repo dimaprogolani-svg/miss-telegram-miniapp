@@ -1260,6 +1260,8 @@ const pendingEditByContestant: any = {};
 (pendingEditsData || []).forEach((edit: any) => {
   pendingEditByContestant[edit.contestant_id] = true;
 });
+console.log("PENDING EDITS DATA:", pendingEditsData);
+console.log("PENDING EDIT BY CONTESTANT:", pendingEditByContestant);
 const { data: votesData } = await supabase
   .from("votes")
   .select("contestant_id")
