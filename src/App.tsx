@@ -884,6 +884,7 @@ function MyApplications() {
   const [userRole, setUserRole] = useState("user");
   const [errorMessage, setErrorMessage] = useState("");
   const [editingApplication, setEditingApplication] = useState<any>(null);
+  const [editRequests, setEditRequests] = useState<any[]>([]);
 
   
   
@@ -1262,6 +1263,17 @@ const pendingEditByContestant: any = {};
 (pendingEditsData || []).forEach((edit: any) => {
   pendingEditByContestant[edit.contestant_id] = true;
 });
+if (userRole === "admin" || userRole === "moderator") {
+  const { data: editRequestsData } = await supabase
+    .from("contestant_edits")
+    .select("*")
+    .eq("status", "На модерации")
+    .order("created_at", { ascending: false });
+
+  setEditRequests(editRequestsData || []);
+} else {
+  setEditRequests([]);
+}
 console.log("PENDING EDITS DATA:", pendingEditsData);
 console.log("PENDING EDIT BY CONTESTANT:", pendingEditByContestant);
 const { data: votesData } = await supabase
@@ -1351,6 +1363,7 @@ setLoading(false);
   }
 
   if (loading) {
+  console.log("EDIT REQUESTS:", editRequests);
     return (
       <div className="page">
         <h1>📋 Заявки</h1>
