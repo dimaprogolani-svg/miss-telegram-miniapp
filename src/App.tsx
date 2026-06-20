@@ -1618,7 +1618,49 @@ setLoading(false);
   return (
     <div className="page">
       <h1>📋 Заявки</h1>
+{(userRole === "admin" || userRole === "moderator") &&
+  editRequests.length > 0 && (
+    <div className="card">
+      <h2>✏️ Редактирования на модерации</h2>
 
+      {editRequests.map((edit) => (
+        <div key={edit.id} className="card">
+          <h3>Заявка #{edit.contestant_id}</h3>
+          <p>👑 Имя: {edit.name}</p>
+          <p>🎂 Возраст: {edit.age}</p>
+          <p>🌍 {edit.country}, {edit.city}</p>
+          <p>🟡 Статус: {edit.status}</p>
+
+          {edit.photo_url && (
+            <img
+              className="profile-photo"
+              src={edit.photo_url}
+              alt={edit.name}
+            />
+          )}
+
+          {edit.video_url && (
+            <video className="profile-photo" controls playsInline>
+              <source src={edit.video_url} type="video/mp4" />
+            </video>
+          )}
+
+          <p>📝 Кратко о себе: {edit.about_short || "не указано"}</p>
+          <p>💼 Чем занимается: {edit.occupation || "не указано"}</p>
+          <p>🎯 Хобби: {edit.hobbies || "не указано"}</p>
+          <p>🔗 Соцсеть: {edit.social_link || "не указано"}</p>
+
+          <button className="vote-btn">
+            🟢 Одобрить изменения
+          </button>
+
+          <button className="gift-btn">
+            🔴 Отклонить изменения
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
       {applications.map((application) => (
         <div className="card" key={application.id}>
           {[
