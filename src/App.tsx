@@ -886,8 +886,6 @@ function MyApplications() {
   const [editingApplication, setEditingApplication] = useState<any>(null);
   const [editRequests, setEditRequests] = useState<any[]>([]);
 
-  
-  
   function getTelegramUser() {
     return (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
   }
@@ -927,10 +925,10 @@ function MyApplications() {
       edit_photo_url: application.photo_url || "",
       edit_video_url: application.video_url || "",
     });
-	
-	setTimeout(() => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}, 100);
+
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
   }
 
   function updateEditField(field: string, value: any) {
@@ -1021,33 +1019,33 @@ function MyApplications() {
       return;
     }
 
-const hasChanges =
-  editingApplication.edit_name !== editingApplication.name ||
-  Number(editingApplication.edit_age) !== Number(editingApplication.age) ||
-  editingApplication.edit_country !== editingApplication.country ||
-  editingApplication.edit_city !== editingApplication.city ||
-  editingApplication.edit_height !== editingApplication.height ||
-  editingApplication.edit_marital_status !== editingApplication.marital_status ||
-  editingApplication.edit_about_short !== editingApplication.about_short ||
-  editingApplication.edit_occupation !== editingApplication.occupation ||
-  editingApplication.edit_hobbies !== editingApplication.hobbies ||
-  editingApplication.edit_participation_reason !== editingApplication.participation_reason ||
-  editingApplication.edit_dream !== editingApplication.dream ||
-  editingApplication.edit_beauty_meaning !== editingApplication.beauty_meaning ||
-  editingApplication.edit_talent !== editingApplication.talent ||
-  editingApplication.edit_message_to_viewers !== editingApplication.message_to_viewers ||
-  editingApplication.edit_social_link !== editingApplication.social_link ||
-  editingApplication.edit_photo_1 !== (editingApplication.photo_1 || editingApplication.photo_url) ||
-  editingApplication.edit_photo_2 !== editingApplication.photo_2 ||
-  editingApplication.edit_photo_3 !== editingApplication.photo_3 ||
-  editingApplication.edit_photo_4 !== editingApplication.photo_4 ||
-  editingApplication.edit_photo_5 !== editingApplication.photo_5 ||
-  editingApplication.edit_video_url !== editingApplication.video_url;
+    const hasChanges =
+      editingApplication.edit_name !== editingApplication.name ||
+      Number(editingApplication.edit_age) !== Number(editingApplication.age) ||
+      editingApplication.edit_country !== editingApplication.country ||
+      editingApplication.edit_city !== editingApplication.city ||
+      editingApplication.edit_height !== editingApplication.height ||
+      editingApplication.edit_marital_status !== editingApplication.marital_status ||
+      editingApplication.edit_about_short !== editingApplication.about_short ||
+      editingApplication.edit_occupation !== editingApplication.occupation ||
+      editingApplication.edit_hobbies !== editingApplication.hobbies ||
+      editingApplication.edit_participation_reason !== editingApplication.participation_reason ||
+      editingApplication.edit_dream !== editingApplication.dream ||
+      editingApplication.edit_beauty_meaning !== editingApplication.beauty_meaning ||
+      editingApplication.edit_talent !== editingApplication.talent ||
+      editingApplication.edit_message_to_viewers !== editingApplication.message_to_viewers ||
+      editingApplication.edit_social_link !== editingApplication.social_link ||
+      editingApplication.edit_photo_1 !== (editingApplication.photo_1 || editingApplication.photo_url) ||
+      editingApplication.edit_photo_2 !== editingApplication.photo_2 ||
+      editingApplication.edit_photo_3 !== editingApplication.photo_3 ||
+      editingApplication.edit_photo_4 !== editingApplication.photo_4 ||
+      editingApplication.edit_photo_5 !== editingApplication.photo_5 ||
+      editingApplication.edit_video_url !== editingApplication.video_url;
 
-if (!hasChanges) {
-  setErrorMessage("Сначала измените хотя бы одно поле, фото или видео");
-  return;
-}
+    if (!hasChanges) {
+      setErrorMessage("Сначала измените хотя бы одно поле, фото или видео");
+      return;
+    }
 
     const description = `
 Кратко о себе: ${editingApplication.edit_about_short}
@@ -1072,13 +1070,11 @@ if (!hasChanges) {
     const { error } = await supabase.from("contestant_edits").insert({
       contestant_id: editingApplication.id,
       status: "На модерации",
-
       name: editingApplication.edit_name,
       age: Number(editingApplication.edit_age),
       country: editingApplication.edit_country,
       city: editingApplication.edit_city,
       description,
-
       photo: editingApplication.edit_photo_1,
       photo_1: editingApplication.edit_photo_1,
       photo_2: editingApplication.edit_photo_2,
@@ -1087,7 +1083,6 @@ if (!hasChanges) {
       photo_5: editingApplication.edit_photo_5,
       photo_url: editingApplication.edit_photo_1,
       video_url: editingApplication.edit_video_url,
-
       height: editingApplication.edit_height,
       marital_status: editingApplication.edit_marital_status,
       about_short: editingApplication.edit_about_short,
@@ -1099,12 +1094,10 @@ if (!hasChanges) {
       talent: editingApplication.edit_talent,
       message_to_viewers: editingApplication.edit_message_to_viewers,
       social_link: editingApplication.edit_social_link,
-
       telegram_id: telegramUser.id,
       telegram_username: telegramUser.username || null,
       telegram_first_name: telegramUser.first_name || null,
       telegram_last_name: telegramUser.last_name || null,
-
       notification_sent: false,
     });
 
@@ -1143,258 +1136,241 @@ ${link}`;
   }
 
   async function loadRole() {
-  const telegramUser = getTelegramUser();
+    const telegramUser = getTelegramUser();
 
-  if (!telegramUser?.id) {
-    setUserRole("user");
-    return "user";
+    if (!telegramUser?.id) {
+      setUserRole("user");
+      return "user";
+    }
+
+    if (telegramUser.id === 678312754) {
+      setUserRole("admin");
+      return "admin";
+    }
+
+    const { data, error } = await supabase
+      .from("moderators")
+      .select("role")
+      .eq("telegram_id", telegramUser.id)
+      .maybeSingle();
+
+    if (error) {
+      console.log(error);
+      setUserRole("user");
+      return "user";
+    }
+
+    const role = data?.role || "user";
+    setUserRole(role);
+    return role;
   }
 
-  if (telegramUser.id === 678312754) {
-    setUserRole("admin");
-    return "admin";
-  }
+  async function loadApplications() {
+    setLoading(true);
+    setErrorMessage("");
 
-  setUserRole("user");
-  return "user";
-}
+    const telegramUser = getTelegramUser();
+    const role = await loadRole();
 
-async function loadApplications() {
-  console.log("STEP 1");
-
-  setLoading(true);
-  setErrorMessage("");
-
-  console.log("STEP 2");
-
-  const telegramUser = getTelegramUser();
-
-  console.log("STEP 3 TELEGRAM USER:", telegramUser);
-
-  const role = await loadRole();
-
-  console.log("STEP 4 ROLE:", role);
-  console.log("STEP 5 BEFORE CONTESTANTS");
-
-  if (!telegramUser?.id && role !== "admin") {
+    if (!telegramUser?.id && role !== "admin") {
       setApplications([]);
+      setEditRequests([]);
       setErrorMessage("Откройте раздел через Telegram Mini App");
       setLoading(false);
       return;
     }
 
-let query = supabase
-  .from("contestants")
-  .select(`
-    id,
-    name,
-    age,
-    country,
-    city,
-    status,
-    contestant_code,
-photo_url,
-video_url,
-photo_1,
-photo_2,
-photo_3,
-photo_4,
-photo_5,
-height,
-    marital_status,
-    about_short,
-    occupation,
-    hobbies,
-    participation_reason,
-    dream,
-    beauty_meaning,
-    talent,
-    message_to_viewers,
-social_link,
-views,
-link_clicks,
-telegram_id,
-created_at
-  `)
-  .order("created_at", { ascending: false })
-  .limit(50);
+    let query = supabase
+      .from("contestants")
+      .select(`
+        id,
+        name,
+        age,
+        country,
+        city,
+        status,
+        contestant_code,
+        photo,
+        photo_url,
+        video_url,
+        photo_1,
+        photo_2,
+        photo_3,
+        photo_4,
+        photo_5,
+        height,
+        marital_status,
+        about_short,
+        occupation,
+        hobbies,
+        participation_reason,
+        dream,
+        beauty_meaning,
+        talent,
+        message_to_viewers,
+        social_link,
+        views,
+        link_clicks,
+        telegram_id,
+        moderated_by,
+        moderated_by_name,
+        created_at
+      `)
+      .order("created_at", { ascending: false })
+      .limit(50);
 
-    if (role !== "admin") {
-  query = query
-    .eq("telegram_id", telegramUser.id)
-    .neq("status", "Отклонена");
-}
+    if (role !== "admin" && role !== "moderator") {
+      query = query.eq("telegram_id", telegramUser.id).neq("status", "Отклонена");
+    }
 
-    console.log("LOAD APPLICATIONS STEP 1: before contestants query");
-
-console.log("BEFORE CONTESTANTS QUERY", {
-  role,
-  telegramId: telegramUser?.id,
-});
-
-const { data, error } = await query;
-
-console.log("STEP 6 AFTER CONTESTANTS");
-console.log("CONTESTANTS ERROR:", error);
-console.log("CONTESTANTS COUNT:", data?.length);
-
-console.log("AFTER CONTESTANTS QUERY", {
-  dataLength: data?.length,
-  error,
-});
+    const { data, error } = await query;
 
     if (error) {
-  console.log("CONTESTANTS QUERY ERROR:", error);
+      console.log("CONTESTANTS QUERY ERROR:", error);
       setErrorMessage(error.message || "Ошибка загрузки заявок");
       setApplications([]);
+      setEditRequests([]);
       setLoading(false);
       return;
     }
 
     const applicationIds = (data || []).map((application: any) => application.id);
-const { data: pendingEditsData } = await supabase
-  .from("contestant_edits")
-  .select("contestant_id")
-  .eq("status", "На модерации")
-  .in("contestant_id", applicationIds);
 
-const pendingEditByContestant: any = {};
+    const { data: pendingEditsData } = await supabase
+      .from("contestant_edits")
+      .select("contestant_id")
+      .eq("status", "На модерации")
+      .in("contestant_id", applicationIds);
 
-(pendingEditsData || []).forEach((edit: any) => {
-  pendingEditByContestant[edit.contestant_id] = true;
-});
-if ((role as string) === "admin" || (role as string) === "moderator") {
-  const { data: editRequestsData, error: editRequestsError } = await supabase
-    .from("contestant_edits")
-    .select("*")
-    .eq("status", "На модерации")
-    .order("created_at", { ascending: false });
+    const pendingEditByContestant: any = {};
 
-  if (editRequestsError) {
-    console.log("EDIT REQUESTS ERROR:", editRequestsError);
-    setEditRequests([]);
-  } else {
-    console.log("EDIT REQUESTS DATA:", editRequestsData);
-    setEditRequests(editRequestsData || []);
-  }
-} else {
-  setEditRequests([]);
-}
-console.log("PENDING EDITS DATA:", pendingEditsData);
-console.log("PENDING EDIT BY CONTESTANT:", pendingEditByContestant);
-const { data: votesData } = await supabase
-  .from("votes")
-  .select("contestant_id")
-  .in("contestant_id", applicationIds);
+    (pendingEditsData || []).forEach((edit: any) => {
+      pendingEditByContestant[edit.contestant_id] = true;
+    });
 
-const { data: giftsData } = await supabase
-  .from("gifts")
-  .select("contestant_id, price")
-  .in("contestant_id", applicationIds);
+    if (role === "admin" || role === "moderator") {
+      const { data: editRequestsData, error: editRequestsError } = await supabase
+        .from("contestant_edits")
+        .select("*")
+        .eq("status", "На модерации")
+        .order("created_at", { ascending: false });
 
-const votesByContestant: any = {};
-const giftsByContestant: any = {};
-const giftStarsByContestant: any = {};
+      if (editRequestsError) {
+        console.log("EDIT REQUESTS ERROR:", editRequestsError);
+        setEditRequests([]);
+      } else {
+        setEditRequests(editRequestsData || []);
+      }
+    } else {
+      setEditRequests([]);
+    }
 
-(votesData || []).forEach((vote: any) => {
-  votesByContestant[vote.contestant_id] =
-    (votesByContestant[vote.contestant_id] || 0) + 1;
-});
+    const { data: votesData } = await supabase
+      .from("votes")
+      .select("contestant_id")
+      .in("contestant_id", applicationIds);
 
-(giftsData || []).forEach((gift: any) => {
-  giftsByContestant[gift.contestant_id] =
-    (giftsByContestant[gift.contestant_id] || 0) + 1;
+    const { data: giftsData } = await supabase
+      .from("gifts")
+      .select("contestant_id, price")
+      .in("contestant_id", applicationIds);
 
-  giftStarsByContestant[gift.contestant_id] =
-    (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
-});
+    const votesByContestant: any = {};
+    const giftsByContestant: any = {};
+    const giftStarsByContestant: any = {};
 
-const applicationsWithStats = (data || []).map((application: any) => ({
-  ...application,
-  pendingEdit: pendingEditByContestant[application.id] || false,
-  realVotes: votesByContestant[application.id] || 0,
-  realGifts: giftsByContestant[application.id] || 0,
-  giftStars: giftStarsByContestant[application.id] || 0,
-  votePlace: null,
-  giftPlace: null,
-}));
+    (votesData || []).forEach((vote: any) => {
+      votesByContestant[vote.contestant_id] =
+        (votesByContestant[vote.contestant_id] || 0) + 1;
+    });
 
-if (
-  (userRole === "admin" || userRole === "moderator") &&
-  pendingEditsData?.length
-) {
-  console.log("PENDING EDITS:", pendingEditsData);
-}
+    (giftsData || []).forEach((gift: any) => {
+      giftsByContestant[gift.contestant_id] =
+        (giftsByContestant[gift.contestant_id] || 0) + 1;
 
-setApplications(applicationsWithStats);
-setLoading(false);
+      giftStarsByContestant[gift.contestant_id] =
+        (giftStarsByContestant[gift.contestant_id] || 0) + (gift.price || 0);
+    });
+
+    const applicationsWithStats = (data || []).map((application: any) => ({
+      ...application,
+      pendingEdit: pendingEditByContestant[application.id] || false,
+      realVotes: votesByContestant[application.id] || 0,
+      realGifts: giftsByContestant[application.id] || 0,
+      giftStars: giftStarsByContestant[application.id] || 0,
+      votePlace: null,
+      giftPlace: null,
+    }));
+
+    setApplications(applicationsWithStats);
+    setLoading(false);
   }
 
   useEffect(() => {
     loadApplications();
   }, []);
 
-async function approveEdit(edit: any) {
-  const { error: updateError } = await supabase
-    .from("contestants")
-    .update({
-      name: edit.name,
-      age: edit.age,
-      country: edit.country,
-      city: edit.city,
-      photo: edit.photo,
-      photo_1: edit.photo_1,
-      photo_2: edit.photo_2,
-      photo_3: edit.photo_3,
-      photo_4: edit.photo_4,
-      photo_5: edit.photo_5,
-      photo_url: edit.photo_url,
-      video_url: edit.video_url,
-      height: edit.height,
-      marital_status: edit.marital_status,
-      about_short: edit.about_short,
-      occupation: edit.occupation,
-      hobbies: edit.hobbies,
-      participation_reason: edit.participation_reason,
-      dream: edit.dream,
-      beauty_meaning: edit.beauty_meaning,
-      talent: edit.talent,
-      message_to_viewers: edit.message_to_viewers,
-      social_link: edit.social_link,
-    })
-    .eq("id", edit.contestant_id);
+  async function approveEdit(edit: any) {
+    const { error: updateError } = await supabase
+      .from("contestants")
+      .update({
+        name: edit.name,
+        age: edit.age,
+        country: edit.country,
+        city: edit.city,
+        photo: edit.photo || edit.photo_url,
+        photo_1: edit.photo_1 || edit.photo_url,
+        photo_2: edit.photo_2,
+        photo_3: edit.photo_3,
+        photo_4: edit.photo_4,
+        photo_5: edit.photo_5,
+        photo_url: edit.photo_url || edit.photo_1 || edit.photo,
+        video_url: edit.video_url,
+        height: edit.height,
+        marital_status: edit.marital_status,
+        about_short: edit.about_short,
+        occupation: edit.occupation,
+        hobbies: edit.hobbies,
+        participation_reason: edit.participation_reason,
+        dream: edit.dream,
+        beauty_meaning: edit.beauty_meaning,
+        talent: edit.talent,
+        message_to_viewers: edit.message_to_viewers,
+        social_link: edit.social_link,
+      })
+      .eq("id", edit.contestant_id);
 
-  if (updateError) {
-    setErrorMessage(updateError.message || "Ошибка одобрения изменений");
-    return;
+    if (updateError) {
+      setErrorMessage(updateError.message || "Ошибка одобрения изменений");
+      return;
+    }
+
+    const { error: editError } = await supabase
+      .from("contestant_edits")
+      .update({ status: "Одобрена" })
+      .eq("id", edit.id);
+
+    if (editError) {
+      setErrorMessage(editError.message || "Ошибка обновления редактирования");
+      return;
+    }
+
+    await loadApplications();
   }
 
-  const { error: editError } = await supabase
-    .from("contestant_edits")
-    .update({ status: "Одобрена" })
-    .eq("id", edit.id);
+  async function rejectEdit(editId: number) {
+    const { error } = await supabase
+      .from("contestant_edits")
+      .update({ status: "Отклонена" })
+      .eq("id", editId);
 
-  if (editError) {
-    setErrorMessage(editError.message || "Ошибка обновления редактирования");
-    return;
+    if (error) {
+      setErrorMessage(error.message || "Ошибка отклонения изменений");
+      return;
+    }
+
+    await loadApplications();
   }
-
-  await loadApplications();
-}
-
-async function rejectEdit(editId: number) {
-  const { error } = await supabase
-    .from("contestant_edits")
-    .update({ status: "Отклонена" })
-    .eq("id", editId);
-
-  if (error) {
-    setErrorMessage(error.message || "Ошибка отклонения изменений");
-    return;
-  }
-
-  await loadApplications();
-}
 
   async function changeStatus(id: number, newStatus: string) {
     const telegramUser = getTelegramUser();
@@ -1412,10 +1388,8 @@ async function rejectEdit(editId: number) {
         status: finalStatus,
         moderated_by: telegramUser.id,
         moderated_by_name: getTelegramName(telegramUser),
-
         approval_notification_sent:
           finalStatus === "Опубликована в конкурсе" ? false : null,
-
         rejection_notification_sent:
           finalStatus === "Отклонена" ? false : null,
       })
@@ -1431,7 +1405,6 @@ async function rejectEdit(editId: number) {
   }
 
   if (loading) {
-  console.log("EDIT REQUESTS:", editRequests);
     return (
       <div className="page">
         <h1>📋 Заявки</h1>
@@ -1463,190 +1436,48 @@ async function rejectEdit(editId: number) {
       <div className="page">
         <h1>✏️ Редактировать заявку</h1>
 
-
         <div className="card">
-          <input
-            className="form-input"
-            placeholder="Имя"
-            value={editingApplication.edit_name}
-            onChange={(e) => updateEditField("edit_name", e.target.value)}
-          />
-
-          <input
-            className="form-input"
-            placeholder="Возраст"
-            value={editingApplication.edit_age}
-            onChange={(e) => updateEditField("edit_age", e.target.value)}
-          />
-
-          <input
-            className="form-input"
-            placeholder="Страна"
-            value={editingApplication.edit_country}
-            onChange={(e) => updateEditField("edit_country", e.target.value)}
-          />
-
-          <input
-            className="form-input"
-            placeholder="Город"
-            value={editingApplication.edit_city}
-            onChange={(e) => updateEditField("edit_city", e.target.value)}
-          />
-
-          <input
-            className="form-input"
-            placeholder="Рост"
-            value={editingApplication.edit_height}
-            onChange={(e) => updateEditField("edit_height", e.target.value)}
-          />
-
-          <input
-            className="form-input"
-            placeholder="Семейное положение"
-            value={editingApplication.edit_marital_status}
-            onChange={(e) =>
-              updateEditField("edit_marital_status", e.target.value)
-            }
-          />
+          <input className="form-input" placeholder="Имя" value={editingApplication.edit_name} onChange={(e) => updateEditField("edit_name", e.target.value)} />
+          <input className="form-input" placeholder="Возраст" value={editingApplication.edit_age} onChange={(e) => updateEditField("edit_age", e.target.value)} />
+          <input className="form-input" placeholder="Страна" value={editingApplication.edit_country} onChange={(e) => updateEditField("edit_country", e.target.value)} />
+          <input className="form-input" placeholder="Город" value={editingApplication.edit_city} onChange={(e) => updateEditField("edit_city", e.target.value)} />
+          <input className="form-input" placeholder="Рост" value={editingApplication.edit_height} onChange={(e) => updateEditField("edit_height", e.target.value)} />
+          <input className="form-input" placeholder="Семейное положение" value={editingApplication.edit_marital_status} onChange={(e) => updateEditField("edit_marital_status", e.target.value)} />
         </div>
 
         <div className="card">
-          <textarea
-            className="form-input"
-            placeholder="1. Кратко о себе"
-            value={editingApplication.edit_about_short}
-            onChange={(e) =>
-              updateEditField("edit_about_short", e.target.value)
-            }
-          />
-
-          <textarea
-            className="form-input"
-            placeholder="2. Чем занимается"
-            value={editingApplication.edit_occupation}
-            onChange={(e) =>
-              updateEditField("edit_occupation", e.target.value)
-            }
-          />
-
-          <textarea
-            className="form-input"
-            placeholder="3. Хобби"
-            value={editingApplication.edit_hobbies}
-            onChange={(e) => updateEditField("edit_hobbies", e.target.value)}
-          />
-
-          <textarea
-            className="form-input"
-            placeholder="4. Почему участвует"
-            value={editingApplication.edit_participation_reason}
-            onChange={(e) =>
-              updateEditField("edit_participation_reason", e.target.value)
-            }
-          />
-
-          <textarea
-            className="form-input"
-            placeholder="5. Мечта"
-            value={editingApplication.edit_dream}
-            onChange={(e) => updateEditField("edit_dream", e.target.value)}
-          />
-
-          <textarea
-            className="form-input"
-            placeholder="6. Что для неё красота"
-            value={editingApplication.edit_beauty_meaning}
-            onChange={(e) =>
-              updateEditField("edit_beauty_meaning", e.target.value)
-            }
-          />
-
-          <textarea
-            className="form-input"
-            placeholder="7. Главный талант"
-            value={editingApplication.edit_talent}
-            onChange={(e) => updateEditField("edit_talent", e.target.value)}
-          />
-
-          <textarea
-            className="form-input"
-            placeholder="8. Обращение к зрителям"
-            value={editingApplication.edit_message_to_viewers}
-            onChange={(e) =>
-              updateEditField("edit_message_to_viewers", e.target.value)
-            }
-          />
-
-          <input
-            className="form-input"
-            placeholder="9. Instagram / Telegram / TikTok — обязательно"
-            value={editingApplication.edit_social_link}
-            onChange={(e) =>
-              updateEditField("edit_social_link", e.target.value)
-            }
-          />
+          <textarea className="form-input" placeholder="1. Кратко о себе" value={editingApplication.edit_about_short} onChange={(e) => updateEditField("edit_about_short", e.target.value)} />
+          <textarea className="form-input" placeholder="2. Чем занимается" value={editingApplication.edit_occupation} onChange={(e) => updateEditField("edit_occupation", e.target.value)} />
+          <textarea className="form-input" placeholder="3. Хобби" value={editingApplication.edit_hobbies} onChange={(e) => updateEditField("edit_hobbies", e.target.value)} />
+          <textarea className="form-input" placeholder="4. Почему участвует" value={editingApplication.edit_participation_reason} onChange={(e) => updateEditField("edit_participation_reason", e.target.value)} />
+          <textarea className="form-input" placeholder="5. Мечта" value={editingApplication.edit_dream} onChange={(e) => updateEditField("edit_dream", e.target.value)} />
+          <textarea className="form-input" placeholder="6. Что для неё красота" value={editingApplication.edit_beauty_meaning} onChange={(e) => updateEditField("edit_beauty_meaning", e.target.value)} />
+          <textarea className="form-input" placeholder="7. Главный талант" value={editingApplication.edit_talent} onChange={(e) => updateEditField("edit_talent", e.target.value)} />
+          <textarea className="form-input" placeholder="8. Обращение к зрителям" value={editingApplication.edit_message_to_viewers} onChange={(e) => updateEditField("edit_message_to_viewers", e.target.value)} />
+          <input className="form-input" placeholder="9. Instagram / Telegram / TikTok" value={editingApplication.edit_social_link} onChange={(e) => updateEditField("edit_social_link", e.target.value)} />
         </div>
 
         <div className="card">
           <h2>Фото</h2>
-
           <p>Фото №1</p>
-          <input
-            className="form-input"
-            type="file"
-            accept="image/*"
-            onChange={(e) => uploadEditPhoto(e, "edit_photo_1")}
-          />
-
+          <input className="form-input" type="file" accept="image/*" onChange={(e) => uploadEditPhoto(e, "edit_photo_1")} />
           <p>Фото №2</p>
-          <input
-            className="form-input"
-            type="file"
-            accept="image/*"
-            onChange={(e) => uploadEditPhoto(e, "edit_photo_2")}
-          />
-
+          <input className="form-input" type="file" accept="image/*" onChange={(e) => uploadEditPhoto(e, "edit_photo_2")} />
           <p>Фото №3</p>
-          <input
-            className="form-input"
-            type="file"
-            accept="image/*"
-            onChange={(e) => uploadEditPhoto(e, "edit_photo_3")}
-          />
-
+          <input className="form-input" type="file" accept="image/*" onChange={(e) => uploadEditPhoto(e, "edit_photo_3")} />
           <p>Фото №4</p>
-          <input
-            className="form-input"
-            type="file"
-            accept="image/*"
-            onChange={(e) => uploadEditPhoto(e, "edit_photo_4")}
-          />
-
+          <input className="form-input" type="file" accept="image/*" onChange={(e) => uploadEditPhoto(e, "edit_photo_4")} />
           <p>Фото №5</p>
-          <input
-            className="form-input"
-            type="file"
-            accept="image/*"
-            onChange={(e) => uploadEditPhoto(e, "edit_photo_5")}
-          />
+          <input className="form-input" type="file" accept="image/*" onChange={(e) => uploadEditPhoto(e, "edit_photo_5")} />
         </div>
 
         <div className="card">
           <h2>Видео</h2>
-
-          <input
-            className="form-input"
-            type="file"
-            accept="video/*"
-            onChange={uploadEditVideo}
-          />
+          <input className="form-input" type="file" accept="video/*" onChange={uploadEditVideo} />
 
           {editingApplication.edit_video_url && (
             <video className="profile-photo" controls playsInline>
-              <source
-                src={editingApplication.edit_video_url}
-                type="video/mp4"
-              />
+              <source src={editingApplication.edit_video_url} type="video/mp4" />
             </video>
           )}
         </div>
@@ -1656,28 +1487,9 @@ async function rejectEdit(editId: number) {
             🕒 Отправить изменения на модерацию
           </button>
 
-          <button
-            className="gift-btn"
-            onClick={() => setEditingApplication(null)}
-          >
+          <button className="gift-btn" onClick={() => setEditingApplication(null)}>
             Отмена
           </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (applications.length === 0) {
-    return (
-      <div className="page">
-        <h1>📋 Заявки</h1>
-        <div className="card">
-          <h2>Заявок пока нет</h2>
-          <p>
-            {userRole === "admin" || userRole === "moderator"
-              ? "Новых заявок на модерацию нет."
-              : "У вас пока нет заявок."}
-          </p>
         </div>
       </div>
     );
@@ -1686,99 +1498,109 @@ async function rejectEdit(editId: number) {
   return (
     <div className="page">
       <h1>📋 Заявки</h1>
-<div className="card">
-  <p>ROLE: {userRole}</p>
-  <p>EDITS: {editRequests.length}</p>
-</div>
 
-{(userRole === "admin" || userRole === "moderator") &&
-  editRequests.length > 0 && (
-    <div className="card">
-      <h2>✏️ Редактирования на модерации</h2>
+      {(userRole === "admin" || userRole === "moderator") &&
+        editRequests.length > 0 && (
+          <div className="card">
+            <h2>✏️ Редактирования на модерации</h2>
 
-      {editRequests.map((edit) => (
-        <div key={edit.id} className="card">
-          <h3>Заявка #{edit.contestant_id}</h3>
-          <p>👑 Имя: {edit.name}</p>
-          <p>🎂 Возраст: {edit.age}</p>
-          <p>🌍 {edit.country}, {edit.city}</p>
-          <p>🟡 Статус: {edit.status}</p>
+            {editRequests.map((edit) => (
+              <div key={edit.id} className="card">
+                <h3>Заявка #{edit.contestant_id}</h3>
+                <p>👑 Имя: {edit.name}</p>
+                <p>🎂 Возраст: {edit.age || "не указан"}</p>
+                <p>🌍 {edit.country || "не указано"}, {edit.city || "не указано"}</p>
+                <p>📏 Рост: {edit.height || "не указан"}</p>
+                <p>💍 Семейное положение: {edit.marital_status || "не указано"}</p>
+                <p>🟡 Статус: {edit.status}</p>
 
-          {edit.photo_url && (
-            <img
-              className="profile-photo"
-              src={edit.photo_url}
-              alt={edit.name}
-            />
-          )}
+                {[
+                  edit.photo_1 || edit.photo_url,
+                  edit.photo_2,
+                  edit.photo_3,
+                  edit.photo_4,
+                  edit.photo_5,
+                ]
+                  .filter(Boolean)
+                  .map((photoUrl, index) => (
+                    <img
+                      key={index}
+                      className="profile-photo"
+                      src={photoUrl}
+                      alt={edit.name}
+                    />
+                  ))}
 
-          {edit.video_url && (
-            <video className="profile-photo" controls playsInline>
-              <source src={edit.video_url} type="video/mp4" />
-            </video>
-          )}
+                {edit.video_url && (
+                  <video className="profile-photo" controls playsInline>
+                    <source src={edit.video_url} type="video/mp4" />
+                  </video>
+                )}
 
-          <p>📝 Кратко о себе: {edit.about_short || "не указано"}</p>
-          <p>💼 Чем занимается: {edit.occupation || "не указано"}</p>
-          <p>🎯 Хобби: {edit.hobbies || "не указано"}</p>
-          <p>🔗 Соцсеть: {edit.social_link || "не указано"}</p>
+                <p>📝 Кратко о себе: {edit.about_short || "не указано"}</p>
+                <p>💼 Чем занимается: {edit.occupation || "не указано"}</p>
+                <p>🎯 Хобби: {edit.hobbies || "не указано"}</p>
+                <p>❓ Почему участвует: {edit.participation_reason || "не указано"}</p>
+                <p>💭 Мечта: {edit.dream || "не указано"}</p>
+                <p>💎 Что для неё красота: {edit.beauty_meaning || "не указано"}</p>
+                <p>⭐ Главный талант: {edit.talent || "не указано"}</p>
+                <p>💌 Обращение к зрителям: {edit.message_to_viewers || "не указано"}</p>
+                <p>🔗 Соцсеть: {edit.social_link || "не указано"}</p>
 
-          <button
-  className="vote-btn"
-  onClick={() => approveEdit(edit)}
->
-  🟢 Одобрить изменения
-</button>
+                <button className="vote-btn" onClick={() => approveEdit(edit)}>
+                  🟢 Одобрить изменения
+                </button>
 
-          <button
-  className="gift-btn"
-  onClick={() => rejectEdit(edit.id)}
->
-  🔴 Отклонить изменения
-</button>
+                <button className="gift-btn" onClick={() => rejectEdit(edit.id)}>
+                  🔴 Отклонить изменения
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+      {applications.length === 0 && (
+        <div className="card">
+          <h2>Заявок пока нет</h2>
+          <p>
+            {userRole === "admin" || userRole === "moderator"
+              ? "Новых заявок на модерацию нет."
+              : "У вас пока нет заявок."}
+          </p>
         </div>
-      ))}
-    </div>
-  )}
-  
+      )}
+
       {applications.map((application) => (
         <div className="card" key={application.id}>
           {[
-  application.photo_1 || application.photo_url,
-  application.photo_2,
-  application.photo_3,
-  application.photo_4,
-  application.photo_5,
-]
-  .filter(Boolean)
-  .map((photoUrl, index) => (
-    <img
-      key={index}
-      className="profile-photo"
-      src={photoUrl}
-      alt={application.name}
-    />
-  ))}
+            application.photo_1 || application.photo_url,
+            application.photo_2,
+            application.photo_3,
+            application.photo_4,
+            application.photo_5,
+          ]
+            .filter(Boolean)
+            .map((photoUrl, index) => (
+              <img
+                key={index}
+                className="profile-photo"
+                src={photoUrl}
+                alt={application.name}
+              />
+            ))}
 
-{application.video_url && (
-  <video className="profile-photo" controls playsInline>
-    <source src={application.video_url} type="video/mp4" />
-  </video>
-)}
+          {application.video_url && (
+            <video className="profile-photo" controls playsInline>
+              <source src={application.video_url} type="video/mp4" />
+            </video>
+          )}
 
           <h2>👑 {application.name}</h2>
-
           <p>🆔 Код: {application.contestant_code || "не указан"}</p>
-          <p>🎂 Возраст: {application.age}</p>
-          <p>
-            🌍 {application.country}, {application.city}
-          </p>
+          <p>🎂 Возраст: {application.age || "не указан"}</p>
+          <p>🌍 {application.country}, {application.city}</p>
           <p>📏 Рост: {application.height || "не указан"}</p>
-          <p>
-            💍 Семейное положение:{" "}
-            {application.marital_status || "не указано"}
-          </p>
-
+          <p>💍 Семейное положение: {application.marital_status || "не указано"}</p>
           <p>🟡 Статус: {application.status}</p>
 
           {application.pendingEdit && (
@@ -1792,73 +1614,39 @@ async function rejectEdit(editId: number) {
           <p>⭐ Голосов: {application.realVotes}</p>
           <p>🎁 Подарков: {application.realGifts}</p>
           <p>💎 Получено Stars: {application.giftStars}</p>
-          <p>
-            🏆 Место по голосам:{" "}
-            {application.votePlace ? application.votePlace : "после публикации"}
-          </p>
-
-          <p>
-            🏆 Место по подаркам:{" "}
-            {application.giftPlace ? application.giftPlace : "после публикации"}
-          </p>
+          <p>🏆 Место по голосам: {application.votePlace || "после публикации"}</p>
+          <p>🏆 Место по подаркам: {application.giftPlace || "после публикации"}</p>
           <p>👀 Просмотров карточки: {application.views || 0}</p>
           <p>🔗 Переходов по ссылке: {application.link_clicks || 0}</p>
 
           <hr />
 
           <h3>📝 Анкета участницы</h3>
-
           <p>1. Кратко о себе: {application.about_short || "не указано"}</p>
           <p>2. Чем занимается: {application.occupation || "не указано"}</p>
           <p>3. Хобби: {application.hobbies || "не указано"}</p>
-          <p>
-            4. Почему участвует:{" "}
-            {application.participation_reason || "не указано"}
-          </p>
+          <p>4. Почему участвует: {application.participation_reason || "не указано"}</p>
           <p>5. Мечта: {application.dream || "не указано"}</p>
-          <p>
-            6. Что для неё красота:{" "}
-            {application.beauty_meaning || "не указано"}
-          </p>
+          <p>6. Что для неё красота: {application.beauty_meaning || "не указано"}</p>
           <p>7. Главный талант: {application.talent || "не указано"}</p>
-          <p>
-            8. Обращение к зрителям:{" "}
-            {application.message_to_viewers || "не указано"}
-          </p>
+          <p>8. Обращение к зрителям: {application.message_to_viewers || "не указано"}</p>
           <p>9. Соцсети: {application.social_link || "не указано"}</p>
 
-          {application.status === "Опубликована в конкурсе" && !application.pendingEdit && (
-            <button
-              className="vote-btn"
-              onClick={() => startEditApplication(application)}
-            >
-              ✏️ Редактировать заявку
+          {application.status === "Опубликована в конкурсе" &&
+            !application.pendingEdit && (
+              <button
+                className="vote-btn"
+                onClick={() => startEditApplication(application)}
+              >
+                ✏️ Редактировать заявку
+              </button>
+            )}
+
+          {application.status === "Опубликована в конкурсе" && (
+            <button className="vote-btn" onClick={() => shareContestant(application)}>
+              🔗 Поделиться карточкой
             </button>
           )}
-
-         {application.status === "Опубликована в конкурсе" && (
-  <>
-    {application.pendingEdit && (
-      <div
-        style={{
-          color: "#ffd700",
-          textAlign: "center",
-          marginBottom: "10px",
-          fontWeight: "bold",
-        }}
-      >
-        🕒 Изменения отправлены на модерацию
-      </div>
-    )}
-
-    <button
-      className="vote-btn"
-      onClick={() => shareContestant(application)}
-    >
-      🔗 Поделиться карточкой
-    </button>
-  </>
-)}
 
           {application.moderated_by_name && (
             <p>👮 Обработал: {application.moderated_by_name}</p>
