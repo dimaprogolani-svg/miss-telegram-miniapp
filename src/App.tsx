@@ -1384,7 +1384,19 @@ ${link}`;
       return;
     }
 
-    await loadApplications();
+    setEditRequests((prev) => prev.filter((item) => item.id !== edit.id));
+
+setApplications((prev) =>
+  prev.map((application) =>
+    application.id === edit.contestant_id
+      ? {
+          ...application,
+          ...edit,
+          pendingEdit: false,
+        }
+      : application
+  )
+);
   }
 
   async function rejectEdit(editId: number) {
