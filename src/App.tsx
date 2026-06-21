@@ -1252,6 +1252,35 @@ ${link}`;
       const { data: editRequestsData, error: editRequestsError } = await supabase
         .from("contestant_edits")
         .select("*")
+		.select(`
+  id,
+  contestant_id,
+  status,
+  name,
+  age,
+  country,
+  city,
+  photo,
+  photo_url,
+  photo_1,
+  photo_2,
+  photo_3,
+  photo_4,
+  photo_5,
+  video_url,
+  height,
+  marital_status,
+  about_short,
+  occupation,
+  hobbies,
+  participation_reason,
+  dream,
+  beauty_meaning,
+  talent,
+  message_to_viewers,
+  social_link,
+  created_at
+`)
         .eq("status", "На модерации")
         .order("created_at", { ascending: false });
 
