@@ -1109,7 +1109,17 @@ function MyApplications() {
 
     setEditingApplication(null);
     setErrorMessage("");
-    await loadApplications();
+
+setApplications((prev) =>
+  prev.map((application) =>
+    application.id === editingApplication.id
+      ? {
+          ...application,
+          pendingEdit: true,
+        }
+      : application
+  )
+);
   }
 
   function shareContestant(application: any) {
