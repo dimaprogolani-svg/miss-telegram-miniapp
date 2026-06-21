@@ -1190,7 +1190,6 @@ ${link}`;
         city,
         status,
         contestant_code,
-        photo,
         photo_url,
         video_url,
         photo_1,
