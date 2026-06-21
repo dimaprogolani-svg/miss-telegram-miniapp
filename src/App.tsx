@@ -1251,10 +1251,10 @@ ${link}`;
     });
 
     if (role === "admin" || role === "moderator") {
-      const { data: editRequestsData, error: editRequestsError } = await supabase
-        .from("contestant_edits")
-        .select("*")
-		.select(`
+     const { data: editRequestsData, error: editRequestsError } = await supabase
+  .from("contestant_edits")
+  .select(`
+  
   id,
   contestant_id,
   status,
@@ -1262,14 +1262,6 @@ ${link}`;
   age,
   country,
   city,
-  photo,
-  photo_url,
-  photo_1,
-  photo_2,
-  photo_3,
-  photo_4,
-  photo_5,
-  video_url,
   height,
   marital_status,
   about_short,
