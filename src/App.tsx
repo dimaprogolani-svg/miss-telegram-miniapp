@@ -1263,14 +1263,20 @@ const pendingEditByContestant: any = {};
 (pendingEditsData || []).forEach((edit: any) => {
   pendingEditByContestant[edit.contestant_id] = true;
 });
-if (userRole === "admin" || userRole === "moderator") {
-  const { data: editRequestsData } = await supabase
+if ((role as string) === "admin" || (role as string) === "moderator") {
+  const { data: editRequestsData, error: editRequestsError } = await supabase
     .from("contestant_edits")
     .select("*")
     .eq("status", "На модерации")
     .order("created_at", { ascending: false });
 
-  setEditRequests(editRequestsData || []);
+  if (editRequestsError) {
+    console.log("EDIT REQUESTS ERROR:", editRequestsError);
+    setEditRequests([]);
+  } else {
+    console.log("EDIT REQUESTS DATA:", editRequestsData);
+    setEditRequests(editRequestsData || []);
+  }
 } else {
   setEditRequests([]);
 }
@@ -1327,6 +1333,68 @@ setLoading(false);
   useEffect(() => {
     loadApplications();
   }, []);
+
+async function approveEdit(edit: any) {
+  const { error: updateError } = await supabase
+    .from("contestants")
+    .update({
+      name: edit.name,
+      age: edit.age,
+      country: edit.country,
+      city: edit.city,
+      photo: edit.photo,
+      photo_1: edit.photo_1,
+      photo_2: edit.photo_2,
+      photo_3: edit.photo_3,
+      photo_4: edit.photo_4,
+      photo_5: edit.photo_5,
+      photo_url: edit.photo_url,
+      video_url: edit.video_url,
+      height: edit.height,
+      marital_status: edit.marital_status,
+      about_short: edit.about_short,
+      occupation: edit.occupation,
+      hobbies: edit.hobbies,
+      participation_reason: edit.participation_reason,
+      dream: edit.dream,
+      beauty_meaning: edit.beauty_meaning,
+      talent: edit.talent,
+      message_to_viewers: edit.message_to_viewers,
+      social_link: edit.social_link,
+    })
+    .eq("id", edit.contestant_id);
+
+  if (updateError) {
+    setErrorMessage(updateError.message || "Ошибка одобрения изменений");
+    return;
+  }
+
+  const { error: editError } = await supabase
+    .from("contestant_edits")
+    .update({ status: "Одобрена" })
+    .eq("id", edit.id);
+
+  if (editError) {
+    setErrorMessage(editError.message || "Ошибка обновления редактирования");
+    return;
+  }
+
+  await loadApplications();
+}
+
+async function rejectEdit(editId: number) {
+  const { error } = await supabase
+    .from("contestant_edits")
+    .update({ status: "Отклонена" })
+    .eq("id", editId);
+
+  if (error) {
+    setErrorMessage(error.message || "Ошибка отклонения изменений");
+    return;
+  }
+
+  await loadApplications();
+}
 
   async function changeStatus(id: number, newStatus: string) {
     const telegramUser = getTelegramUser();
@@ -1655,13 +1723,19 @@ setLoading(false);
           <p>🎯 Хобби: {edit.hobbies || "не указано"}</p>
           <p>🔗 Соцсеть: {edit.social_link || "не указано"}</p>
 
-          <button className="vote-btn">
-            🟢 Одобрить изменения
-          </button>
+          <button
+  className="vote-btn"
+  onClick={() => approveEdit(edit)}
+>
+  🟢 Одобрить изменения
+</button>
 
-          <button className="gift-btn">
-            🔴 Отклонить изменения
-          </button>
+          <button
+  className="gift-btn"
+  onClick={() => rejectEdit(edit.id)}
+>
+  🔴 Отклонить изменения
+</button>
         </div>
       ))}
     </div>
