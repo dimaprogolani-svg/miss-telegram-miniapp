@@ -1387,6 +1387,7 @@ setApplications((prev) =>
       ? {
           ...application,
           ...edit,
+          status: "Опубликована в конкурсе",
           pendingEdit: false,
         }
       : application
