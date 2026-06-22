@@ -1369,16 +1369,25 @@ ${link}`;
       return;
     }
 
-    const { error: editError } = await supabase
-      .from("contestant_edits")
-      .update({ status: "Одобрена" })
-      .eq("id", edit.id);
+
+    const { data: approvedEditData, error: editError } = await supabase
+  .from("contestant_edits")
+  .update({ status: "Одобрена" })
+  .eq("id", edit.id)
+  .eq("status", "На модерации")
+  .select("id");
 
     if (editError) {
       setErrorMessage(editError.message || "Ошибка обновления редактирования");
       return;
     }
-
+if (!approvedEditData || approvedEditData.length === 0) {
+  setErrorMessage("Эта заявка уже обработана другим модератором");
+  setEditRequests((prev) =>
+    prev.filter((item) => item.id !== edit.id)
+  );
+  return;
+}
     setEditRequests((prev) => prev.filter((item) => item.id !== edit.id));
 
 setApplications((prev) =>
