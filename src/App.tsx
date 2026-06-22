@@ -1334,41 +1334,6 @@ ${link}`;
   }, []);
 
   async function approveEdit(edit: any) {
-    const { error: updateError } = await supabase
-      .from("contestants")
-      .update({
-	  status: "Опубликована в конкурсе",
-        name: edit.name,
-        age: edit.age,
-        country: edit.country,
-        city: edit.city,
-        photo: edit.photo || edit.photo_url,
-        photo_1: edit.photo_1 || edit.photo_url,
-        photo_2: edit.photo_2,
-        photo_3: edit.photo_3,
-        photo_4: edit.photo_4,
-        photo_5: edit.photo_5,
-        photo_url: edit.photo_url || edit.photo_1 || edit.photo,
-        video_url: edit.video_url,
-        height: edit.height,
-        marital_status: edit.marital_status,
-        about_short: edit.about_short,
-        occupation: edit.occupation,
-        hobbies: edit.hobbies,
-        participation_reason: edit.participation_reason,
-        dream: edit.dream,
-        beauty_meaning: edit.beauty_meaning,
-        talent: edit.talent,
-        message_to_viewers: edit.message_to_viewers,
-        social_link: edit.social_link,
-      })
-      .eq("id", edit.contestant_id);
-
-    if (updateError) {
-      setErrorMessage(updateError.message || "Ошибка одобрения изменений");
-      return;
-    }
-
 
     const { data: approvedEditData, error: editError } = await supabase
   .from("contestant_edits")
@@ -1388,6 +1353,42 @@ if (!approvedEditData || approvedEditData.length === 0) {
   );
   return;
 }
+
+const { error: updateError } = await supabase
+  .from("contestants")
+  .update({
+    status: "Опубликована в конкурсе",
+    name: edit.name,
+    age: edit.age,
+    country: edit.country,
+    city: edit.city,
+    photo: edit.photo || edit.photo_url,
+    photo_1: edit.photo_1 || edit.photo_url,
+    photo_2: edit.photo_2,
+    photo_3: edit.photo_3,
+    photo_4: edit.photo_4,
+    photo_5: edit.photo_5,
+    photo_url: edit.photo_url || edit.photo_1 || edit.photo,
+    video_url: edit.video_url,
+    height: edit.height,
+    marital_status: edit.marital_status,
+    about_short: edit.about_short,
+    occupation: edit.occupation,
+    hobbies: edit.hobbies,
+    participation_reason: edit.participation_reason,
+    dream: edit.dream,
+    beauty_meaning: edit.beauty_meaning,
+    talent: edit.talent,
+    message_to_viewers: edit.message_to_viewers,
+    social_link: edit.social_link,
+  })
+  .eq("id", edit.contestant_id);
+
+if (updateError) {
+  setErrorMessage(updateError.message || "Ошибка одобрения изменений");
+  return;
+}
+
     setEditRequests((prev) => prev.filter((item) => item.id !== edit.id));
 
 setApplications((prev) =>
