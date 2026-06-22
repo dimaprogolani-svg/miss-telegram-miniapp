@@ -1605,7 +1605,8 @@ setApplications((prev) =>
         </div>
       )}
 
-      {applications.map((application) => (
+      {editRequests.length === 0 &&
+  applications.map((application) => (
         <div className="card" key={application.id}>
           {[
             application.photo_1 || application.photo_url,
