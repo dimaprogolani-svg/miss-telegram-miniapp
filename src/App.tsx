@@ -1337,6 +1337,7 @@ ${link}`;
     const { error: updateError } = await supabase
       .from("contestants")
       .update({
+	  status: "Опубликована в конкурсе",
         name: edit.name,
         age: edit.age,
         country: edit.country,
