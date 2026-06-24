@@ -1367,10 +1367,14 @@ ${link}`;
   }, []);
 
   async function approveEdit(edit: any) {
-
+    const telegramUser = getTelegramUser();
     const { data: approvedEditData, error: editError } = await supabase
   .from("contestant_edits")
-  .update({ status: "Одобрена" })
+  .update({
+  status: "Одобрена",
+  moderated_by: telegramUser?.id,
+  moderated_by_name: getTelegramName(telegramUser),
+})
   .eq("id", edit.id)
   .eq("status", "На модерации")
   .select("id");
