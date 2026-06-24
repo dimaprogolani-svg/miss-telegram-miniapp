@@ -2421,6 +2421,8 @@ const photos = Array.from(
 }
 
 function Rating() {
+  const navigate = useNavigate();
+  
   const [ratingList, setRatingList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchCode, setSearchCode] = useState("");
@@ -2535,7 +2537,12 @@ setRatingList(contestantsWithPlaces);
       )}
 
       {filteredRating.map((contestant) => (
-        <div key={contestant.id} className="card">
+  <div
+    key={contestant.id}
+    className="card"
+    onClick={() => navigate(`/contestant/${contestant.id}`)}
+    style={{ cursor: "pointer" }}
+  >
           <h2>{contestant.place} место — {contestant.name}</h2>
 
           {contestant.contestant_code && (
@@ -2544,6 +2551,7 @@ setRatingList(contestantsWithPlaces);
 
           <p>🌍 {contestant.country}</p>
           <p>⭐ {contestant.realVotes} голосов</p>
+		  <p>👆 Нажмите, чтобы открыть карточку участницы</p>
         </div>
       ))}
     </div>
