@@ -3016,12 +3016,12 @@ function Ambassador() {
           <p>Ваш статус: {ownAmbassador.status}</p>
           <p>Ваш реф-код: {ownAmbassador.referral_code}</p>
           <p>🔗 Реф-ссылка:</p>
-<p>{`https://t.me/MissTelegramOfficialBot/app?startapp=amb_${ownAmbassador.referral_code}`}</p>
+<p>{`https://t.me/MissTelegramOfficialBot/MissTelegram?startapp=amb_${ownAmbassador.referral_code}`}</p>
 
 <button
   className="vote-btn"
   onClick={() => {
-    const link = `https://t.me/MissTelegramOfficialBot/app?startapp=amb_${ownAmbassador.referral_code}`;
+    const link = `https://t.me/MissTelegramOfficialBot/MissTelegram?startapp=amb_${ownAmbassador.referral_code}`;
     const text = `👑 MISS TELEGRAM\n\nПрисоединяйся к конкурсу красоты в Telegram:\n${link}`;
 
     if ((window as any).Telegram?.WebApp?.openTelegramLink) {
