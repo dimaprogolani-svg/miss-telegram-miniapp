@@ -885,6 +885,8 @@ function MyApplications() {
   const [errorMessage, setErrorMessage] = useState("");
   const [editingApplication, setEditingApplication] = useState<any>(null);
   const [editRequests, setEditRequests] = useState<any[]>([]);
+  const [mediaById, setMediaById] = useState<any>({});
+  const [loadingMediaId, setLoadingMediaId] = useState<number | null>(null);
 
   function getTelegramUser() {
     return (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
@@ -1121,7 +1123,38 @@ setApplications((prev) =>
   )
 );
   }
+async function loadApplicationMedia(applicationId: number) {
+  setLoadingMediaId(applicationId);
 
+  const { data, error } = await supabase
+    .from("contestants")
+    .select(`
+      id,
+      photo,
+      photo_url,
+      photo_1,
+      photo_2,
+      photo_3,
+      photo_4,
+      photo_5,
+      video_url
+    `)
+    .eq("id", applicationId)
+    .single();
+
+  if (error) {
+    setErrorMessage(error.message || "Ошибка загрузки фото и видео");
+    setLoadingMediaId(null);
+    return;
+  }
+
+  setMediaById((prev: any) => ({
+    ...prev,
+    [applicationId]: data,
+  }));
+
+  setLoadingMediaId(null);
+}
   function shareContestant(application: any) {
     const link = `https://t.me/MissTelegramOfficialBot?startapp=contestant_${application.id}`;
 
@@ -1620,6 +1653,42 @@ setApplications((prev) =>
       {editRequests.length === 0 &&
   applications.map((application) => (
         <div className="card" key={application.id}>
+		{!mediaById[application.id] && (
+  <button
+    className="vote-btn"
+    onClick={() => loadApplicationMedia(application.id)}
+  >
+    📸 Показать фото/видео
+  </button>
+)}
+
+{loadingMediaId === application.id && (
+  <p>Загрузка фото/видео...</p>
+)}
+
+{mediaById[application.id] &&
+  [
+    mediaById[application.id].photo_1 || mediaById[application.id].photo_url,
+    mediaById[application.id].photo_2,
+    mediaById[application.id].photo_3,
+    mediaById[application.id].photo_4,
+    mediaById[application.id].photo_5,
+  ]
+    .filter(Boolean)
+    .map((photoUrl, index) => (
+      <img
+        key={index}
+        className="profile-photo"
+        src={photoUrl}
+        alt={application.name}
+      />
+    ))}
+
+{mediaById[application.id]?.video_url && (
+  <video className="profile-photo" controls playsInline>
+    <source src={mediaById[application.id].video_url} type="video/mp4" />
+  </video>
+)}
           {[
             application.photo_1 || application.photo_url,
             application.photo_2,
