@@ -2674,6 +2674,8 @@ function Profile({
 }
 
 function StarRating() {
+  const navigate = useNavigate();
+
   const [rating, setRating] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchCode, setSearchCode] = useState("");
@@ -2717,11 +2719,11 @@ function StarRating() {
         ...contestant,
         starPoints: starsByContestant[contestant.id] || 0,
       }))
-     .sort((a: any, b: any) => b.starPoints - a.starPoints)
-.map((contestant: any, index: number) => ({
-  ...contestant,
-  place: index + 1,
-}));
+      .sort((a: any, b: any) => b.starPoints - a.starPoints)
+      .map((contestant: any, index: number) => ({
+        ...contestant,
+        place: index + 1,
+      }));
 
     setRating(result);
     setLoading(false);
@@ -2776,7 +2778,12 @@ function StarRating() {
       )}
 
       {filteredRating.map((contestant) => (
-        <div className="card" key={contestant.id}>
+        <div
+          className="card"
+          key={contestant.id}
+          onClick={() => navigate(`/contestant/${contestant.id}`)}
+          style={{ cursor: "pointer" }}
+        >
           <h2>{contestant.place} место — {contestant.name}</h2>
 
           {contestant.contestant_code && (
@@ -2785,6 +2792,7 @@ function StarRating() {
 
           <p>🌍 {contestant.country}</p>
           <p>💎 {contestant.starPoints} Stars</p>
+          <p>👆 Нажмите, чтобы открыть карточку участницы</p>
         </div>
       ))}
     </div>
