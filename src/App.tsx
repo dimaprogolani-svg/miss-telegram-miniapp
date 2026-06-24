@@ -3016,7 +3016,26 @@ function Ambassador() {
           <p>Ваш статус: {ownAmbassador.status}</p>
           <p>Ваш реф-код: {ownAmbassador.referral_code}</p>
           <p>🔗 Реф-ссылка:</p>
-          <p>{`https://t.me/MissTelegramOfficialBot?startapp=amb_${ownAmbassador.referral_code}`}</p>
+<p>{`https://t.me/MissTelegramOfficialBot?startapp=amb_${ownAmbassador.referral_code}`}</p>
+
+<button
+  className="vote-btn"
+  onClick={() => {
+    const link = `https://t.me/MissTelegramOfficialBot?startapp=amb_${ownAmbassador.referral_code}`;
+    const text = `👑 MISS TELEGRAM\n\nПрисоединяйся к конкурсу красоты в Telegram:\n${link}`;
+
+    if ((window as any).Telegram?.WebApp?.openTelegramLink) {
+      (window as any).Telegram.WebApp.openTelegramLink(
+        `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`
+      );
+    } else {
+      navigator.clipboard.writeText(link);
+      alert("Ссылка скопирована");
+    }
+  }}
+>
+  🔗 Поделиться ссылкой
+</button>
           <hr />
           <p>👑 Приглашено участниц: 0</p>
           <p>👀 Приглашено зрителей: 0</p>
