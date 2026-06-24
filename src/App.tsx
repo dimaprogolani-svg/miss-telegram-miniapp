@@ -1224,7 +1224,7 @@ ${link}`;
         photo_3,
         photo_4,
         photo_5,
-        video_url,
+        video_url
       `)
       .order("created_at", { ascending: false })
       .limit(50);
