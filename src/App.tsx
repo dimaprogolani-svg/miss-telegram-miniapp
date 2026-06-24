@@ -1443,15 +1443,28 @@ setApplications((prev) =>
   }
 
   async function rejectEdit(editId: number) {
-    const { error } = await supabase
+    const telegramUser = getTelegramUser();
+    const { data: rejectedEditData, error } = await supabase
       .from("contestant_edits")
-      .update({ status: "Отклонена" })
-      .eq("id", editId);
+      .update({
+	    status: "Отклонена",
+		moderated_by: telegramUser?.id,
+		moderated_by_name: getTelegramName(telegramUser),
+	})	
+      .eq("id", editId)
+	  .eq("status", "На модерации")
+	  .select("id");
 
     if (error) {
       setErrorMessage(error.message || "Ошибка отклонения изменений");
       return;
     }
+	
+	if (!rejectedEditData || rejectedEditData.length === 0) {
+	 setErrorMessage("Эта заявка уже обработана другим модератором");
+	 setEditRequests((prev) => prev.filter((item) => item.id !== editId));
+	 return;
+	}
 
     await loadApplications();
   }
