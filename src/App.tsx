@@ -1217,6 +1217,14 @@ ${link}`;
         moderated_by,
         moderated_by_name,
         created_at
+		photo,
+        photo_url,
+        photo_1,
+        photo_2,
+        photo_3,
+        photo_4,
+        photo_5,
+        video_url,
       `)
       .order("created_at", { ascending: false })
       .limit(50);
