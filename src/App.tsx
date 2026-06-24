@@ -1216,7 +1216,7 @@ ${link}`;
         telegram_id,
         moderated_by,
         moderated_by_name,
-        created_at
+        created_at,
 		photo,
         photo_url,
         photo_1,
