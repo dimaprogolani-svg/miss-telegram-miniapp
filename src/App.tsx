@@ -2817,10 +2817,15 @@ function StarRating() {
 }
 
 function Ambassador() {
+  const ADMIN_TELEGRAM_ID = 678312754;
+
   const [showForm, setShowForm] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [sent, setSent] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [ownAmbassador, setOwnAmbassador] = useState<any>(null);
+  const [pendingAmbassadors, setPendingAmbassadors] = useState<any[]>([]);
 
   const [form, setForm] = useState({
     name: "",
@@ -2838,12 +2843,62 @@ function Ambassador() {
     return (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
   }
 
+  function getTelegramName(user: any) {
+    return (
+      `${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
+      user?.username ||
+      "Admin"
+    );
+  }
+
   function updateField(field: string, value: any) {
     setForm((prev) => ({
       ...prev,
       [field]: value,
     }));
   }
+
+  async function loadAmbassadorData() {
+    setLoading(true);
+    setErrorMessage("");
+
+    const telegramUser = getTelegramUser();
+
+    if (!telegramUser?.id) {
+      setLoading(false);
+      return;
+    }
+
+    const { data: ownData } = await supabase
+      .from("ambassadors")
+      .select("*")
+      .eq("telegram_id", telegramUser.id)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    setOwnAmbassador((ownData || [])[0] || null);
+
+    if (telegramUser.id === ADMIN_TELEGRAM_ID) {
+      const { data: pendingData, error } = await supabase
+        .from("ambassadors")
+        .select("*")
+        .eq("status", "На модерации")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setErrorMessage(error.message || "Ошибка загрузки амбассадоров");
+        setPendingAmbassadors([]);
+      } else {
+        setPendingAmbassadors(pendingData || []);
+      }
+    }
+
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    loadAmbassadorData();
+  }, []);
 
   async function submitAmbassador() {
     const telegramUser = getTelegramUser();
@@ -2865,42 +2920,108 @@ function Ambassador() {
 
     const referralCode = `AMB-${telegramUser.id}`;
 
-    const { error } = await supabase.from("ambassadors").insert({
-      telegram_id: telegramUser.id,
-      telegram_username: telegramUser.username || null,
-      telegram_first_name: telegramUser.first_name || null,
-      telegram_last_name: telegramUser.last_name || null,
-      name: form.name,
-      country: form.country,
-      city: form.city,
-      main_social_link: form.main_social_link,
-      audience_size: form.audience_size,
-      invite_focus: form.invite_focus,
-      promotion_experience: form.promotion_experience,
-      reason: form.reason,
-      agreed_rules: form.agreed_rules,
-      status: "На модерации",
-      referral_code: referralCode,
-    });
+    const { data, error } = await supabase
+      .from("ambassadors")
+      .insert({
+        telegram_id: telegramUser.id,
+        telegram_username: telegramUser.username || null,
+        telegram_first_name: telegramUser.first_name || null,
+        telegram_last_name: telegramUser.last_name || null,
+        name: form.name,
+        country: form.country,
+        city: form.city,
+        main_social_link: form.main_social_link,
+        audience_size: form.audience_size,
+        invite_focus: form.invite_focus,
+        promotion_experience: form.promotion_experience,
+        reason: form.reason,
+        agreed_rules: form.agreed_rules,
+        status: "На модерации",
+        referral_code: referralCode,
+        notification_sent: false,
+      })
+      .select("*")
+      .single();
 
     if (error) {
       setErrorMessage(error.message || "Ошибка отправки заявки");
       return;
     }
 
+    setOwnAmbassador(data);
     setSent(true);
     setErrorMessage("");
   }
 
-  if (sent) {
+  async function approveAmbassador(ambassador: any) {
+    const telegramUser = getTelegramUser();
+
+    const { error } = await supabase
+      .from("ambassadors")
+      .update({
+        status: "Одобрен",
+        approved_at: new Date().toISOString(),
+        approved_by: telegramUser?.id,
+        approved_by_name: getTelegramName(telegramUser),
+      })
+      .eq("id", ambassador.id);
+
+    if (error) {
+      setErrorMessage(error.message || "Ошибка одобрения амбассадора");
+      return;
+    }
+
+    await loadAmbassadorData();
+  }
+
+  async function rejectAmbassador(ambassador: any) {
+    const telegramUser = getTelegramUser();
+
+    const { error } = await supabase
+      .from("ambassadors")
+      .update({
+        status: "Отклонён",
+        rejected_at: new Date().toISOString(),
+        rejected_by: telegramUser?.id,
+        rejected_by_name: getTelegramName(telegramUser),
+      })
+      .eq("id", ambassador.id);
+
+    if (error) {
+      setErrorMessage(error.message || "Ошибка отклонения амбассадора");
+      return;
+    }
+
+    await loadAmbassadorData();
+  }
+
+  if (loading) {
     return (
       <div className="page">
         <h1>🤝 Амбассадор</h1>
+        <div className="card">
+          <h2>Загрузка...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (ownAmbassador?.status === "Одобрен") {
+    return (
+      <div className="page">
+        <h1>🤝 Кабинет амбассадора</h1>
 
         <div className="card">
-          <h2>✅ Заявка отправлена</h2>
-          <p>Ваша заявка на амбассадора отправлена на модерацию.</p>
-          <p>После проверки откроется личный кабинет амбассадора.</p>
+          <h2>✅ Вы одобрены</h2>
+          <p>Ваш статус: {ownAmbassador.status}</p>
+          <p>Ваш реф-код: {ownAmbassador.referral_code}</p>
+          <p>🔗 Реф-ссылка:</p>
+          <p>{`https://t.me/MissTelegramOfficialBot?startapp=amb_${ownAmbassador.referral_code}`}</p>
+          <hr />
+          <p>👑 Приглашено участниц: 0</p>
+          <p>👀 Приглашено зрителей: 0</p>
+          <p>⭐ Голосов через вас: 0</p>
+          <p>🎁 Подарков через вас: 0</p>
         </div>
       </div>
     );
@@ -2910,116 +3031,116 @@ function Ambassador() {
     <div className="page">
       <h1>🤝 Амбассадор</h1>
 
-      <div className="card">
-        <h2>Приглашай участниц и зрителей</h2>
-        <p>И получай вознаграждение за развитие MISS TELEGRAM.</p>
+      {errorMessage && (
+        <div className="card">
+          <h2>Ошибка</h2>
+          <p>{errorMessage}</p>
+        </div>
+      )}
 
-        {!showForm && (
-          <button className="vote-btn" onClick={() => setShowForm(true)}>
-            🤝 Стать амбассадором проекта
-          </button>
-        )}
-      </div>
+      {getTelegramUser()?.id === ADMIN_TELEGRAM_ID && (
+        <div className="card">
+          <h2>🛡 Модерация амбассадоров</h2>
 
-      {showForm && (
-        <>
-          <div className="card">
-            <h2>📝 Анкета амбассадора</h2>
-
-            <input
-              className="form-input"
-              placeholder="Ваше имя"
-              value={form.name}
-              onChange={(e) => updateField("name", e.target.value)}
-            />
-
-            <input
-              className="form-input"
-              placeholder="Страна"
-              value={form.country}
-              onChange={(e) => updateField("country", e.target.value)}
-            />
-
-            <input
-              className="form-input"
-              placeholder="Город"
-              value={form.city}
-              onChange={(e) => updateField("city", e.target.value)}
-            />
-
-            <input
-              className="form-input"
-              placeholder="Ссылка на Telegram / Instagram / TikTok"
-              value={form.main_social_link}
-              onChange={(e) => updateField("main_social_link", e.target.value)}
-            />
-
-            <input
-              className="form-input"
-              placeholder="Размер аудитории: например 1000 / 5000 / 20000"
-              value={form.audience_size}
-              onChange={(e) => updateField("audience_size", e.target.value)}
-            />
-
-            <textarea
-              className="form-input"
-              placeholder="Кого планируете приглашать: участниц, зрителей, блогеров, партнёров?"
-              value={form.invite_focus}
-              onChange={(e) => updateField("invite_focus", e.target.value)}
-            />
-
-            <textarea
-              className="form-input"
-              placeholder="Есть ли опыт продвижения, рекламы, групп, каналов?"
-              value={form.promotion_experience}
-              onChange={(e) => updateField("promotion_experience", e.target.value)}
-            />
-
-            <textarea
-              className="form-input"
-              placeholder="Почему хотите стать амбассадором MISS TELEGRAM?"
-              value={form.reason}
-              onChange={(e) => updateField("reason", e.target.value)}
-            />
-          </div>
-
-          <div className="card">
-            <h2>📜 Правила участия</h2>
-
-            <button className="gift-btn" onClick={() => setShowRules(!showRules)}>
-              {showRules ? "Скрыть правила" : "Прочитать правила"}
-            </button>
-
-            {showRules && (
-              <div>
-                <p>1. Амбассадор приглашает реальных участниц и зрителей.</p>
-                <p>2. Запрещены спам, обман, накрутки и фейковые аккаунты.</p>
-                <p>3. Вознаграждение возможно только за подтверждённую активность.</p>
-                <p>4. Администрация может отклонить заявку без объяснения причин.</p>
-                <p>5. Условия вознаграждения могут отличаться по странам и партнёрам.</p>
-              </div>
-            )}
-
-            <label>
-              <input
-                type="checkbox"
-                checked={form.agreed_rules}
-                onChange={(e) => updateField("agreed_rules", e.target.checked)}
-              />{" "}
-              Я согласен с правилами участия
-            </label>
-          </div>
-
-          {errorMessage && (
-            <div className="card">
-              <h2>Ошибка</h2>
-              <p>{errorMessage}</p>
-            </div>
+          {pendingAmbassadors.length === 0 && (
+            <p>Новых заявок амбассадоров нет.</p>
           )}
 
-          <button className="vote-btn" onClick={submitAmbassador}>
-            🕒 Отправить заявку на модерацию
-          </button>
+          {pendingAmbassadors.map((ambassador) => (
+            <div className="card" key={ambassador.id}>
+              <h3>🤝 {ambassador.name}</h3>
+              <p>🌍 {ambassador.country}, {ambassador.city}</p>
+              <p>🔗 {ambassador.main_social_link}</p>
+              <p>👥 Аудитория: {ambassador.audience_size}</p>
+              <p>🎯 Кого приглашает: {ambassador.invite_focus}</p>
+              <p>📣 Опыт: {ambassador.promotion_experience}</p>
+              <p>💬 Причина: {ambassador.reason}</p>
+              <p>🆔 Telegram ID: {ambassador.telegram_id}</p>
+
+              <button
+                className="vote-btn"
+                onClick={() => approveAmbassador(ambassador)}
+              >
+                🟢 Одобрить
+              </button>
+
+              <button
+                className="gift-btn"
+                onClick={() => rejectAmbassador(ambassador)}
+              >
+                🔴 Отклонить
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {ownAmbassador?.status === "На модерации" || sent ? (
+        <div className="card">
+          <h2>✅ Заявка отправлена</h2>
+          <p>Ваша заявка на амбассадора отправлена на модерацию.</p>
+          <p>После проверки откроется личный кабинет амбассадора.</p>
+        </div>
+      ) : (
+        <>
+          <div className="card">
+            <h2>Приглашай участниц и зрителей</h2>
+            <p>И получай вознаграждение за развитие MISS TELEGRAM.</p>
+
+            {!showForm && (
+              <button className="vote-btn" onClick={() => setShowForm(true)}>
+                🤝 Стать амбассадором проекта
+              </button>
+            )}
+          </div>
+
+          {showForm && (
+            <>
+              <div className="card">
+                <h2>📝 Анкета амбассадора</h2>
+
+                <input className="form-input" placeholder="Ваше имя" value={form.name} onChange={(e) => updateField("name", e.target.value)} />
+                <input className="form-input" placeholder="Страна" value={form.country} onChange={(e) => updateField("country", e.target.value)} />
+                <input className="form-input" placeholder="Город" value={form.city} onChange={(e) => updateField("city", e.target.value)} />
+                <input className="form-input" placeholder="Ссылка на Telegram / Instagram / TikTok" value={form.main_social_link} onChange={(e) => updateField("main_social_link", e.target.value)} />
+                <input className="form-input" placeholder="Размер аудитории" value={form.audience_size} onChange={(e) => updateField("audience_size", e.target.value)} />
+                <textarea className="form-input" placeholder="Кого планируете приглашать?" value={form.invite_focus} onChange={(e) => updateField("invite_focus", e.target.value)} />
+                <textarea className="form-input" placeholder="Опыт продвижения" value={form.promotion_experience} onChange={(e) => updateField("promotion_experience", e.target.value)} />
+                <textarea className="form-input" placeholder="Почему хотите стать амбассадором?" value={form.reason} onChange={(e) => updateField("reason", e.target.value)} />
+              </div>
+
+              <div className="card">
+                <h2>📜 Правила участия</h2>
+
+                <button className="gift-btn" onClick={() => setShowRules(!showRules)}>
+                  {showRules ? "Скрыть правила" : "Прочитать правила"}
+                </button>
+
+                {showRules && (
+                  <div>
+                    <p>1. Амбассадор приглашает реальных участниц и зрителей.</p>
+                    <p>2. Запрещены спам, обман, накрутки и фейковые аккаунты.</p>
+                    <p>3. Вознаграждение возможно только за подтверждённую активность.</p>
+                    <p>4. Администрация может отклонить заявку без объяснения причин.</p>
+                    <p>5. Условия вознаграждения могут отличаться по странам и партнёрам.</p>
+                  </div>
+                )}
+
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={form.agreed_rules}
+                    onChange={(e) => updateField("agreed_rules", e.target.checked)}
+                  />{" "}
+                  Я согласен с правилами участия
+                </label>
+              </div>
+
+              <button className="vote-btn" onClick={submitAmbassador}>
+                🕒 Отправить заявку на модерацию
+              </button>
+            </>
+          )}
         </>
       )}
     </div>
