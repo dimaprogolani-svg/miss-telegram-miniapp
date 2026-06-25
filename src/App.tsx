@@ -2833,6 +2833,7 @@ function Ambassador() {
   const [participantsCount, setParticipantsCount] = useState(0);
   const [viewersCount, setViewersCount] = useState(0);
   const [votesCount, setVotesCount] = useState(0);
+  const [giftsCount, setGiftsCount] = useState(0);
   const [pendingAmbassadors, setPendingAmbassadors] = useState<any[]>([]);
 
   const [form, setForm] = useState({
@@ -2918,6 +2919,21 @@ if (invitedContestantIds.length > 0) {
   setVotesCount(votes || 0);
 } else {
   setVotesCount(0);
+}
+if (invitedContestantIds.length > 0) {
+  const { data: giftsData } = await supabase
+    .from("gifts")
+    .select("price")
+    .in("contestant_id", invitedContestantIds);
+
+  const totalGifts = (giftsData || []).reduce(
+    (sum: number, gift: any) => sum + (gift.price || 0),
+    0
+  );
+
+  setGiftsCount(totalGifts);
+} else {
+  setGiftsCount(0);
 }
 }
 
@@ -3083,7 +3099,7 @@ if (invitedContestantIds.length > 0) {
           <p>👑 Приглашено участниц: {participantsCount}</p>
           <p>👀 Приглашено зрителей: {viewersCount}</p>
           <p>⭐ Голосов через вас: {votesCount}</p>
-          <p>🎁 Подарков через вас: 0</p>
+          <p>🎁 Подарков через вас: {giftsCount}</p>
         </div>
       </div>
     );
