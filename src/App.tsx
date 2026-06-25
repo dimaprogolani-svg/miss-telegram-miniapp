@@ -3188,6 +3188,9 @@ function Rules() {
 }
 
 function App() {
+  const telegram = (window as any).Telegram?.WebApp;
+  const startParam = telegram?.initDataUnsafe?.start_param || "";
+
   const [balance, setBalance] = useState(() => {
     return Number(localStorage.getItem("balance")) || 1250;
   });
@@ -3242,6 +3245,9 @@ function App() {
   }
 
   useEffect(() => {
+  if (startParam) {
+  console.log("START PARAM:", startParam);
+}
     const tg = (window as any).Telegram?.WebApp;
 
     if (tg) {
