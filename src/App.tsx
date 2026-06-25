@@ -517,7 +517,11 @@ if (
 
 Соцсети: ${socialLink || "не указано"}
 `;
+    const telegram = (window as any).Telegram?.WebApp;
+const startParam = telegram?.initDataUnsafe?.start_param || "";
 
+const ambassadorCode =
+  startParam.startsWith("amb_") ? startParam.replace("amb_", "") : null;
     const { error } = await supabase.from("contestants").insert({
       slug,
       name,
@@ -538,6 +542,7 @@ if (
       status: "На модерации",
       votes: 0,
       contestant_code: contestantCode,
+	  ambassador_code: ambassadorCode,
 
       height,
       marital_status: maritalStatus,
