@@ -2831,6 +2831,7 @@ function Ambassador() {
   const [loading, setLoading] = useState(true);
   const [ownAmbassador, setOwnAmbassador] = useState<any>(null);
   const [participantsCount, setParticipantsCount] = useState(0);
+  const [viewersCount, setViewersCount] = useState(0);
   const [pendingAmbassadors, setPendingAmbassadors] = useState<any[]>([]);
 
   const [form, setForm] = useState({
@@ -2892,6 +2893,12 @@ function Ambassador() {
         .eq("ambassador_code", ambassador.referral_code);
 
   setParticipantsCount(count || 0);
+  const { count: viewers } = await supabase
+  .from("ambassador_referrals")
+  .select("*", { count: "exact", head: true })
+  .eq("ambassador_code", ambassador.referral_code);
+
+setViewersCount(viewers || 0);
 }
 
     if (telegramUser.id === ADMIN_TELEGRAM_ID) {
@@ -3054,7 +3061,7 @@ function Ambassador() {
 </button>
           <hr />
           <p>👑 Приглашено участниц: {participantsCount}</p>
-          <p>👀 Приглашено зрителей: 0</p>
+          <p>👀 Приглашено зрителей: {viewersCount}</p>
           <p>⭐ Голосов через вас: 0</p>
           <p>🎁 Подарков через вас: 0</p>
         </div>
