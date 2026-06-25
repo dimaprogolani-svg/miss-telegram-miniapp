@@ -2832,6 +2832,7 @@ function Ambassador() {
   const [ownAmbassador, setOwnAmbassador] = useState<any>(null);
   const [participantsCount, setParticipantsCount] = useState(0);
   const [viewersCount, setViewersCount] = useState(0);
+  const [votesCount, setVotesCount] = useState(0);
   const [pendingAmbassadors, setPendingAmbassadors] = useState<any[]>([]);
 
   const [form, setForm] = useState({
@@ -2899,6 +2900,25 @@ function Ambassador() {
   .eq("ambassador_code", ambassador.referral_code);
 
 setViewersCount(viewers || 0);
+const { data: invitedContestants } = await supabase
+  .from("contestants")
+  .select("id")
+  .eq("ambassador_code", ambassador.referral_code);
+
+const invitedContestantIds = (invitedContestants || []).map(
+  (contestant: any) => contestant.id
+);
+
+if (invitedContestantIds.length > 0) {
+  const { count: votes } = await supabase
+    .from("votes")
+    .select("*", { count: "exact", head: true })
+    .in("contestant_id", invitedContestantIds);
+
+  setVotesCount(votes || 0);
+} else {
+  setVotesCount(0);
+}
 }
 
     if (telegramUser.id === ADMIN_TELEGRAM_ID) {
@@ -3062,7 +3082,7 @@ setViewersCount(viewers || 0);
           <hr />
           <p>👑 Приглашено участниц: {participantsCount}</p>
           <p>👀 Приглашено зрителей: {viewersCount}</p>
-          <p>⭐ Голосов через вас: 0</p>
+          <p>⭐ Голосов через вас: {votesCount}</p>
           <p>🎁 Подарков через вас: 0</p>
         </div>
       </div>
