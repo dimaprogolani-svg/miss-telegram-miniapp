@@ -3205,6 +3205,33 @@ function App() {
 
   const [_pendingCount, setPendingCount] = useState(0);
   const [_userRole, setUserRole] = useState("user");
+  
+  async function saveAmbassadorReferral() {
+  const telegramUser = telegram?.initDataUnsafe?.user;
+
+  if (!startParam.startsWith("amb_")) {
+    return;
+  }
+
+  if (!telegramUser?.id) {
+    return;
+  }
+
+  const ambassadorCode = startParam.replace("amb_", "");
+
+  const { error } = await supabase.from("ambassador_referrals").insert({
+    ambassador_code: ambassadorCode,
+    visitor_telegram_id: telegramUser.id,
+    visitor_username: telegramUser.username || null,
+    visitor_first_name: telegramUser.first_name || null,
+    visitor_last_name: telegramUser.last_name || null,
+    referral_type: "viewer",
+  });
+
+  if (error) {
+    console.log("ambassador referral error:", error);
+  }
+}
 
   async function loadPendingCount() {
     const telegramUser =
@@ -3248,6 +3275,7 @@ function App() {
   if (startParam) {
   console.log("START PARAM:", startParam);
 }
+    saveAmbassadorReferral();
     const tg = (window as any).Telegram?.WebApp;
 
     if (tg) {
