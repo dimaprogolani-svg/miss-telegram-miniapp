@@ -2830,6 +2830,7 @@ function Ambassador() {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [ownAmbassador, setOwnAmbassador] = useState<any>(null);
+  const [participantsCount, setParticipantsCount] = useState(0);
   const [pendingAmbassadors, setPendingAmbassadors] = useState<any[]>([]);
 
   const [form, setForm] = useState({
@@ -2882,6 +2883,16 @@ function Ambassador() {
       .limit(1);
 
     setOwnAmbassador((ownData || [])[0] || null);
+	const ambassador = (ownData || [])[0];
+
+    if (ambassador?.referral_code) {
+      const { count } = await supabase
+        .from("contestants")
+        .select("*", { count: "exact", head: true })
+        .eq("ambassador_code", ambassador.referral_code);
+
+  setParticipantsCount(count || 0);
+}
 
     if (telegramUser.id === ADMIN_TELEGRAM_ID) {
       const { data: pendingData, error } = await supabase
@@ -3042,7 +3053,7 @@ function Ambassador() {
   🔗 Поделиться ссылкой
 </button>
           <hr />
-          <p>👑 Приглашено участниц: 0</p>
+          <p>👑 Приглашено участниц: {participantsCount}</p>
           <p>👀 Приглашено зрителей: 0</p>
           <p>⭐ Голосов через вас: 0</p>
           <p>🎁 Подарков через вас: 0</p>
