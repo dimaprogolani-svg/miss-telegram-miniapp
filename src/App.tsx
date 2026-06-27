@@ -3159,25 +3159,7 @@ setRejectedCount(rejectedCount);
           <p>⭐ Голосов через вас: {votesCount}</p>
           <p>🎁 Подарков через вас: {giftsCount}</p>
 		  <hr />
-<div className="card">
 
-<h2>📊 Общая статистика</h2>
-
-<p>👑 Всего приглашено: {myContestants.length}</p>
-
-<p>🟢 Опубликовано: {publishedCount}</p>
-
-<p>🟡 На модерации: {pendingCount}</p>
-
-<p>🔴 Отклонено: {rejectedCount}</p>
-
-<hr />
-
-<p>⭐ Всего голосов: {totalVotes}</p>
-
-<p>🎁 Всего Stars: {totalStars}</p>
-
-</div>
 <div className="card">
 
 <h2>📊 Общая статистика</h2>
