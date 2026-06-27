@@ -2834,6 +2834,7 @@ function Ambassador() {
   const [viewersCount, setViewersCount] = useState(0);
   const [votesCount, setVotesCount] = useState(0);
   const [giftsCount, setGiftsCount] = useState(0);
+  const [myContestants, setMyContestants] = useState<any[]>([]);
   const [pendingAmbassadors, setPendingAmbassadors] = useState<any[]>([]);
 
   const [form, setForm] = useState({
@@ -2936,7 +2937,13 @@ if (invitedContestantIds.length > 0) {
   setGiftsCount(0);
 }
 }
+const { data: myContestantsData } = await supabase
+  .from("contestants")
+  .select("id,name,contestant_code,status,votes,created_at")
+  .eq("ambassador_code", ambassador.referral_code)
+  .order("created_at", { ascending: false });
 
+setMyContestants(myContestantsData || []);
     if (telegramUser.id === ADMIN_TELEGRAM_ID) {
       const { data: pendingData, error } = await supabase
         .from("ambassadors")
@@ -3104,7 +3111,23 @@ if (invitedContestantIds.length > 0) {
       </div>
     );
   }
+<>
 
+<h3>👑 Мои приглашённые</h3>
+
+{myContestants.length === 0 ? (
+  <p>Пока нет приглашённых участниц.</p>
+) : (
+  myContestants.map((item) => (
+    <div className="card" key={item.id}>
+      <p><b>{item.name}</b></p>
+      <p>🆔 {item.contestant_code}</p>
+      <p>🟢 {item.status}</p>
+      <p>⭐ Голосов: {item.votes}</p>
+    </div>
+  ))
+)}
+</>
   return (
     <div className="page">
       <h1>🤝 Амбассадор</h1>
