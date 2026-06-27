@@ -2,6 +2,7 @@ import { supabase } from "./lib/supabase";
 import { useState, useEffect } from "react";
 import heroGirl from "./assets/hero-girl-fireworks.png";
 
+
 import {
   BrowserRouter,
   Routes,
@@ -2822,6 +2823,7 @@ function StarRating() {
 }
 
 function Ambassador() {
+  const navigate = useNavigate();
   const ADMIN_TELEGRAM_ID = 678312754;
 
   const [showForm, setShowForm] = useState(false);
@@ -3185,12 +3187,26 @@ setRejectedCount(rejectedCount);
   <p>Пока нет приглашённых участниц.</p>
 ) : (
   myContestants.map((item) => (
-    <div key={item.id} className="card">
+    <div
+  key={item.id}
+  className="card"
+  onClick={() => navigate(`/contestant/${item.id}`)}
+  style={{ cursor: "pointer" }}
+>
       <h3>👑 {item.name}</h3>
       <p>🆔 Код: {item.contestant_code || "не указан"}</p>
       <p>🟡 Статус: {item.status}</p>
       <p>⭐ Голосов: {item.votes || 0}</p>
       <p>🎁 Stars: {item.stars || 0}</p>
+	  <button
+  className="vote-btn"
+  onClick={(e) => {
+    e.stopPropagation();
+    navigate(`/contestant/${item.id}`);
+  }}
+>
+  🔗 Открыть карточку
+</button>
     </div>
   ))
 )}
