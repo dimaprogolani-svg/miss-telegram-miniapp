@@ -3107,11 +3107,7 @@ setMyContestants(myContestantsData || []);
           <p>👀 Приглашено зрителей: {viewersCount}</p>
           <p>⭐ Голосов через вас: {votesCount}</p>
           <p>🎁 Подарков через вас: {giftsCount}</p>
-        </div>
-      </div>
-    );
-  }
-<>
+		  <hr />
 
 <h3>👑 Мои приглашённые</h3>
 
@@ -3119,15 +3115,20 @@ setMyContestants(myContestantsData || []);
   <p>Пока нет приглашённых участниц.</p>
 ) : (
   myContestants.map((item) => (
-    <div className="card" key={item.id}>
+    <div key={item.id} style={{ marginBottom: "12px" }}>
       <p><b>{item.name}</b></p>
       <p>🆔 {item.contestant_code}</p>
       <p>🟢 {item.status}</p>
       <p>⭐ Голосов: {item.votes}</p>
+      <hr />
     </div>
   ))
 )}
-</>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <h1>🤝 Амбассадор</h1>
