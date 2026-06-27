@@ -2943,7 +2943,26 @@ const { data: myContestantsData } = await supabase
   .eq("ambassador_code", ambassador.referral_code)
   .order("created_at", { ascending: false });
 
-setMyContestants(myContestantsData || []);
+const contestantsWithStars = await Promise.all(
+  (myContestantsData || []).map(async (contestant: any) => {
+    const { data: giftsData } = await supabase
+      .from("gifts")
+      .select("price")
+      .eq("contestant_id", contestant.id);
+
+    const stars = (giftsData || []).reduce(
+      (sum: number, gift: any) => sum + (gift.price || 0),
+      0
+    );
+
+    return {
+      ...contestant,
+      stars,
+    };
+  })
+);
+
+setMyContestants(contestantsWithStars);
     if (telegramUser.id === ADMIN_TELEGRAM_ID) {
       const { data: pendingData, error } = await supabase
         .from("ambassadors")
@@ -3115,12 +3134,12 @@ setMyContestants(myContestantsData || []);
   <p>Пока нет приглашённых участниц.</p>
 ) : (
   myContestants.map((item) => (
-    <div key={item.id} style={{ marginBottom: "12px" }}>
-      <p><b>{item.name}</b></p>
-      <p>🆔 {item.contestant_code}</p>
-      <p>🟢 {item.status}</p>
-      <p>⭐ Голосов: {item.votes}</p>
-      <hr />
+    <div key={item.id} className="card">
+      <h3>👑 {item.name}</h3>
+      <p>🆔 Код: {item.contestant_code || "не указан"}</p>
+      <p>🟡 Статус: {item.status}</p>
+      <p>⭐ Голосов: {item.votes || 0}</p>
+      <p>🎁 Stars: {item.stars || 0}</p>
     </div>
   ))
 )}
