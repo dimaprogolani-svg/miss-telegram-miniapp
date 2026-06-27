@@ -2835,6 +2835,11 @@ function Ambassador() {
   const [votesCount, setVotesCount] = useState(0);
   const [giftsCount, setGiftsCount] = useState(0);
   const [myContestants, setMyContestants] = useState<any[]>([]);
+  const [totalVotes, setTotalVotes] = useState(0);
+  const [totalStars, setTotalStars] = useState(0);
+  const [publishedCount, setPublishedCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [rejectedCount, setRejectedCount] = useState(0);
   const [pendingAmbassadors, setPendingAmbassadors] = useState<any[]>([]);
 
   const [form, setForm] = useState({
@@ -2963,6 +2968,33 @@ const contestantsWithStars = await Promise.all(
 );
 
 setMyContestants(contestantsWithStars);
+const totalVotes = contestantsWithStars.reduce(
+  (sum: number, item: any) => sum + (item.votes || 0),
+  0
+);
+
+const totalStars = contestantsWithStars.reduce(
+  (sum: number, item: any) => sum + (item.stars || 0),
+  0
+);
+
+const publishedCount = contestantsWithStars.filter(
+  (x: any) => x.status === "Опубликована в конкурсе"
+).length;
+
+const pendingCount = contestantsWithStars.filter(
+  (x: any) => x.status === "На модерации"
+).length;
+
+const rejectedCount = contestantsWithStars.filter(
+  (x: any) => x.status === "Отклонена"
+).length;
+
+setTotalVotes(totalVotes);
+setTotalStars(totalStars);
+setPublishedCount(publishedCount);
+setPendingCount(pendingCount);
+setRejectedCount(rejectedCount);
     if (telegramUser.id === ADMIN_TELEGRAM_ID) {
       const { data: pendingData, error } = await supabase
         .from("ambassadors")
@@ -3127,7 +3159,25 @@ setMyContestants(contestantsWithStars);
           <p>⭐ Голосов через вас: {votesCount}</p>
           <p>🎁 Подарков через вас: {giftsCount}</p>
 		  <hr />
+<div className="card">
 
+<h2>📊 Общая статистика</h2>
+
+<p>👑 Всего приглашено: {myContestants.length}</p>
+
+<p>🟢 Опубликовано: {publishedCount}</p>
+
+<p>🟡 На модерации: {pendingCount}</p>
+
+<p>🔴 Отклонено: {rejectedCount}</p>
+
+<hr />
+
+<p>⭐ Всего голосов: {totalVotes}</p>
+
+<p>🎁 Всего Stars: {totalStars}</p>
+
+</div>
 <h3>👑 Мои приглашённые</h3>
 
 {myContestants.length === 0 ? (
