@@ -3135,7 +3135,10 @@ setRejectedCount(rejectedCount);
           <p>Ваш статус: {ownAmbassador.status}</p>
           <p>Ваш реф-код: {ownAmbassador.referral_code}</p>
           <p>🔗 Реф-ссылка:</p>
-<p>{`https://t.me/MissTelegramOfficialBot?startapp=amb_${ownAmbassador.referral_code}`}</p>
+<p>🔗 Реф-ссылка готова</p>
+<p style={{ fontSize: "16px", opacity: 0.8 }}>
+  Нажмите кнопку ниже, чтобы поделиться
+</p>
 
 <button
   className="vote-btn"
