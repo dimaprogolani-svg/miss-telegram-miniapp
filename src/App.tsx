@@ -530,14 +530,7 @@ const startParam =
 
 const ambassadorCode =
   startParam.startsWith("amb_") ? startParam.replace("amb_", "") : null;
-  alert(
-  "DEBUG APPLICATION REF\n\n" +
-  "URL: " + window.location.search + "\n" +
-  "urlRef: " + urlRef + "\n" +
-  "savedRef: " + (localStorage.getItem("ambassadorRef") || "") + "\n" +
-  "startParam: " + startParam + "\n" +
-  "ambassadorCode: " + ambassadorCode
-);
+
     const { error } = await supabase.from("contestants").insert({
       slug,
       name,
