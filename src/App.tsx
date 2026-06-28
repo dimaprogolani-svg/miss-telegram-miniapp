@@ -2530,6 +2530,12 @@ setRatingList(contestantsWithPlaces);
     return (
       <div className="page">
         <h1>👑 MISS TELEGRAM</h1>
+		<div className="card">
+          <h2>DEBUG</h2>
+          <p>URL: {window.location.search}</p>
+          <p>START: {((window as any).Telegram?.WebApp?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get("ref") || localStorage.getItem("ambassadorRef") || "")}</p>
+          <p>SAVED: {localStorage.getItem("ambassadorRef")}</p>
+</div>
         <p>Рейтинг по голосам</p>
 
         <div className="card">
