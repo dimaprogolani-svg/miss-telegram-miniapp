@@ -519,9 +519,14 @@ if (
 Соцсети: ${socialLink || "не указано"}
 `;
     const telegram = (window as any).Telegram?.WebApp;
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlRef = urlParams.get("ref") || "";
-    const startParam = telegram?.initDataUnsafe?.start_param || urlRef;
+const urlParams = new URLSearchParams(window.location.search);
+const urlRef = urlParams.get("ref") || "";
+const savedRef = localStorage.getItem("ambassadorRef") || "";
+
+const startParam =
+  telegram?.initDataUnsafe?.start_param ||
+  urlRef ||
+  savedRef;
 
 const ambassadorCode =
   startParam.startsWith("amb_") ? startParam.replace("amb_", "") : null;
