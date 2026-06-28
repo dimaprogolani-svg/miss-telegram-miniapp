@@ -519,7 +519,9 @@ if (
 Соцсети: ${socialLink || "не указано"}
 `;
     const telegram = (window as any).Telegram?.WebApp;
-const startParam = telegram?.initDataUnsafe?.start_param || "";
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlRef = urlParams.get("ref") || "";
+    const startParam = telegram?.initDataUnsafe?.start_param || urlRef;
 
 const ambassadorCode =
   startParam.startsWith("amb_") ? startParam.replace("amb_", "") : null;
@@ -3143,7 +3145,7 @@ setRejectedCount(rejectedCount);
 <button
   className="vote-btn"
   onClick={() => {
-    const link = `https://t.me/MissTelegramOfficialBot?startapp=amb_${ownAmbassador.referral_code}`;
+    const link = `https://t.me/MissTelegramOfficialBot?start=amb_${ownAmbassador.referral_code}`;
     const text = `👑 MISS TELEGRAM\n\nПрисоединяйся к конкурсу красоты в Telegram:\n${link}`;
 
     if ((window as any).Telegram?.WebApp?.openTelegramLink) {
@@ -3361,7 +3363,9 @@ function Rules() {
 
 function App() {
   const telegram = (window as any).Telegram?.WebApp;
-  const startParam = telegram?.initDataUnsafe?.start_param || "";
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlRef = urlParams.get("ref") || "";
+  const startParam = telegram?.initDataUnsafe?.start_param || urlRef;
 
   const [balance, setBalance] = useState(() => {
     return Number(localStorage.getItem("balance")) || 1250;
