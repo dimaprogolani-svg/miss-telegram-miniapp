@@ -3365,7 +3365,8 @@ function App() {
   const telegram = (window as any).Telegram?.WebApp;
   const urlParams = new URLSearchParams(window.location.search);
   const urlRef = urlParams.get("ref") || "";
-  const startParam = telegram?.initDataUnsafe?.start_param || urlRef;
+  const savedRef = localStorage.getItem("ambassadorRef") || "";
+  const startParam = telegram?.initDataUnsafe?.start_param || urlRef || savedRef;
 
   const [balance, setBalance] = useState(() => {
     return Number(localStorage.getItem("balance")) || 1250;
@@ -3450,8 +3451,13 @@ function App() {
   useEffect(() => {
   if (startParam) {
   console.log("START PARAM:", startParam);
+
+  if (startParam.startsWith("amb_")) {
+    localStorage.setItem("ambassadorRef", startParam);
+  }
 }
-    saveAmbassadorReferral();
+
+saveAmbassadorReferral();
     const tg = (window as any).Telegram?.WebApp;
 
     if (tg) {
