@@ -3367,7 +3367,11 @@ function App() {
   const urlRef = urlParams.get("ref") || "";
   const savedRef = localStorage.getItem("ambassadorRef") || "";
   const startParam = telegram?.initDataUnsafe?.start_param || urlRef || savedRef;
-
+  console.log("URL SEARCH:", window.location.search);
+  console.log("URL REF:", urlRef);
+  console.log("START PARAM:", startParam);
+  console.log("SAVED REF:", localStorage.getItem("ambassadorRef"));
+  
   const [balance, setBalance] = useState(() => {
     return Number(localStorage.getItem("balance")) || 1250;
   });
