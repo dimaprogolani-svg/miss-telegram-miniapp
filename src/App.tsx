@@ -3523,6 +3523,20 @@ setLoading(false);
     useEffect(() => {
         loadAmbassadors();
     }, []);
+	
+	async function updateAmbassadorStatus(id: number, status: string) {
+    const { error } = await supabase
+        .from("ambassadors")
+        .update({ status })
+        .eq("id", id);
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    await loadAmbassadors();
+}
 
     const filteredAmbassadors = ambassadors.filter((item) => {
         const text = `${item.name || ""} ${item.telegram_id || ""} ${item.referral_code || ""} ${item.status || ""}`.toLowerCase();
@@ -3614,28 +3628,34 @@ setLoading(false);
 
 <button
     className="vote-btn"
-    onClick={() => alert("Одобрить")}
+    onClick={() => updateAmbassadorStatus(item.id, "Одобрен")}
 >
 ✅ Одобрить
 </button>
 
 <button
     className="vote-btn"
-    onClick={() => alert("Отклонить")}
+    onClick={() => updateAmbassadorStatus(item.id, "Отклонен")}
 >
 ❌ Отклонить
 </button>
 
 <button
     className="vote-btn"
-    onClick={() => alert("Написать")}
+    onClick={() => {
+    if (item.telegram_username) {
+        window.open(`https://t.me/${item.telegram_username}`, "_blank");
+    } else {
+        alert("Username не указан");
+    }
+}}
 >
 💬 Написать
 </button>
 
 <button
     className="vote-btn"
-    onClick={() => alert("Заблокировать")}
+    onClick={() => updateAmbassadorStatus(item.id, "Заблокирован")}
 >
 🚫 Заблокировать
 </button>
