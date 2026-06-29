@@ -146,7 +146,7 @@ supabase.rpc("increment_contestant_link_clicks", {
     </div>
 )}
 
-<h2 className="home-section-title">Конкурс в цифрах</h2>
+
 
       <h2 className="home-section-title">Конкурс в цифрах</h2>
 
