@@ -3554,7 +3554,45 @@ setLoading(false);
             </div>
         );
     }
+if (selectedAmbassador) {
+    return (
+        <div className="page">
+            <h1>👁 Подробнее</h1>
 
+            <div className="card">
+                <h2>🤝 {selectedAmbassador.name || "Без имени"}</h2>
+
+                <p>🟢 Статус: {selectedAmbassador.status || "не указан"}</p>
+                <p>🆔 Telegram ID: {selectedAmbassador.telegram_id || "не указан"}</p>
+                <p>🔗 Реф-код: {selectedAmbassador.referral_code || "не указан"}</p>
+
+                <hr />
+
+                <p>🌍 Страна: {selectedAmbassador.country || "не указана"}</p>
+                <p>🏙 Город: {selectedAmbassador.city || "не указан"}</p>
+                <p>📣 Соцсеть: {selectedAmbassador.main_social_link || "не указана"}</p>
+                <p>👥 Аудитория: {selectedAmbassador.audience_size || "не указана"}</p>
+
+                <hr />
+
+                <p>🎯 Кого приглашает: {selectedAmbassador.invite_focus || "не указано"}</p>
+                <p>📢 Опыт: {selectedAmbassador.promotion_experience || "не указан"}</p>
+                <p>💬 Причина: {selectedAmbassador.reason || "не указана"}</p>
+
+                <hr />
+
+                <p>👑 Участниц: {selectedAmbassador.contestantsCount || 0}</p>
+                <p>👥 Зрителей: {selectedAmbassador.viewersCount || 0}</p>
+                <p>🎁 Stars участниц: {selectedAmbassador.totalStars || 0}</p>
+                <p>💰 Вознаграждение 10%: {selectedAmbassador.rewardStars || 0} Stars</p>
+
+                <button className="vote-btn" onClick={() => setSelectedAmbassador(null)}>
+                    ← Назад к списку
+                </button>
+            </div>
+        </div>
+    );
+}
     return (
         <div className="page">
             <h1>🤝 Амбассадоры</h1>
@@ -3665,40 +3703,7 @@ setLoading(false);
                     </div>
                 ))
             )}
-			{selectedAmbassador && (
-    <div className="card">
-        <h2>👁 Подробнее</h2>
-
-        <p>🤝 Имя: {selectedAmbassador.name || "не указано"}</p>
-        <p>🟢 Статус: {selectedAmbassador.status || "не указан"}</p>
-        <p>🆔 Telegram ID: {selectedAmbassador.telegram_id || "не указан"}</p>
-        <p>🔗 Реф-код: {selectedAmbassador.referral_code || "не указан"}</p>
-
-        <hr />
-
-        <p>🌍 Страна: {selectedAmbassador.country || "не указана"}</p>
-        <p>🏙 Город: {selectedAmbassador.city || "не указан"}</p>
-        <p>📣 Соцсеть: {selectedAmbassador.main_social_link || "не указана"}</p>
-        <p>👥 Аудитория: {selectedAmbassador.audience_size || "не указана"}</p>
-
-        <hr />
-
-        <p>🎯 Кого приглашает: {selectedAmbassador.invite_focus || "не указано"}</p>
-        <p>📢 Опыт: {selectedAmbassador.promotion_experience || "не указан"}</p>
-        <p>💬 Причина: {selectedAmbassador.reason || "не указана"}</p>
-
-        <hr />
-
-        <p>👑 Участниц: {selectedAmbassador.contestantsCount || 0}</p>
-        <p>👥 Зрителей: {selectedAmbassador.viewersCount || 0}</p>
-        <p>🎁 Stars участниц: {selectedAmbassador.totalStars || 0}</p>
-        <p>💰 Вознаграждение 10%: {selectedAmbassador.rewardStars || 0} Stars</p>
-
-        <button className="vote-btn" onClick={() => setSelectedAmbassador(null)}>
-            Закрыть
-        </button>
-    </div>
-)}
+			
         </div>
     );
 }
