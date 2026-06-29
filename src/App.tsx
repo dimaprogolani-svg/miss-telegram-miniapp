@@ -134,15 +134,7 @@ supabase.rpc("increment_contestant_link_clicks", {
         </div>
       )}
 
-      {isAdmin && (
-        <div className="home-wide-card" onClick={() => navigate("/admin")}>
-        <div className="home-icon">👮</div>
-        <div>
-            <h2>Модераторы</h2>
-            <p>Панель управления модераторами ›</p>
-          </div>
-        </div>
-)}
+      
 
 {isAdmin && (
     <div className="home-wide-card" onClick={() => navigate("/ambassadors-admin")}>
