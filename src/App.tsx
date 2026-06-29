@@ -3453,6 +3453,7 @@ function AmbassadorsAdmin() {
     const [ambassadors, setAmbassadors] = useState<any[]>([]);
     const [search, setSearch] = useState("");
 	const [selectedAmbassador, setSelectedAmbassador] = useState<any>(null);
+	const [editingAmbassador, setEditingAmbassador] = useState<any>(null);
 
     async function loadAmbassadors() {
         setLoading(true);
@@ -3593,6 +3594,104 @@ if (selectedAmbassador) {
         </div>
     );
 }
+if (editingAmbassador) {
+    return (
+        <div className="page">
+            <h1>✏ Редактирование</h1>
+
+            <div className="card">
+                <input
+                    className="form-input"
+                    value={editingAmbassador.name || ""}
+                    onChange={(e) => setEditingAmbassador({ ...editingAmbassador, name: e.target.value })}
+                    placeholder="Имя"
+                />
+
+                <input
+                    className="form-input"
+                    value={editingAmbassador.country || ""}
+                    onChange={(e) => setEditingAmbassador({ ...editingAmbassador, country: e.target.value })}
+                    placeholder="Страна"
+                />
+
+                <input
+                    className="form-input"
+                    value={editingAmbassador.city || ""}
+                    onChange={(e) => setEditingAmbassador({ ...editingAmbassador, city: e.target.value })}
+                    placeholder="Город"
+                />
+
+                <input
+                    className="form-input"
+                    value={editingAmbassador.main_social_link || ""}
+                    onChange={(e) => setEditingAmbassador({ ...editingAmbassador, main_social_link: e.target.value })}
+                    placeholder="Соцсеть"
+                />
+
+                <input
+                    className="form-input"
+                    value={editingAmbassador.audience_size || ""}
+                    onChange={(e) => setEditingAmbassador({ ...editingAmbassador, audience_size: e.target.value })}
+                    placeholder="Аудитория"
+                />
+
+                <textarea
+                    className="form-input"
+                    value={editingAmbassador.invite_focus || ""}
+                    onChange={(e) => setEditingAmbassador({ ...editingAmbassador, invite_focus: e.target.value })}
+                    placeholder="Кого приглашает"
+                />
+
+                <textarea
+                    className="form-input"
+                    value={editingAmbassador.promotion_experience || ""}
+                    onChange={(e) => setEditingAmbassador({ ...editingAmbassador, promotion_experience: e.target.value })}
+                    placeholder="Опыт продвижения"
+                />
+
+                <textarea
+                    className="form-input"
+                    value={editingAmbassador.reason || ""}
+                    onChange={(e) => setEditingAmbassador({ ...editingAmbassador, reason: e.target.value })}
+                    placeholder="Причина"
+                />
+
+                <button
+                    className="vote-btn"
+                    onClick={async () => {
+                        const { error } = await supabase
+                            .from("ambassadors")
+                            .update({
+                                name: editingAmbassador.name,
+                                country: editingAmbassador.country,
+                                city: editingAmbassador.city,
+                                main_social_link: editingAmbassador.main_social_link,
+                                audience_size: editingAmbassador.audience_size,
+                                invite_focus: editingAmbassador.invite_focus,
+                                promotion_experience: editingAmbassador.promotion_experience,
+                                reason: editingAmbassador.reason,
+                            })
+                            .eq("id", editingAmbassador.id);
+
+                        if (error) {
+                            alert(error.message);
+                            return;
+                        }
+
+                        setEditingAmbassador(null);
+                        await loadAmbassadors();
+                    }}
+                >
+                    💾 Сохранить
+                </button>
+
+                <button className="vote-btn" onClick={() => setEditingAmbassador(null)}>
+                    ← Отмена
+                </button>
+            </div>
+        </div>
+    );
+}
     return (
         <div className="page">
             <h1>🤝 Амбассадоры</h1>
@@ -3653,7 +3752,7 @@ if (selectedAmbassador) {
 
 <button
     className="vote-btn"
-    onClick={() => alert("Редактирование")}
+    onClick={() => setEditingAmbassador({ ...item })}
 >
 ✏ Редактировать
 </button>
