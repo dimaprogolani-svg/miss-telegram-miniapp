@@ -3447,31 +3447,99 @@ function Rules() {
 function AmbassadorsAdmin() {
     const navigate = useNavigate();
 
+    const ADMIN_TELEGRAM_ID = 678312754;
+
+    const [loading, setLoading] = useState(true);
+    const [ambassadors, setAmbassadors] = useState<any[]>([]);
+    const [search, setSearch] = useState("");
+
+    async function loadAmbassadors() {
+        setLoading(true);
+
+        const telegramUser =
+            (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+        if (telegramUser?.id !== ADMIN_TELEGRAM_ID) {
+            setLoading(false);
+            return;
+        }
+
+        const { data } = await supabase
+            .from("ambassadors")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        setAmbassadors(data || []);
+        setLoading(false);
+    }
+
+    useEffect(() => {
+        loadAmbassadors();
+    }, []);
+
+    const filteredAmbassadors = ambassadors.filter((item) => {
+        const text = `${item.name || ""} ${item.telegram_id || ""} ${item.referral_code || ""} ${item.status || ""}`.toLowerCase();
+        return text.includes(search.toLowerCase());
+    });
+
+    if (loading) {
+        return (
+            <div className="page">
+                <h1>🤝 Амбассадоры</h1>
+                <div className="card">
+                    <h2>Загрузка...</h2>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="page">
-
             <h1>🤝 Амбассадоры</h1>
 
             <div className="card">
-
-                <h2>Панель управления амбассадорами</h2>
-
-                <p>
-                    Здесь будет список всех амбассадоров,
-                    их статистика,
-                    выплаты
-                    и управление.
-                </p>
-
-                <button
-                    className="vote-btn"
-                    onClick={() => navigate("/")}
-                >
+                <button className="vote-btn" onClick={() => navigate("/")}>
                     ← Назад
                 </button>
 
+                <input
+                    className="form-input"
+                    placeholder="🔍 Поиск по имени, ID, реф-коду, статусу"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+
+                <p>Всего амбассадоров: {filteredAmbassadors.length}</p>
             </div>
 
+            {filteredAmbassadors.length === 0 ? (
+                <div className="card">
+                    <p>Амбассадоры не найдены.</p>
+                </div>
+            ) : (
+                filteredAmbassadors.map((item) => (
+                    <div className="card" key={item.id}>
+                        <h2>🤝 {item.name || "Без имени"}</h2>
+
+                        <p>🟢 Статус: {item.status || "не указан"}</p>
+                        <p>🆔 Telegram ID: {item.telegram_id || "не указан"}</p>
+                        <p>🔗 Реф-код: {item.referral_code || "не указан"}</p>
+
+                        <hr />
+
+                        <p>🌍 Страна: {item.country || "не указана"}</p>
+                        <p>🏙 Город: {item.city || "не указан"}</p>
+                        <p>📣 Соцсеть: {item.main_social_link || "не указана"}</p>
+                        <p>👥 Аудитория: {item.audience_size || "не указана"}</p>
+
+                        <hr />
+
+                        <p>🎯 Кого приглашает: {item.invite_focus || "не указано"}</p>
+                        <p>📢 Опыт: {item.promotion_experience || "не указан"}</p>
+                        <p>💬 Причина: {item.reason || "не указана"}</p>
+                    </div>
+                ))
+            )}
         </div>
     );
 }
