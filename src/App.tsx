@@ -3465,14 +3465,61 @@ function AmbassadorsAdmin() {
         }
 
         const { data } = await supabase
-            .from("ambassadors")
-            .select("*")
-            .order("created_at", { ascending: false });
+    .from("ambassadors")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-        setAmbassadors(data || []);
-        setLoading(false);
-    }
+const ambassadorsWithStats = await Promise.all(
+    (data || []).map(async (ambassador: any) => {
+        const referralCode = ambassador.referral_code;
 
+        const { count: contestantsCount } = await supabase
+            .from("contestants")
+            .select("*", { count: "exact", head: true })
+            .eq("ambassador_code", referralCode);
+
+        const { count: viewersCount } = await supabase
+            .from("ambassador_referrals")
+            .select("*", { count: "exact", head: true })
+            .eq("ambassador_code", referralCode)
+            .eq("referral_type", "viewer");
+
+        const { data: contestantsData } = await supabase
+            .from("contestants")
+            .select("id")
+            .eq("ambassador_code", referralCode);
+
+        const contestantIds = (contestantsData || []).map((x: any) => x.id);
+
+        let totalStars = 0;
+
+        if (contestantIds.length > 0) {
+            const { data: giftsData } = await supabase
+                .from("gifts")
+                .select("price")
+                .in("contestant_id", contestantIds);
+
+            totalStars = (giftsData || []).reduce(
+                (sum: number, gift: any) => sum + (gift.price || 0),
+                0
+            );
+        }
+
+        const rewardStars = Math.floor(totalStars * 0.1);
+
+        return {
+            ...ambassador,
+            contestantsCount: contestantsCount || 0,
+            viewersCount: viewersCount || 0,
+            totalStars,
+            rewardStars,
+        };
+    })
+);
+
+setAmbassadors(ambassadorsWithStats);
+setLoading(false);
+}
     useEffect(() => {
         loadAmbassadors();
     }, []);
@@ -3524,7 +3571,12 @@ function AmbassadorsAdmin() {
                         <p>🟢 Статус: {item.status || "не указан"}</p>
                         <p>🆔 Telegram ID: {item.telegram_id || "не указан"}</p>
                         <p>🔗 Реф-код: {item.referral_code || "не указан"}</p>
+                        <hr />
 
+                        <p>👑 Участниц: {item.contestantsCount || 0}</p>
+                        <p>👥 Зрителей: {item.viewersCount || 0}</p>
+                        <p>🎁 Stars участниц: {item.totalStars || 0}</p>
+                        <p>💰 Вознаграждение 10%: {item.rewardStars || 0} Stars</p>
                         <hr />
 
                         <p>🌍 Страна: {item.country || "не указана"}</p>
