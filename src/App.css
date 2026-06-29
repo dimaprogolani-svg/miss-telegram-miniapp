@@ -69,6 +69,8 @@ body {
 .card {
   width: 90%;
   max-width: 420px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   margin: 30px auto;
   background:
     radial-gradient(circle at top, rgba(176, 92, 255, 0.11), transparent 36%),
@@ -760,4 +762,12 @@ body {
   font-size: 80px;
   box-shadow: 0 0 22px rgba(255, 215, 0, 0.45);
   background: #120d14;
+}
+.card h1,
+.card h2,
+.card h3,
+.card p {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
