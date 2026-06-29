@@ -2049,6 +2049,7 @@ function ContestantProfile({
   setSentGifts: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const { slug } = useParams();
+  const navigate = useNavigate();
 
   const [contestant, setContestant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -2189,6 +2190,13 @@ function ContestantProfile({
   if (loading) {
     return (
       <div className="page">
+	  <button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
+	  
         <h1>Загрузка...</h1>
       </div>
     );
