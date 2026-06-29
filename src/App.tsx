@@ -3444,6 +3444,38 @@ function Rules() {
   );
 }
 
+function AmbassadorsAdmin() {
+    const navigate = useNavigate();
+
+    return (
+        <div className="page">
+
+            <h1>🤝 Амбассадоры</h1>
+
+            <div className="card">
+
+                <h2>Панель управления амбассадорами</h2>
+
+                <p>
+                    Здесь будет список всех амбассадоров,
+                    их статистика,
+                    выплаты
+                    и управление.
+                </p>
+
+                <button
+                    className="vote-btn"
+                    onClick={() => navigate("/")}
+                >
+                    ← Назад
+                </button>
+
+            </div>
+
+        </div>
+    );
+}
+
 function App() {
   const telegram = (window as any).Telegram?.WebApp;
   const urlParams = new URLSearchParams(window.location.search);
@@ -3581,7 +3613,7 @@ saveAmbassadorReferral();
         <Route path="/my-applications" element={<MyApplications />} />
         <Route path="/contestants" element={<Contestants />} />
         <Route path="/admin" element={<Admin />} />
-
+        <Route path="/ambassadors-admin" element={<AmbassadorsAdmin />} />
         <Route
           path="/contestant/:slug"
           element={
