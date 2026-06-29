@@ -2190,12 +2190,7 @@ function ContestantProfile({
   if (loading) {
     return (
       <div className="page">
-	  <button
-    className="vote-btn"
-    onClick={() => navigate(-1)}
->
-    ← Назад
-</button>
+	  
 	  
         <h1>Загрузка...</h1>
       </div>
@@ -2205,6 +2200,12 @@ function ContestantProfile({
   if (!contestant) {
     return (
       <div className="page">
+	  <button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
         <h1>Участница не найдена</h1>
       </div>
     );
