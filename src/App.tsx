@@ -3589,6 +3589,58 @@ setLoading(false);
                         <p>🎯 Кого приглашает: {item.invite_focus || "не указано"}</p>
                         <p>📢 Опыт: {item.promotion_experience || "не указан"}</p>
                         <p>💬 Причина: {item.reason || "не указана"}</p>
+						<hr />
+
+<div style={{
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "8px",
+    marginTop: "12px"
+}}>
+
+<button
+    className="vote-btn"
+    onClick={() => alert("Редактирование")}
+>
+✏ Редактировать
+</button>
+
+<button
+    className="vote-btn"
+    onClick={() => alert("Подробнее")}
+>
+👁 Подробнее
+</button>
+
+<button
+    className="vote-btn"
+    onClick={() => alert("Одобрить")}
+>
+✅ Одобрить
+</button>
+
+<button
+    className="vote-btn"
+    onClick={() => alert("Отклонить")}
+>
+❌ Отклонить
+</button>
+
+<button
+    className="vote-btn"
+    onClick={() => alert("Написать")}
+>
+💬 Написать
+</button>
+
+<button
+    className="vote-btn"
+    onClick={() => alert("Заблокировать")}
+>
+🚫 Заблокировать
+</button>
+
+</div>
                     </div>
                 ))
             )}
