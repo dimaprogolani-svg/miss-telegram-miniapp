@@ -2904,7 +2904,10 @@ function Ambassador() {
 
     setOwnAmbassador((ownData || [])[0] || null);
 	const ambassador = (ownData || [])[0];
-
+    if (!ambassador) {
+      setLoading(false);
+      return;
+}
     if (ambassador?.referral_code) {
       const { count } = await supabase
         .from("contestants")
