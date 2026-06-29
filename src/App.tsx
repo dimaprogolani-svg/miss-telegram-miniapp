@@ -2200,12 +2200,7 @@ function ContestantProfile({
   if (!contestant) {
     return (
       <div className="page">
-	  <button
-    className="vote-btn"
-    onClick={() => navigate(-1)}
->
-    ← Назад
-</button>
+	  
         <h1>Участница не найдена</h1>
       </div>
     );
@@ -2335,6 +2330,12 @@ const photos = Array.from(
 
   return (
     <div className="page">
+	<button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
       <h1>👑 {contestant.name}</h1>
 
       <div className="card">
