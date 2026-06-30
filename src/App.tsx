@@ -3572,7 +3572,55 @@ setRejectedCount(rejectedCount);
     </div>
   );
 }
+function ContestCalendar() {
+    const navigate = useNavigate();
 
+    return (
+        <div className="page">
+            <button className="vote-btn" onClick={() => navigate(-1)}>
+                ← Назад
+            </button>
+
+            <h1>📅 Календарь конкурса</h1>
+
+            <div className="card">
+                <h2>🌍 Новый сезон</h2>
+                <p>Старт сезона: будет объявлен отдельно.</p>
+                <p>Приём заявок открыт до начала финального этапа.</p>
+            </div>
+
+            <div className="card">
+                <h2>📸 Приём заявок</h2>
+                <p>Участницы подают анкеты, загружают фото и проходят модерацию.</p>
+                <p>После одобрения анкета появляется в каталоге участниц.</p>
+            </div>
+
+            <div className="card">
+                <h2>⭐ Голосование</h2>
+                <p>Зрители голосуют за участниц через Telegram Stars.</p>
+                <p>1 голос = 100 Telegram Stars.</p>
+            </div>
+
+            <div className="card">
+                <h2>🎁 Telegram Gifts</h2>
+                <p>Подарки формируют отдельный рейтинг MISS TELEGRAM STAR.</p>
+                <p>Стоимость подарков учитывается в Telegram Stars.</p>
+            </div>
+
+            <div className="card">
+                <h2>🏆 Финал</h2>
+                <p>После окончания сезона система фиксирует результаты.</p>
+                <p>Победительницы определяются по голосам и подаркам.</p>
+            </div>
+
+            <div className="card">
+                <h2>💰 Выплаты</h2>
+                <p>После проверки результатов администрация связывается с победительницами.</p>
+                <p>Выплаты производятся согласно правилам конкурса и правилам Telegram.</p>
+            </div>
+        </div>
+    );
+}
 function Rules() {
     const navigate = useNavigate();
     const [rulesSection, setRulesSection] = useState("");
@@ -4274,6 +4322,7 @@ saveAmbassadorReferral();
 <Route path="/star-rating" element={<StarRating />} />
 <Route path="/ambassador" element={<Ambassador />} />
 <Route path="/rules" element={<Rules />} />
+<Route path="/contest-calendar" element={<ContestCalendar />} />
 
         <Route
           path="/profile"
