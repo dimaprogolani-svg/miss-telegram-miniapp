@@ -2643,7 +2643,7 @@ setRatingList(contestantsWithPlaces);
   );
 }
 
-function Profile({
+function Profile({  
   balance,
   spentStars,
   sentGifts,
@@ -2654,6 +2654,7 @@ function Profile({
   sentGifts: number;
   setBalance: React.Dispatch<React.SetStateAction<number>>;
 }) {
+  const navigate = useNavigate();
   const [paymentMessage, setPaymentMessage] = useState("");
   const [roleText, setRoleText] = useState("👤 Участник");
 
@@ -2713,6 +2714,12 @@ function Profile({
 
   return (
     <div className="page">
+	<button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
       <h1>👤 Профиль</h1>
 
       <div className="card">
