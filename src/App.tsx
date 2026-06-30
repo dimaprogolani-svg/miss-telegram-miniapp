@@ -24,11 +24,16 @@ function Home() {
     (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
   const isAdmin = telegramUser?.id === 678312754;
-  const [homeStats, setHomeStats] = useState({
+const [homeStats, setHomeStats] = useState({
     contestants: 0,
     votes: 0,
     gifts: 0,
+    ambassadors: 0,
+    moderators: 0,
     viewers: 0,
+    voteStars: 0,
+    giftStars: 0,
+    paidTon: 0,
 });
   console.log("HOME INIT DATA:", (window as any).Telegram?.WebApp?.initDataUnsafe);
 console.log("HOME START PARAM:", (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param);
@@ -40,34 +45,48 @@ async function loadHomeStats() {
         .from("contestants")
         .select("*", { count: "exact", head: true });
 
-    const { data: contestantsData } = await supabase
-        .from("contestants")
-        .select("votes");
+    const { count: votesCount } = await supabase
+        .from("votes")
+        .select("*", { count: "exact", head: true });
 
-    const totalVotes = (contestantsData || []).reduce(
-        (sum: number, item: any) => sum + (item.votes || 0),
-        0
-    );
-
-    const { data: giftsData } = await supabase
+    const { count: giftsCount } = await supabase
         .from("gifts")
-        .select("price");
+        .select("*", { count: "exact", head: true });
 
-    const totalGifts = (giftsData || []).reduce(
-        (sum: number, item: any) => sum + (item.price || 0),
-        0
-    );
+    const { count: ambassadorsCount } = await supabase
+        .from("ambassadors")
+        .select("*", { count: "exact", head: true });
+
+    const { count: moderatorsCount } = await supabase
+        .from("moderators")
+        .select("*", { count: "exact", head: true });
 
     const { count: viewersCount } = await supabase
         .from("ambassador_referrals")
         .select("*", { count: "exact", head: true })
         .eq("referral_type", "viewer");
 
+    const { data: giftsData } = await supabase
+        .from("gifts")
+        .select("price");
+
+    const giftStars = (giftsData || []).reduce(
+        (sum: number, item: any) => sum + (item.price || 0),
+        0
+    );
+
+    const voteStars = (votesCount || 0) * 100;
+
     setHomeStats({
         contestants: contestantsCount || 0,
-        votes: totalVotes,
-        gifts: totalGifts,
+        votes: votesCount || 0,
+        gifts: giftsCount || 0,
+        ambassadors: ambassadorsCount || 0,
+        moderators: moderatorsCount || 0,
         viewers: viewersCount || 0,
+        voteStars,
+        giftStars,
+        paidTon: 0,
     });
 }
 
@@ -195,30 +214,60 @@ supabase.rpc("increment_contestant_link_clicks", {
       <h2 className="home-section-title">Конкурс в цифрах</h2>
 
       <div className="home-stats">
-        <div>
-          <div>👑</div>
-          <strong>{homeStats.contestants}</strong>
-          <span>Участниц</span>
-        </div>
+    <div>
+        <div>👑</div>
+        <strong>{homeStats.contestants}</strong>
+        <span>Участниц</span>
+    </div>
 
-        <div>
-          <div>⭐</div>
-          <strong>{homeStats.votes}</strong>
-          <span>Голосов</span>
-        </div>
+    <div>
+        <div>⭐</div>
+        <strong>{homeStats.votes}</strong>
+        <span>Голосов</span>
+    </div>
 
-        <div>
-          <div>🎁</div>
-          <strong>{homeStats.gifts}</strong>
-          <span>Подарков</span>
-        </div>
+    <div>
+        <div>🎁</div>
+        <strong>{homeStats.gifts}</strong>
+        <span>Подарков</span>
+    </div>
 
-        <div>
-          <div>👥</div>
-          <strong>{homeStats.viewers}</strong>
-          <span>Зрителей</span>
-        </div>
-      </div>
+    <div>
+        <div>🤝</div>
+        <strong>{homeStats.ambassadors}</strong>
+        <span>Амбассадоров</span>
+    </div>
+
+    <div>
+        <div>👮</div>
+        <strong>{homeStats.moderators}</strong>
+        <span>Модераторов</span>
+    </div>
+
+    <div>
+        <div>👥</div>
+        <strong>{homeStats.viewers}</strong>
+        <span>Зрителей</span>
+    </div>
+
+    <div>
+        <div>💰</div>
+        <strong>{homeStats.voteStars}</strong>
+        <span>Stars за голоса</span>
+    </div>
+
+    <div>
+        <div>💎</div>
+        <strong>{homeStats.giftStars}</strong>
+        <span>Stars за подарки</span>
+    </div>
+
+    <div>
+        <div>🪙</div>
+        <strong>{homeStats.paidTon}</strong>
+        <span>Выплат TON</span>
+    </div>
+</div>
     </div>
   );
 }
