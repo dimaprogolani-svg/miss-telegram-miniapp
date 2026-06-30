@@ -3574,6 +3574,9 @@ setRejectedCount(rejectedCount);
 }
 function ContestCalendar() {
     const navigate = useNavigate();
+useEffect(() => {
+    window.scrollTo(0, 0);
+}, []);	
 
     return (
         <div className="page">
@@ -3624,6 +3627,9 @@ function ContestCalendar() {
 function Rules() {
     const navigate = useNavigate();
     const [rulesSection, setRulesSection] = useState("");
+	useEffect(() => {
+    window.scrollTo(0, 0);
+}, [rulesSection]);
 
     if (rulesSection === "participation") {
         return (
