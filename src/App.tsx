@@ -1545,12 +1545,7 @@ setApplications((prev) =>
   if (errorMessage) {
     return (
       <div className="page">
-	  <button
-    className="vote-btn"
-    onClick={() => navigate(-1)}
->
-    ← Назад
-</button>
+	  
         <h1>📋 Заявки</h1>
         <div className="card">
           <h2>Ошибка</h2>
@@ -1630,6 +1625,12 @@ setApplications((prev) =>
 
   return (
     <div className="page">
+	<button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
       <h1>📋 Заявки</h1>
 
       {(userRole === "admin" || userRole === "moderator") &&
