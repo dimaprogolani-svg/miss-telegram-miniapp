@@ -3566,31 +3566,184 @@ setRejectedCount(rejectedCount);
 }
 
 function Rules() {
-const navigate = useNavigate();
-  return (
-    <div className="page">
-	<button
-    className="vote-btn"
-    onClick={() => navigate(-1)}
->
-    ← Назад
-</button>
-      <h1>📜 Условия конкурса</h1>
+    const navigate = useNavigate();
+    const [rulesSection, setRulesSection] = useState("");
 
-      <div className="card">
-        <h2>Правила участия</h2>
-        <p>
-          • Участие 18+
-          <br />
-          • Фото проходят модерацию
-          <br />
-          • Призовые фонды будут объявлены отдельно
-          <br />
-          • Выплаты по правилам конкурса
-        </p>
-      </div>
-    </div>
-  );
+    if (rulesSection === "participation") {
+        return (
+            <div className="page">
+                <button className="vote-btn" onClick={() => setRulesSection("")}>← Назад</button>
+                <h1>📜 Правила участия</h1>
+
+                <div className="card">
+                    <h2>👑 Что такое MISS TELEGRAM</h2>
+                    <p>MISS TELEGRAM — международный конкурс красоты среди пользователей Telegram.</p>
+                    <p>Участницы публикуют свои фотографии, получают голоса и подарки от зрителей и борются за победу.</p>
+                </div>
+
+                <div className="card">
+                    <h2>👩 Кто может участвовать</h2>
+                    <p>• Участнице должно быть 18+.</p>
+                    <p>• Аккаунт Telegram должен быть действующим.</p>
+                    <p>• Аккаунт должен быть создан не менее чем за 60 дней до подачи заявки.</p>
+                    <p>• Разрешается только одна анкета на одного человека.</p>
+                    <p>• Участие возможно из разных стран мира.</p>
+                </div>
+
+                <div className="card">
+                    <h2>📷 Фото и анкета</h2>
+                    <p>• Фотографии должны принадлежать самой участнице.</p>
+                    <p>• Запрещено использовать чужие фото.</p>
+                    <p>• Все заявки проходят модерацию.</p>
+                    <p>• Администрация может отклонить заявку при нарушении правил.</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (rulesSection === "prize") {
+        return (
+            <div className="page">
+                <button className="vote-btn" onClick={() => setRulesSection("")}>← Назад</button>
+                <h1>🏆 Призовой фонд</h1>
+
+                <div className="card">
+                    <h2>💰 Два призовых фонда</h2>
+                    <p>В конкурсе формируются два независимых призовых фонда.</p>
+                    <p>👑 MISS TELEGRAM — фонд по голосам.</p>
+                    <p>💎 MISS TELEGRAM STAR — фонд по подаркам Telegram Gifts.</p>
+                </div>
+
+                <div className="card">
+                    <h2>👑 MISS TELEGRAM</h2>
+                    <p>Победительницей становится участница, набравшая наибольшее количество голосов.</p>
+                    <p>Голоса оплачиваются через Telegram Stars.</p>
+                </div>
+
+                <div className="card">
+                    <h2>💎 MISS TELEGRAM STAR</h2>
+                    <p>Победительницей становится участница, получившая наибольшую сумму подарков в Telegram Stars.</p>
+                    <p>Подарки учитываются отдельно от голосов.</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (rulesSection === "voting") {
+        return (
+            <div className="page">
+                <button className="vote-btn" onClick={() => setRulesSection("")}>← Назад</button>
+                <h1>⭐ Голосование и Gifts</h1>
+
+                <div className="card">
+                    <h2>⭐ Голосование</h2>
+                    <p>Один голос стоит 100 Telegram Stars.</p>
+                    <p>Количество голосов не ограничено.</p>
+                    <p>Все голоса учитываются автоматически.</p>
+                </div>
+
+                <div className="card">
+                    <h2>🎁 Telegram Gifts</h2>
+                    <p>Зрители могут отправлять участницам Telegram Gifts.</p>
+                    <p>Стоимость подарков учитывается в Telegram Stars.</p>
+                    <p>Подарки формируют отдельный рейтинг MISS TELEGRAM STAR.</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (rulesSection === "faq") {
+        return (
+            <div className="page">
+                <button className="vote-btn" onClick={() => setRulesSection("")}>← Назад</button>
+                <h1>❓ Частые вопросы</h1>
+
+                <div className="card">
+                    <h2>Можно участвовать повторно?</h2>
+                    <p>Да, если правила конкретного сезона это позволяют.</p>
+                </div>
+
+                <div className="card">
+                    <h2>Можно менять фотографии?</h2>
+                    <p>Да, но изменения могут проходить модерацию.</p>
+                </div>
+
+                <div className="card">
+                    <h2>Можно удалить анкету?</h2>
+                    <p>Да, участница может обратиться в администрацию.</p>
+                </div>
+
+                <div className="card">
+                    <h2>Как получить выигрыш?</h2>
+                    <p>После окончания конкурса администрация проверяет результаты и связывается с победительницами.</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (rulesSection === "full") {
+        return (
+            <div className="page">
+                <button className="vote-btn" onClick={() => setRulesSection("")}>← Назад</button>
+                <h1>📄 Полные правила конкурса</h1>
+
+                <div className="card">
+                    <h2>⚖ Общие условия</h2>
+                    <p>Участие в конкурсе является добровольным.</p>
+                    <p>Отправляя заявку, участница подтверждает согласие с правилами конкурса.</p>
+                    <p>Администрация вправе изменять правила конкурса при необходимости.</p>
+                </div>
+
+                <div className="card">
+                    <h2>🚫 Запрещено</h2>
+                    <p>• Использовать чужие фотографии.</p>
+                    <p>• Создавать несколько анкет одним человеком.</p>
+                    <p>• Использовать ботов и накрутки.</p>
+                    <p>• Обманывать администрацию или зрителей.</p>
+                    <p>• Нарушать правила Telegram.</p>
+                </div>
+
+                <div className="card">
+                    <h2>✅ Решение администрации</h2>
+                    <p>Администрация может отклонить заявку, удалить анкету или дисквалифицировать участницу при нарушении правил.</p>
+                    <p>Решения администрации по спорным ситуациям являются окончательными.</p>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="page">
+            <button className="vote-btn" onClick={() => navigate(-1)}>← Назад</button>
+
+            <h1>📜 Условия конкурса</h1>
+
+            <div className="card" onClick={() => setRulesSection("participation")}>
+                <h2>📜 Правила участия ›</h2>
+                <p>Кто может участвовать, возраст, фото и модерация</p>
+            </div>
+
+            <div className="card" onClick={() => setRulesSection("prize")}>
+                <h2>🏆 Призовой фонд ›</h2>
+                <p>MISS TELEGRAM и MISS TELEGRAM STAR</p>
+            </div>
+
+            <div className="card" onClick={() => setRulesSection("voting")}>
+                <h2>⭐ Голосование и Gifts ›</h2>
+                <p>Telegram Stars, голоса и подарки</p>
+            </div>
+
+            <div className="card" onClick={() => setRulesSection("faq")}>
+                <h2>❓ Частые вопросы ›</h2>
+                <p>Ответы на основные вопросы участниц</p>
+            </div>
+
+            <div className="card" onClick={() => setRulesSection("full")}>
+                <h2>📄 Полные правила ›</h2>
+                <p>Юридические условия, запреты и ответственность</p>
+            </div>
+        </div>
+    );
 }
 
 function AmbassadorsAdmin() {
