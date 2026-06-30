@@ -1992,6 +1992,12 @@ function Contestants() {
 
   return (
     <div className="page">
+	<button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
       <h1>👑 Участницы</h1>
 
       <div className="card">
