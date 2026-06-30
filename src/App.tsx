@@ -180,6 +180,7 @@ supabase.rpc("increment_contestant_link_clicks", {
 }
 
 function Admin() {
+  const navigate = useNavigate();
   const [telegramId, setTelegramId] = useState("");
   const [name, setName] = useState("");
   const [moderators, setModerators] = useState<any[]>([]);
@@ -265,6 +266,12 @@ function Admin() {
 
   return (
     <div className="page">
+	<button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
       <h1>👮 Модераторы</h1>
 
       <div className="card">
