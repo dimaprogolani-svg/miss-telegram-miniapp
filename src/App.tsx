@@ -2836,6 +2836,12 @@ function StarRating() {
 
   return (
     <div className="page">
+	<button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
       <h1>🎁 MISS TELEGRAM STAR</h1>
       <p>Рейтинг по подаркам</p>
 
