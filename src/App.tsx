@@ -2588,6 +2588,13 @@ setRatingList(contestantsWithPlaces);
 
   return (
     <div className="page">
+	<button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
+	
       <h1>👑 MISS TELEGRAM</h1>
       <p>Рейтинг по голосам</p>
 
