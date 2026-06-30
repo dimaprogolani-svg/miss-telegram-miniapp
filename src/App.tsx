@@ -3285,6 +3285,12 @@ setRejectedCount(rejectedCount);
 
   return (
     <div className="page">
+	<button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
       <h1>🤝 Амбассадор</h1>
 
       {errorMessage && (
