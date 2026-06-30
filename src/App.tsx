@@ -907,6 +907,7 @@ const ambassadorCode =
 }
 
 function MyApplications() {
+  const navigate = useNavigate();
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState("user");
@@ -1532,6 +1533,12 @@ setApplications((prev) =>
   if (loading) {
     return (
       <div className="page">
+	  <button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
         <h1>📋 Заявки</h1>
         <div className="card">
           <h2>Загрузка...</h2>
