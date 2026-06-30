@@ -3434,8 +3434,15 @@ setRejectedCount(rejectedCount);
 }
 
 function Rules() {
+const navigate = useNavigate();
   return (
     <div className="page">
+	<button
+    className="vote-btn"
+    onClick={() => navigate(-1)}
+>
+    ← Назад
+</button>
       <h1>📜 Условия конкурса</h1>
 
       <div className="card">
