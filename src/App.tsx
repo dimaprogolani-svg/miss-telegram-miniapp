@@ -29,7 +29,6 @@ const [homeStats, setHomeStats] = useState({
     votes: 0,
     gifts: 0,
     ambassadors: 0,
-    moderators: 0,
     viewers: 0,
     voteStars: 0,
     giftStars: 0,
@@ -41,9 +40,11 @@ console.log("HOME URL:", window.location.href);
 console.log("HOME SEARCH:", window.location.search);
 console.log("HOME HASH:", window.location.hash);
 async function loadHomeStats() {
-    const { count: contestantsCount } = await supabase
-        .from("contestants")
-        .select("*", { count: "exact", head: true });
+    const { data: contestantsData } = await supabase
+    .from("contestants")
+    .select("id");
+
+    const contestantsCount = contestantsData?.length || 0;
 
     const { count: votesCount } = await supabase
         .from("votes")
@@ -57,9 +58,6 @@ async function loadHomeStats() {
         .from("ambassadors")
         .select("*", { count: "exact", head: true });
 
-    const { count: moderatorsCount } = await supabase
-        .from("moderators")
-        .select("*", { count: "exact", head: true });
 
     const { count: viewersCount } = await supabase
         .from("ambassador_referrals")
@@ -82,7 +80,6 @@ async function loadHomeStats() {
         votes: votesCount || 0,
         gifts: giftsCount || 0,
         ambassadors: ambassadorsCount || 0,
-        moderators: moderatorsCount || 0,
         viewers: viewersCount || 0,
         voteStars,
         giftStars,
@@ -236,12 +233,6 @@ supabase.rpc("increment_contestant_link_clicks", {
         <div>🤝</div>
         <strong>{homeStats.ambassadors}</strong>
         <span>Амбассадоров</span>
-    </div>
-
-    <div>
-        <div>👮</div>
-        <strong>{homeStats.moderators}</strong>
-        <span>Модераторов</span>
     </div>
 
     <div>
