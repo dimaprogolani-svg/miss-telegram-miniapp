@@ -205,7 +205,7 @@ supabase.rpc("increment_contestant_link_clicks", {
         </div>
     </div>
 )}
-{isAdmin && (
+
     <div className="home-wide-card" onClick={() => navigate("/contest-calendar")}>
         <div className="home-icon">📅</div>
         <div>
@@ -213,7 +213,7 @@ supabase.rpc("increment_contestant_link_clicks", {
             <p>Даты сезона, этапы, финал и выплаты ›</p>
         </div>
     </div>
-)}
+
 
 
       <h2 className="home-section-title">Конкурс в цифрах</h2>
