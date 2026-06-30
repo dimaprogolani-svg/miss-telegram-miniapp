@@ -24,12 +24,56 @@ function Home() {
     (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
   const isAdmin = telegramUser?.id === 678312754;
+  const [homeStats, setHomeStats] = useState({
+    contestants: 0,
+    votes: 0,
+    gifts: 0,
+    viewers: 0,
+});
   console.log("HOME INIT DATA:", (window as any).Telegram?.WebApp?.initDataUnsafe);
 console.log("HOME START PARAM:", (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param);
 console.log("HOME URL:", window.location.href);
 console.log("HOME SEARCH:", window.location.search);
 console.log("HOME HASH:", window.location.hash);
-  
+async function loadHomeStats() {
+    const { count: contestantsCount } = await supabase
+        .from("contestants")
+        .select("*", { count: "exact", head: true });
+
+    const { data: contestantsData } = await supabase
+        .from("contestants")
+        .select("votes");
+
+    const totalVotes = (contestantsData || []).reduce(
+        (sum: number, item: any) => sum + (item.votes || 0),
+        0
+    );
+
+    const { data: giftsData } = await supabase
+        .from("gifts")
+        .select("price");
+
+    const totalGifts = (giftsData || []).reduce(
+        (sum: number, item: any) => sum + (item.price || 0),
+        0
+    );
+
+    const { count: viewersCount } = await supabase
+        .from("ambassador_referrals")
+        .select("*", { count: "exact", head: true })
+        .eq("referral_type", "viewer");
+
+    setHomeStats({
+        contestants: contestantsCount || 0,
+        votes: totalVotes,
+        gifts: totalGifts,
+        viewers: viewersCount || 0,
+    });
+}
+
+useEffect(() => {
+    loadHomeStats();
+}, []);  
 useEffect(() => {
   const startParam =
     (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
@@ -153,25 +197,25 @@ supabase.rpc("increment_contestant_link_clicks", {
       <div className="home-stats">
         <div>
           <div>👑</div>
-          <strong>500+</strong>
+          <strong>{homeStats.contestants}</strong>
           <span>Участниц</span>
         </div>
 
         <div>
           <div>⭐</div>
-          <strong>25K+</strong>
+          <strong>{homeStats.votes}</strong>
           <span>Голосов</span>
         </div>
 
         <div>
           <div>🎁</div>
-          <strong>10K+</strong>
+          <strong>{homeStats.gifts}</strong>
           <span>Подарков</span>
         </div>
 
         <div>
           <div>👥</div>
-          <strong>50K+</strong>
+          <strong>{homeStats.viewers}</strong>
           <span>Зрителей</span>
         </div>
       </div>
