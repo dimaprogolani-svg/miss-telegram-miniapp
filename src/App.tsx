@@ -3723,6 +3723,11 @@ function LiveAdmin() {
 
     async function saveLiveSettings(nextIsLive = isLive) {
         setMessage("");
+		
+		if (nextIsLive && !liveUrl.trim()) {
+    setMessage("❌ Вставьте ссылку на эфир перед запуском");
+    return;
+}
 
         const value = {
     url: liveUrl,
