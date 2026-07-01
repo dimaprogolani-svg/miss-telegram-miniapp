@@ -3626,60 +3626,61 @@ function LivePage() {
         <h1>🎥 Прямой эфир</h1>
 
         {isLive ? (
-            <>
-                <div className="card">
-                    <h2>🔴 LIVE</h2>
-                    <p>👑 {liveTitle}</p>
-                    <p>🟢 Эфир уже начался.</p>
-                    <p>⏰ Не пропустите важные события конкурса.</p>
-
-                    <div className="card">
-    <h2>🎥 Видеотрансляция</h2>
-
-    <div
-        style={{
-            width: "100%",
-            minHeight: "180px",
-            border: "1px solid #d4af37",
-            borderRadius: "18px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginTop: "15px",
-            marginBottom: "15px",
-            background: "linear-gradient(180deg, #050005, #16001f)",
-            boxShadow: "0 0 18px rgba(212,175,55,0.25)",
-        }}
-    >
-        <div>
-            <p>🔴 LIVE</p>
-            <p>Видео будет подключено на следующем этапе</p>
+    <>
+        <div className="card">
+            <h2>🔴 LIVE <span style={{ fontSize: "18px" }}>👁 1245</span></h2>
+            <p>👑 {liveTitle}</p>
         </div>
-    </div>
-</div>
-                </div>
 
-                {hostMessage && (
-                    <div className="card">
-                        <h2>📢 Сообщение ведущего</h2>
-                        <p>{hostMessage}</p>
-                    </div>
-                )}
+        <div className="card">
+            <h2>🎥 ВИДЕО ЭФИРА</h2>
 
-                <div className="card">
-                    <h2>⭐ Во время эфира вы можете</h2>
-                    <p>✔ Голосовать за участниц</p>
-                    <p>✔ Отправлять Telegram Gifts</p>
-                    <p>✔ Следить за рейтингом</p>
-                    <p>✔ Поддерживать любимых участниц</p>
+            <div
+                style={{
+                    width: "100%",
+                    minHeight: "220px",
+                    border: "1px solid #d4af37",
+                    borderRadius: "18px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: "15px",
+                    marginBottom: "15px",
+                    background: "linear-gradient(180deg, #050005, #16001f)",
+                    boxShadow: "0 0 18px rgba(212,175,55,0.25)",
+                }}
+            >
+                <div>
+                    <p>🔴 LIVE</p>
+                    <p>Видеопоток будет подключён на следующем этапе</p>
                 </div>
+            </div>
+        </div>
 
-                <div className="card">
-                    <h2>📢 Внимание</h2>
-                    <p>Во время прямого эфира результаты конкурса обновляются в режиме реального времени.</p>
-                </div>
-            </>
-        ) : (
+        {hostMessage && (
+            <div className="card">
+                <h2>🎤 Сообщение ведущего</h2>
+                <p>{hostMessage}</p>
+            </div>
+        )}
+
+        <div className="card">
+            <h2>👑 Участница в эфире</h2>
+            <p>Сейчас участница ещё не выбрана.</p>
+            <p>Позже здесь будет фото, имя и кнопки поддержки.</p>
+        </div>
+
+        <div className="card">
+            <button className="vote-btn" onClick={() => navigate("/contestants")}>
+                ⭐ Голосовать
+            </button>
+
+            <button className="vote-btn" onClick={() => navigate("/contestants")}>
+                🎁 Отправить Gift
+            </button>
+        </div>
+    </>
+) : (
             <>
                 <div className="card">
                     <h2>⚫ Сейчас прямой эфир не ведётся</h2>
