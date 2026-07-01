@@ -3771,7 +3771,7 @@ function LiveAdmin() {
             </div>
 
             <div className="card">
-                <h2>📺 Ссылка на эфир</h2>
+                <h2>🎥 Настройки эфира</h2>
 
                 <input
                     className="form-input"
@@ -3810,18 +3810,24 @@ function LiveAdmin() {
                 </button>
 
                 <button
-                    className="vote-btn"
-                    onClick={() =>
-                        alert(
-                            "Текст уведомления:\n\n🔴 Прямой эфир уже начался!\n\n👑 " +
-                                liveTitle +
-                                "\n\nПрисоединяйтесь прямо сейчас:\n" +
-                                liveUrl
-                        )
-                    }
-                >
-                    📢 Текст уведомления
-                </button>
+    className="vote-btn"
+    onClick={() => {
+        alert(`🔴 Прямой эфир начался!
+
+👑 MISS TELEGRAM
+
+📢 Сообщение ведущего:
+
+${hostMessage}
+
+✨ Присоединяйтесь прямо сейчас.
+
+▶ Смотреть эфир
+${liveUrl}`);
+    }}
+>
+    👁 Предпросмотр уведомления
+</button>
 
                 {message && <p>{message}</p>}
             </div>
