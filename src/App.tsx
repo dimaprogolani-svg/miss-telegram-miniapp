@@ -213,6 +213,14 @@ supabase.rpc("increment_contestant_link_clicks", {
             <p>Даты сезона, этапы, финал и выплаты ›</p>
         </div>
     </div>
+	
+<div className="home-wide-card" onClick={() => navigate("/live")}>
+    <div className="home-icon">🎥</div>
+    <div>
+        <h2>Прямой эфир</h2>
+        <p>Смотреть трансляцию конкурса ›</p>
+    </div>
+</div>	
 
 {isAdmin && (
     <div className="home-wide-card" onClick={() => navigate("/live-admin")}>
@@ -3580,6 +3588,60 @@ setRejectedCount(rejectedCount);
     </div>
   );
 }
+
+function LivePage() {
+    const navigate = useNavigate();
+
+    const [liveUrl, setLiveUrl] = useState("");
+    const [liveTitle, setLiveTitle] = useState("MISS TELEGRAM");
+    const [isLive, setIsLive] = useState(false);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+        loadLiveSettings();
+    }, []);
+
+    async function loadLiveSettings() {
+        const { data } = await supabase
+            .from("settings")
+            .select("*")
+            .eq("key", "live_stream")
+            .maybeSingle();
+
+        if (data?.value) {
+            setLiveUrl(data.value.url || "");
+            setLiveTitle(data.value.title || "MISS TELEGRAM");
+            setIsLive(data.value.isLive || false);
+        }
+    }
+
+    return (
+        <div className="page">
+            <button className="vote-btn" onClick={() => navigate(-1)}>
+                ← Назад
+            </button>
+
+            <h1>🎥 Прямой эфир</h1>
+
+            <div className="card">
+                <h2>{isLive ? "🔴 Сейчас в эфире" : "⚫ Эфир не запущен"}</h2>
+                <p>{liveTitle}</p>
+
+                {isLive && liveUrl ? (
+                    <button
+                        className="vote-btn"
+                        onClick={() => window.open(liveUrl, "_blank")}
+                    >
+                        ▶ Открыть эфир
+                    </button>
+                ) : (
+                    <p>Когда эфир начнётся, здесь появится кнопка для просмотра.</p>
+                )}
+            </div>
+        </div>
+    );
+}
+
 function LiveAdmin() {
     const navigate = useNavigate();
 
@@ -4511,7 +4573,9 @@ saveAmbassadorReferral();
 <Route path="/ambassador" element={<Ambassador />} />
 <Route path="/rules" element={<Rules />} />
 <Route path="/contest-calendar" element={<ContestCalendar />} />
+<Route path="/live" element={<LivePage />} />
 <Route path="/live-admin" element={<LiveAdmin />} />
+
 
         <Route
           path="/profile"
