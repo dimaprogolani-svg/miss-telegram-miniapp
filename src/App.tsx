@@ -3782,7 +3782,7 @@ function LiveAdmin() {
 
                 <input
                     className="form-input"
-                    placeholder="Ссылка на Telegram Live"
+                    placeholder="URL видеотрансляции"
                     value={liveUrl}
                     onChange={(e) => setLiveUrl(e.target.value)}
                 />
