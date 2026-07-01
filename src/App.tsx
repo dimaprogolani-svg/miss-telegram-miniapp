@@ -3625,7 +3625,7 @@ function LivePage() {
 
         <h1>🎥 Прямой эфир</h1>
 
-        {isLive && liveUrl ? (
+        {isLive ? (
             <>
                 <div className="card">
                     <h2>🔴 LIVE</h2>
