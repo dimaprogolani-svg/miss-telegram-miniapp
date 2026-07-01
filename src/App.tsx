@@ -3595,6 +3595,7 @@ function LivePage() {
     const [liveUrl, setLiveUrl] = useState("");
     const [liveTitle, setLiveTitle] = useState("MISS TELEGRAM");
     const [isLive, setIsLive] = useState(false);
+	const [hostMessage, setHostMessage] = useState("");
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -3612,6 +3613,7 @@ function LivePage() {
             setLiveUrl(data.value.url || "");
             setLiveTitle(data.value.title || "MISS TELEGRAM");
             setIsLive(data.value.isLive || false);
+			setHostMessage(data.value.hostMessage || "");
         }
     }
 
@@ -3627,8 +3629,9 @@ function LivePage() {
             <>
                 <div className="card">
                     <h2>🔴 LIVE</h2>
-                    <p>{liveTitle}</p>
-                    <p>🟢 Прямой эфир уже начался.</p>
+                    <p>👑 {liveTitle}</p>
+                    <p>🟢 Эфир уже начался.</p>
+                    <p>⏰ Не пропустите важные события конкурса.</p>
 
                     <button
                         className="vote-btn"
@@ -3638,12 +3641,24 @@ function LivePage() {
                     </button>
                 </div>
 
+                {hostMessage && (
+                    <div className="card">
+                        <h2>📢 Сообщение ведущего</h2>
+                        <p>{hostMessage}</p>
+                    </div>
+                )}
+
                 <div className="card">
-                    <h2>⭐ Во время эфира можно</h2>
+                    <h2>⭐ Во время эфира вы можете</h2>
                     <p>✔ Голосовать за участниц</p>
                     <p>✔ Отправлять Telegram Gifts</p>
                     <p>✔ Следить за рейтингом</p>
-                    <p>✔ Поддерживать своих фавориток</p>
+                    <p>✔ Поддерживать любимых участниц</p>
+                </div>
+
+                <div className="card">
+                    <h2>📢 Внимание</h2>
+                    <p>Во время прямого эфира результаты конкурса обновляются в режиме реального времени.</p>
                 </div>
             </>
         ) : (
@@ -3682,6 +3697,9 @@ function LiveAdmin() {
     const [liveTitle, setLiveTitle] = useState("Финал MISS TELEGRAM");
     const [isLive, setIsLive] = useState(false);
     const [message, setMessage] = useState("");
+	const [hostMessage, setHostMessage] = useState(
+    "Добро пожаловать на прямой эфир MISS TELEGRAM!"
+);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -3699,6 +3717,7 @@ function LiveAdmin() {
             setLiveUrl(data.value.url || "");
             setLiveTitle(data.value.title || "Финал MISS TELEGRAM");
             setIsLive(data.value.isLive || false);
+			setHostMessage(data.value.hostMessage || "Добро пожаловать на прямой эфир MISS TELEGRAM!");
         }
     }
 
@@ -3706,11 +3725,12 @@ function LiveAdmin() {
         setMessage("");
 
         const value = {
-            url: liveUrl,
-            title: liveTitle,
-            isLive: nextIsLive,
-            updated_at: new Date().toISOString(),
-        };
+    url: liveUrl,
+    title: liveTitle,
+    isLive: nextIsLive,
+    hostMessage,
+    updated_at: new Date().toISOString(),
+};
 
         const { error } = await supabase
             .from("settings")
@@ -3760,6 +3780,12 @@ function LiveAdmin() {
                     value={liveUrl}
                     onChange={(e) => setLiveUrl(e.target.value)}
                 />
+				<textarea
+    className="form-input"
+    placeholder="Сообщение ведущего"
+    value={hostMessage}
+    onChange={(e) => setHostMessage(e.target.value)}
+/>
 
                 <button className="vote-btn" onClick={() => saveLiveSettings()}>
                     💾 Сохранить
