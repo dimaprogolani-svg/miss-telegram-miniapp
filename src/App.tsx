@@ -214,7 +214,15 @@ supabase.rpc("increment_contestant_link_clicks", {
         </div>
     </div>
 
-
+{isAdmin && (
+    <div className="home-wide-card" onClick={() => navigate("/live-admin")}>
+        <div className="home-icon">🎥</div>
+        <div>
+            <h2>Прямые эфиры</h2>
+            <p>Управление трансляциями ›</p>
+        </div>
+    </div>
+)}
 
       <h2 className="home-section-title">Конкурс в цифрах</h2>
 
@@ -3572,6 +3580,127 @@ setRejectedCount(rejectedCount);
     </div>
   );
 }
+function LiveAdmin() {
+    const navigate = useNavigate();
+
+    const [liveUrl, setLiveUrl] = useState("");
+    const [liveTitle, setLiveTitle] = useState("Финал MISS TELEGRAM");
+    const [isLive, setIsLive] = useState(false);
+    const [message, setMessage] = useState("");
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+        loadLiveSettings();
+    }, []);
+
+    async function loadLiveSettings() {
+        const { data } = await supabase
+            .from("settings")
+            .select("*")
+            .eq("key", "live_stream")
+            .maybeSingle();
+
+        if (data?.value) {
+            setLiveUrl(data.value.url || "");
+            setLiveTitle(data.value.title || "Финал MISS TELEGRAM");
+            setIsLive(data.value.isLive || false);
+        }
+    }
+
+    async function saveLiveSettings(nextIsLive = isLive) {
+        setMessage("");
+
+        const value = {
+            url: liveUrl,
+            title: liveTitle,
+            isLive: nextIsLive,
+            updated_at: new Date().toISOString(),
+        };
+
+        const { error } = await supabase
+            .from("settings")
+            .upsert(
+                {
+                    key: "live_stream",
+                    value,
+                },
+                { onConflict: "key" }
+            );
+
+        if (error) {
+            setMessage("Ошибка сохранения: " + error.message);
+            return;
+        }
+
+        setIsLive(nextIsLive);
+        setMessage("✅ Сохранено");
+    }
+
+    return (
+        <div className="page">
+            <button className="vote-btn" onClick={() => navigate(-1)}>
+                ← Назад
+            </button>
+
+            <h1>🎥 Прямые эфиры</h1>
+
+            <div className="card">
+                <h2>{isLive ? "🟢 Сейчас в эфире" : "⚫ Эфир не запущен"}</h2>
+                <p>Статус трансляции для конкурса MISS TELEGRAM.</p>
+            </div>
+
+            <div className="card">
+                <h2>📺 Ссылка на эфир</h2>
+
+                <input
+                    className="form-input"
+                    placeholder="Название эфира"
+                    value={liveTitle}
+                    onChange={(e) => setLiveTitle(e.target.value)}
+                />
+
+                <input
+                    className="form-input"
+                    placeholder="Ссылка на Telegram Live"
+                    value={liveUrl}
+                    onChange={(e) => setLiveUrl(e.target.value)}
+                />
+
+                <button className="vote-btn" onClick={() => saveLiveSettings()}>
+                    💾 Сохранить
+                </button>
+            </div>
+
+            <div className="card">
+                <h2>Управление эфиром</h2>
+
+                <button className="vote-btn" onClick={() => saveLiveSettings(true)}>
+                    ▶ Запустить эфир
+                </button>
+
+                <button className="vote-btn" onClick={() => saveLiveSettings(false)}>
+                    ⏹ Завершить эфир
+                </button>
+
+                <button
+                    className="vote-btn"
+                    onClick={() =>
+                        alert(
+                            "Текст уведомления:\n\n🔴 Прямой эфир уже начался!\n\n👑 " +
+                                liveTitle +
+                                "\n\nПрисоединяйтесь прямо сейчас:\n" +
+                                liveUrl
+                        )
+                    }
+                >
+                    📢 Текст уведомления
+                </button>
+
+                {message && <p>{message}</p>}
+            </div>
+        </div>
+    );
+}
 function ContestCalendar() {
     const navigate = useNavigate();
 useEffect(() => {
@@ -4382,6 +4511,7 @@ saveAmbassadorReferral();
 <Route path="/ambassador" element={<Ambassador />} />
 <Route path="/rules" element={<Rules />} />
 <Route path="/contest-calendar" element={<ContestCalendar />} />
+<Route path="/live-admin" element={<LiveAdmin />} />
 
         <Route
           path="/profile"
