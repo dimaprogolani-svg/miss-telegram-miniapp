@@ -3592,7 +3592,7 @@ setRejectedCount(rejectedCount);
 function LivePage() {
     const navigate = useNavigate();
 
-    const [liveUrl, setLiveUrl] = useState("");
+    const [, setLiveUrl] = useState("");
     const [liveTitle, setLiveTitle] = useState("MISS TELEGRAM");
     const [isLive, setIsLive] = useState(false);
 	const [hostMessage, setHostMessage] = useState("");
@@ -3633,12 +3633,30 @@ function LivePage() {
                     <p>🟢 Эфир уже начался.</p>
                     <p>⏰ Не пропустите важные события конкурса.</p>
 
-                    <button
-                        className="vote-btn"
-                        onClick={() => window.open(liveUrl, "_blank")}
-                    >
-                        ▶ Смотреть эфир
-                    </button>
+                    <div className="card">
+    <h2>🎥 Видеотрансляция</h2>
+
+    <div
+        style={{
+            width: "100%",
+            minHeight: "180px",
+            border: "1px solid #d4af37",
+            borderRadius: "18px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: "15px",
+            marginBottom: "15px",
+            background: "linear-gradient(180deg, #050005, #16001f)",
+            boxShadow: "0 0 18px rgba(212,175,55,0.25)",
+        }}
+    >
+        <div>
+            <p>🔴 LIVE</p>
+            <p>Видео будет подключено на следующем этапе</p>
+        </div>
+    </div>
+</div>
                 </div>
 
                 {hostMessage && (
