@@ -3616,30 +3616,63 @@ function LivePage() {
     }
 
     return (
-        <div className="page">
-            <button className="vote-btn" onClick={() => navigate(-1)}>
-                ← Назад
-            </button>
+    <div className="page">
+        <button className="vote-btn" onClick={() => navigate(-1)}>
+            ← Назад
+        </button>
 
-            <h1>🎥 Прямой эфир</h1>
+        <h1>🎥 Прямой эфир</h1>
 
-            <div className="card">
-                <h2>{isLive ? "🔴 Сейчас в эфире" : "⚫ Эфир не запущен"}</h2>
-                <p>{liveTitle}</p>
+        {isLive && liveUrl ? (
+            <>
+                <div className="card">
+                    <h2>🔴 LIVE</h2>
+                    <p>{liveTitle}</p>
+                    <p>🟢 Прямой эфир уже начался.</p>
 
-                {isLive && liveUrl ? (
                     <button
                         className="vote-btn"
                         onClick={() => window.open(liveUrl, "_blank")}
                     >
-                        ▶ Открыть эфир
+                        ▶ Смотреть эфир
                     </button>
-                ) : (
-                    <p>Когда эфир начнётся, здесь появится кнопка для просмотра.</p>
-                )}
-            </div>
-        </div>
-    );
+                </div>
+
+                <div className="card">
+                    <h2>⭐ Во время эфира можно</h2>
+                    <p>✔ Голосовать за участниц</p>
+                    <p>✔ Отправлять Telegram Gifts</p>
+                    <p>✔ Следить за рейтингом</p>
+                    <p>✔ Поддерживать своих фавориток</p>
+                </div>
+            </>
+        ) : (
+            <>
+                <div className="card">
+                    <h2>⚫ Сейчас прямой эфир не ведётся</h2>
+                    <p>Следующая трансляция будет объявлена в календаре конкурса.</p>
+
+                    <button
+                        className="vote-btn"
+                        onClick={() => navigate("/contest-calendar")}
+                    >
+                        📅 Календарь конкурса
+                    </button>
+                </div>
+
+                <div className="card">
+                    <h2>👑 Что проходит в прямых эфирах</h2>
+                    <p>• Представление участниц</p>
+                    <p>• Интервью</p>
+                    <p>• Полуфиналы</p>
+                    <p>• Финал конкурса</p>
+                    <p>• Объявление победительниц</p>
+                    <p>• Специальные события конкурса</p>
+                </div>
+            </>
+        )}
+    </div>
+);
 }
 
 function LiveAdmin() {
