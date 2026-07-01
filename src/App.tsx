@@ -3734,6 +3734,7 @@ function LiveAdmin() {
     title: liveTitle,
     isLive: nextIsLive,
     hostMessage,
+    notification_sent: nextIsLive ? false : true,
     updated_at: new Date().toISOString(),
 };
 
