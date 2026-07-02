@@ -3624,12 +3624,40 @@ function LiveApplicationPage() {
     const [sending, setSending] = useState(false);
 	const [isContestant, setIsContestant] = useState(false);
     const [checkingContestant, setCheckingContestant] = useState(true);
+	const [busySlots, setBusySlots] = useState<string[]>([]);
+    const [loadingSlots, setLoadingSlots] = useState(false);
 
     const timeSlots = ["18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
     useEffect(() => {
     window.scrollTo(0, 0);
     checkContestantAccess();
 }, []);
+
+useEffect(() => {
+    if (requestedDate) {
+        loadBusySlots(requestedDate);
+    } else {
+        setBusySlots([]);
+    }
+}, [requestedDate]);
+
+async function loadBusySlots(date: string) {
+    setLoadingSlots(true);
+
+    const { data } = await supabase
+        .from("live_applications")
+        .select("requested_time")
+        .eq("requested_date", date)
+        .in("status", ["На рассмотрении", "Одобрена"]);
+
+    const slots = (data || [])
+        .map((item: any) => item.requested_time)
+        .filter(Boolean);
+
+    setBusySlots(slots);
+    setLoadingSlots(false);
+}
+
 
 async function checkContestantAccess() {
     const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
@@ -3814,21 +3842,32 @@ if (!isContestant) {
                 <div className="card">
                     <h2>🕒 Выберите время</h2>
 
-                    {timeSlots.map((time) => (
-                        <button
-                            key={time}
-                            className="gift-btn"
-                            onClick={() => setRequestedTime(time)}
-                            style={{
-                                border:
-                                    requestedTime === time
-                                        ? "2px solid #00ff99"
-                                        : undefined,
-                            }}
-                        >
-                            {time} {requestedTime === time ? "✅" : ""}
-                        </button>
-                    ))}
+                    {loadingSlots && <p>⏳ Загружаем занятые слоты...</p>}
+
+{timeSlots.map((time) => {
+    const isBusy = busySlots.includes(time);
+    const isSelected = requestedTime === time;
+
+    return (
+        <button
+            key={time}
+            className={isBusy ? "gift-btn" : "vote-btn"}
+            disabled={isBusy}
+            onClick={() => {
+                if (!isBusy) {
+                    setRequestedTime(time);
+                }
+            }}
+            style={{
+                opacity: isBusy ? 0.45 : 1,
+                border: isSelected ? "2px solid #00ff99" : undefined,
+                cursor: isBusy ? "not-allowed" : "pointer",
+            }}
+        >
+            {time} {isBusy ? "🚫 занято" : isSelected ? "✅" : ""}
+        </button>
+    );
+})}
 
                     <button className="vote-btn" onClick={() => setStep(2)}>
                         Назад
