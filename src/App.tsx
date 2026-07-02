@@ -3622,11 +3622,43 @@ function LiveApplicationPage() {
     const [rulesAccepted, setRulesAccepted] = useState(false);
     const [message, setMessage] = useState("");
     const [sending, setSending] = useState(false);
+	const [isContestant, setIsContestant] = useState(false);
+    const [checkingContestant, setCheckingContestant] = useState(true);
 
     const timeSlots = ["18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
+    useEffect(() => {
+    window.scrollTo(0, 0);
+    checkContestantAccess();
+}, []);
 
+async function checkContestantAccess() {
+    const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+    if (!telegramUser?.id) {
+        setIsContestant(false);
+        setCheckingContestant(false);
+        return;
+    }
+
+    const { data } = await supabase
+        .from("contestants")
+        .select("id,status")
+        .eq("telegram_id", telegramUser.id)
+        .neq("status", "Отклонена")
+        .maybeSingle();
+
+    setIsContestant(!!data);
+    setCheckingContestant(false);
+}
     async function submitLiveApplication() {
         setMessage("");
+		if (checkingContestant) {
+    return;
+}
+        if (!isContestant) {
+        setMessage("❌ Подать заявку на прямой эфир могут только участницы конкурса.");
+    return;
+}
 
         if (!title.trim() || !topic.trim() || !requestedDate || !requestedTime) {
             setMessage("❌ Заполните название, тему, дату и время.");
@@ -3860,6 +3892,7 @@ function LivePage() {
     const [liveTitle, setLiveTitle] = useState("MISS TELEGRAM");
     const [isLive, setIsLive] = useState(false);
 	const [hostMessage, setHostMessage] = useState("");
+	
 
     useEffect(() => {
         window.scrollTo(0, 0);
