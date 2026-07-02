@@ -3608,7 +3608,75 @@ setRejectedCount(rejectedCount);
 
 function LiveApplicationPage() {
     const navigate = useNavigate();
+
     const [step, setStep] = useState(1);
+    const [title, setTitle] = useState("");
+    const [topic, setTopic] = useState("");
+    const [description, setDescription] = useState("");
+    const [requestedDate, setRequestedDate] = useState("");
+    const [requestedTime, setRequestedTime] = useState("");
+    const [language, setLanguage] = useState("");
+    const [country, setCountry] = useState("");
+    const [internet, setInternet] = useState("");
+    const [plan, setPlan] = useState("");
+    const [rulesAccepted, setRulesAccepted] = useState(false);
+    const [message, setMessage] = useState("");
+    const [sending, setSending] = useState(false);
+
+    const timeSlots = ["18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
+
+    async function submitLiveApplication() {
+        setMessage("");
+
+        if (!title.trim() || !topic.trim() || !requestedDate || !requestedTime) {
+            setMessage("❌ Заполните название, тему, дату и время.");
+            return;
+        }
+
+        if (!rulesAccepted) {
+            setMessage("❌ Нужно подтвердить правила эфира.");
+            return;
+        }
+
+        setSending(true);
+
+        const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+        const { error } = await supabase.from("live_applications").insert({
+            telegram_id: telegramUser?.id || null,
+            contestant_name:
+                `${telegramUser?.first_name || ""} ${telegramUser?.last_name || ""}`.trim() ||
+                telegramUser?.username ||
+                "",
+            requested_date: requestedDate,
+            requested_time: requestedTime,
+            topic,
+            language,
+            description: `
+Название эфира: ${title}
+Описание: ${description}
+Страна эфира: ${country}
+Интернет: ${internet}
+Что планирует показать: ${plan}
+            `,
+            rules_accepted: rulesAccepted,
+            status: "На рассмотрении",
+        });
+
+        setSending(false);
+
+        if (error) {
+            if (error.code === "23505") {
+                setMessage("❌ Это время уже занято. Выберите другое время.");
+                return;
+            }
+
+            setMessage("❌ Ошибка отправки заявки: " + error.message);
+            return;
+        }
+
+        setMessage("✅ Заявка отправлена на рассмотрение.");
+    }
 
     return (
         <div className="page">
@@ -3625,9 +3693,28 @@ function LiveApplicationPage() {
             {step === 1 && (
                 <div className="card">
                     <h2>🎤 Общая информация</h2>
-                    <input className="form-input" placeholder="Название эфира" />
-                    <input className="form-input" placeholder="Тема эфира" />
-                    <textarea className="form-input" placeholder="Краткое описание эфира" />
+
+                    <input
+                        className="form-input"
+                        placeholder="Название эфира"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                    />
+
+                    <input
+                        className="form-input"
+                        placeholder="Тема эфира"
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                    />
+
+                    <textarea
+                        className="form-input"
+                        placeholder="Краткое описание эфира"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                    />
+
                     <button className="vote-btn" onClick={() => setStep(2)}>
                         Далее
                     </button>
@@ -3637,10 +3724,18 @@ function LiveApplicationPage() {
             {step === 2 && (
                 <div className="card">
                     <h2>📅 Выберите дату</h2>
-                    <input className="form-input" type="date" />
+
+                    <input
+                        className="form-input"
+                        type="date"
+                        value={requestedDate}
+                        onChange={(e) => setRequestedDate(e.target.value)}
+                    />
+
                     <button className="vote-btn" onClick={() => setStep(1)}>
                         Назад
                     </button>
+
                     <button className="vote-btn" onClick={() => setStep(3)}>
                         Далее
                     </button>
@@ -3650,14 +3745,27 @@ function LiveApplicationPage() {
             {step === 3 && (
                 <div className="card">
                     <h2>🕒 Выберите время</h2>
-                    <button className="gift-btn">18:00 ✅</button>
-                    <button className="gift-btn">18:30 ❌ Занято</button>
-                    <button className="gift-btn">19:00 ✅</button>
-                    <button className="gift-btn">19:30 ✅</button>
+
+                    {timeSlots.map((time) => (
+                        <button
+                            key={time}
+                            className="gift-btn"
+                            onClick={() => setRequestedTime(time)}
+                            style={{
+                                border:
+                                    requestedTime === time
+                                        ? "2px solid #00ff99"
+                                        : undefined,
+                            }}
+                        >
+                            {time} {requestedTime === time ? "✅" : ""}
+                        </button>
+                    ))}
 
                     <button className="vote-btn" onClick={() => setStep(2)}>
                         Назад
                     </button>
+
                     <button className="vote-btn" onClick={() => setStep(4)}>
                         Далее
                     </button>
@@ -3667,14 +3775,39 @@ function LiveApplicationPage() {
             {step === 4 && (
                 <div className="card">
                     <h2>🎤 Вопросы участнице</h2>
-                    <textarea className="form-input" placeholder="О чём будет эфир?" />
-                    <input className="form-input" placeholder="Из какой страны будет эфир?" />
-                    <input className="form-input" placeholder="У вас стабильный интернет? Да / Нет" />
-                    <textarea className="form-input" placeholder="Что планируете показать?" />
+
+                    <input
+                        className="form-input"
+                        placeholder="Язык эфира"
+                        value={language}
+                        onChange={(e) => setLanguage(e.target.value)}
+                    />
+
+                    <input
+                        className="form-input"
+                        placeholder="Из какой страны будет эфир?"
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                    />
+
+                    <input
+                        className="form-input"
+                        placeholder="У вас стабильный интернет? Да / Нет"
+                        value={internet}
+                        onChange={(e) => setInternet(e.target.value)}
+                    />
+
+                    <textarea
+                        className="form-input"
+                        placeholder="Что планируете показать?"
+                        value={plan}
+                        onChange={(e) => setPlan(e.target.value)}
+                    />
 
                     <button className="vote-btn" onClick={() => setStep(3)}>
                         Назад
                     </button>
+
                     <button className="vote-btn" onClick={() => setStep(5)}>
                         Далее
                     </button>
@@ -3684,6 +3817,7 @@ function LiveApplicationPage() {
             {step === 5 && (
                 <div className="card">
                     <h2>✅ Правила эфира</h2>
+
                     <p>Во время эфира запрещено:</p>
                     <p>• 18+ контент</p>
                     <p>• оскорбления</p>
@@ -3692,18 +3826,27 @@ function LiveApplicationPage() {
                     <p>• нарушение правил Telegram</p>
 
                     <label>
-                        <input type="checkbox" /> Я ознакомилась с правилами
+                        <input
+                            type="checkbox"
+                            checked={rulesAccepted}
+                            onChange={(e) => setRulesAccepted(e.target.checked)}
+                        />{" "}
+                        Я ознакомилась с правилами
                     </label>
 
                     <button className="vote-btn" onClick={() => setStep(4)}>
                         Назад
                     </button>
+
                     <button
-    className="vote-btn"
-    onClick={() => alert("✅ Заявка отправлена на рассмотрение")}
->
-    📨 Отправить заявку
-</button>
+                        className="vote-btn"
+                        onClick={submitLiveApplication}
+                        disabled={sending}
+                    >
+                        📨 {sending ? "Отправляем..." : "Отправить заявку"}
+                    </button>
+
+                    {message && <p>{message}</p>}
                 </div>
             )}
         </div>
