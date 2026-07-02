@@ -1747,6 +1747,23 @@ setApplications((prev) =>
     ← Назад
 </button>
       <h1>📋 Заявки</h1>
+	  
+	<div className="card">
+    <h2>🎥 Прямые эфиры</h2>
+
+    <p>
+        Подайте заявку на участие
+        в LIVE-трансляции
+        MISS TELEGRAM.
+    </p>
+
+    <button
+        className="vote-btn"
+        onClick={() => navigate("/live-application")}
+    >
+        🎥 Подать заявку
+    </button>
+</div>  
 
       {(userRole === "admin" || userRole === "moderator") &&
         editRequests.length > 0 && (
@@ -3589,6 +3606,107 @@ setRejectedCount(rejectedCount);
   );
 }
 
+function LiveApplicationPage() {
+    const navigate = useNavigate();
+    const [step, setStep] = useState(1);
+
+    return (
+        <div className="page">
+            <button className="vote-btn" onClick={() => navigate(-1)}>
+                ← Назад
+            </button>
+
+            <h1>🎥 Заявка на прямой эфир</h1>
+
+            <div className="card">
+                <h2>Шаг {step} из 5</h2>
+            </div>
+
+            {step === 1 && (
+                <div className="card">
+                    <h2>🎤 Общая информация</h2>
+                    <input className="form-input" placeholder="Название эфира" />
+                    <input className="form-input" placeholder="Тема эфира" />
+                    <textarea className="form-input" placeholder="Краткое описание эфира" />
+                    <button className="vote-btn" onClick={() => setStep(2)}>
+                        Далее
+                    </button>
+                </div>
+            )}
+
+            {step === 2 && (
+                <div className="card">
+                    <h2>📅 Выберите дату</h2>
+                    <input className="form-input" type="date" />
+                    <button className="vote-btn" onClick={() => setStep(1)}>
+                        Назад
+                    </button>
+                    <button className="vote-btn" onClick={() => setStep(3)}>
+                        Далее
+                    </button>
+                </div>
+            )}
+
+            {step === 3 && (
+                <div className="card">
+                    <h2>🕒 Выберите время</h2>
+                    <button className="gift-btn">18:00 ✅</button>
+                    <button className="gift-btn">18:30 ❌ Занято</button>
+                    <button className="gift-btn">19:00 ✅</button>
+                    <button className="gift-btn">19:30 ✅</button>
+
+                    <button className="vote-btn" onClick={() => setStep(2)}>
+                        Назад
+                    </button>
+                    <button className="vote-btn" onClick={() => setStep(4)}>
+                        Далее
+                    </button>
+                </div>
+            )}
+
+            {step === 4 && (
+                <div className="card">
+                    <h2>🎤 Вопросы участнице</h2>
+                    <textarea className="form-input" placeholder="О чём будет эфир?" />
+                    <input className="form-input" placeholder="Из какой страны будет эфир?" />
+                    <input className="form-input" placeholder="У вас стабильный интернет? Да / Нет" />
+                    <textarea className="form-input" placeholder="Что планируете показать?" />
+
+                    <button className="vote-btn" onClick={() => setStep(3)}>
+                        Назад
+                    </button>
+                    <button className="vote-btn" onClick={() => setStep(5)}>
+                        Далее
+                    </button>
+                </div>
+            )}
+
+            {step === 5 && (
+                <div className="card">
+                    <h2>✅ Правила эфира</h2>
+                    <p>Во время эфира запрещено:</p>
+                    <p>• 18+ контент</p>
+                    <p>• оскорбления</p>
+                    <p>• реклама без разрешения</p>
+                    <p>• политическая агитация</p>
+                    <p>• нарушение правил Telegram</p>
+
+                    <label>
+                        <input type="checkbox" /> Я ознакомилась с правилами
+                    </label>
+
+                    <button className="vote-btn" onClick={() => setStep(4)}>
+                        Назад
+                    </button>
+                    <button className="vote-btn">
+                        📨 Отправить заявку
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
+
 function LivePage() {
     const navigate = useNavigate();
 
@@ -4660,6 +4778,7 @@ saveAmbassadorReferral();
 <Route path="/rules" element={<Rules />} />
 <Route path="/contest-calendar" element={<ContestCalendar />} />
 <Route path="/live" element={<LivePage />} />
+<Route path="/live-application" element={<LiveApplicationPage />} />
 <Route path="/live-admin" element={<LiveAdmin />} />
 
 
