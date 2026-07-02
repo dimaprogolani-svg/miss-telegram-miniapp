@@ -3715,7 +3715,39 @@ async function submitLiveApplication() {
 
         setMessage("✅ Заявка отправлена на рассмотрение.");
     }
+if (checkingContestant) {
+    return (
+        <div className="page">
+            <button className="vote-btn" onClick={() => navigate(-1)}>
+                ← Назад
+            </button>
 
+            <h1>🎥 Заявка на прямой эфир</h1>
+
+            <div className="card">
+                <h2>⏳ Проверяем доступ...</h2>
+            </div>
+        </div>
+    );
+}
+
+if (!isContestant) {
+    return (
+        <div className="page">
+            <button className="vote-btn" onClick={() => navigate(-1)}>
+                ← Назад
+            </button>
+
+            <h1>🎥 Заявка на прямой эфир</h1>
+
+            <div className="card">
+                <h2>❌ Доступ закрыт</h2>
+                <p>Подать заявку на прямой эфир могут только участницы, опубликованные в конкурсе.</p>
+                <p>Последняя анкета должна иметь статус: Опубликована в конкурсе.</p>
+            </div>
+        </div>
+    );
+}
     return (
         <div className="page">
             <button className="vote-btn" onClick={() => navigate(-1)}>
