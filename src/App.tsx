@@ -3642,14 +3642,12 @@ async function checkContestantAccess() {
 
 const { data } = await supabase
     .from("contestants")
-    .select("id,status,created_at")
+    .select("id,status")
     .eq("telegram_id", telegramUser.id)
-    .order("created_at", { ascending: false })
+    .eq("status", "Опубликована в конкурсе")
     .limit(1);
 
-const latest = data?.[0];
-
-setIsContestant(latest?.status === "Опубликована в конкурсе");
+setIsContestant((data || []).length > 0);
 
     setCheckingContestant(false);
 }
