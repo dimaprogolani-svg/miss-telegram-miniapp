@@ -3980,13 +3980,16 @@ function LiveAdmin() {
     const [liveTitle, setLiveTitle] = useState("Финал MISS TELEGRAM");
     const [isLive, setIsLive] = useState(false);
     const [message, setMessage] = useState("");
-	const [hostMessage, setHostMessage] = useState(
-    "Добро пожаловать на прямой эфир MISS TELEGRAM!"
-);
+    const [hostMessage, setHostMessage] = useState(
+        "Добро пожаловать на прямой эфир MISS TELEGRAM!"
+    );
+    const [applications, setApplications] = useState<any[]>([]);
+    const [selectedApplication, setSelectedApplication] = useState<any>(null);
 
     useEffect(() => {
         window.scrollTo(0, 0);
         loadLiveSettings();
+        loadApplications();
     }, []);
 
     async function loadLiveSettings() {
@@ -4000,22 +4003,36 @@ function LiveAdmin() {
             setLiveUrl(data.value.url || "");
             setLiveTitle(data.value.title || "Финал MISS TELEGRAM");
             setIsLive(data.value.isLive || false);
-			setHostMessage(data.value.hostMessage || "Добро пожаловать на прямой эфир MISS TELEGRAM!");
+            setHostMessage(
+                data.value.hostMessage ||
+                    "Добро пожаловать на прямой эфир MISS TELEGRAM!"
+            );
+        }
+    }
+
+    async function loadApplications() {
+        const { data } = await supabase
+            .from("live_applications")
+            .select("*")
+            .order("requested_date", { ascending: true })
+            .order("requested_time", { ascending: true });
+
+        if (data) {
+            setApplications(data);
         }
     }
 
     async function saveLiveSettings(nextIsLive = isLive) {
         setMessage("");
-		
 
         const value = {
-    url: liveUrl,
-    title: liveTitle,
-    isLive: nextIsLive,
-    hostMessage,
-    notification_sent: nextIsLive ? false : true,
-    updated_at: new Date().toISOString(),
-};
+            url: liveUrl,
+            title: liveTitle,
+            isLive: nextIsLive,
+            hostMessage,
+            notification_sent: nextIsLive ? false : true,
+            updated_at: new Date().toISOString(),
+        };
 
         const { error } = await supabase
             .from("settings")
@@ -4028,12 +4045,40 @@ function LiveAdmin() {
             );
 
         if (error) {
-            setMessage("Ошибка сохранения: " + error.message);
+            setMessage("❌ Ошибка сохранения: " + error.message);
             return;
         }
 
         setIsLive(nextIsLive);
         setMessage("✅ Сохранено");
+    }
+
+    async function updateApplicationStatus(status: string) {
+        if (!selectedApplication) return;
+
+        const updateData: any = {
+            status,
+            updated_at: new Date().toISOString(),
+        };
+
+        if (status === "Одобрена") {
+            updateData.approved_date = selectedApplication.requested_date;
+            updateData.approved_time = selectedApplication.requested_time;
+        }
+
+        const { error } = await supabase
+            .from("live_applications")
+            .update(updateData)
+            .eq("id", selectedApplication.id);
+
+        if (error) {
+            setMessage("❌ Ошибка обновления заявки: " + error.message);
+            return;
+        }
+
+        setSelectedApplication({ ...selectedApplication, ...updateData });
+        await loadApplications();
+        setMessage("✅ Заявка обновлена");
     }
 
     return (
@@ -4065,12 +4110,13 @@ function LiveAdmin() {
                     value={liveUrl}
                     onChange={(e) => setLiveUrl(e.target.value)}
                 />
-				<textarea
-    className="form-input"
-    placeholder="Сообщение ведущего"
-    value={hostMessage}
-    onChange={(e) => setHostMessage(e.target.value)}
-/>
+
+                <textarea
+                    className="form-input"
+                    placeholder="Сообщение ведущего"
+                    value={hostMessage}
+                    onChange={(e) => setHostMessage(e.target.value)}
+                />
 
                 <button className="vote-btn" onClick={() => saveLiveSettings()}>
                     💾 Сохранить
@@ -4085,13 +4131,13 @@ function LiveAdmin() {
                 </button>
 
                 <button className="vote-btn" onClick={() => saveLiveSettings(false)}>
-                    ⏹ Завершить эфир
+                    ■ Завершить эфир
                 </button>
 
                 <button
-    className="vote-btn"
-    onClick={() => {
-        alert(`🔴 Прямой эфир начался!
+                    className="vote-btn"
+                    onClick={() => {
+                        alert(`🔴 Прямой эфир начался!
 
 👑 MISS TELEGRAM
 
@@ -4103,16 +4149,89 @@ ${hostMessage}
 
 ▶ Смотреть эфир
 ${liveUrl}`);
-    }}
->
-    👁 Предпросмотр уведомления
-</button>
+                    }}
+                >
+                    👁 Предпросмотр уведомления
+                </button>
 
                 {message && <p>{message}</p>}
             </div>
+
+            <div className="card">
+                <h2>📋 Заявки на прямой эфир</h2>
+
+                {applications.length === 0 ? (
+                    <p>Новых заявок нет.</p>
+                ) : (
+                    applications.map((app) => (
+                        <div
+                            key={app.id}
+                            style={{
+                                border: "1px solid #d4af37",
+                                borderRadius: "12px",
+                                padding: "12px",
+                                marginBottom: "12px",
+                            }}
+                        >
+                            <p>
+                                <b>👑 {app.contestant_name || "Без имени"}</b>
+                            </p>
+                            <p>📅 {app.requested_date}</p>
+                            <p>🕒 {app.requested_time}</p>
+                            <p>🎯 {app.status}</p>
+
+                            <button
+                                className="vote-btn"
+                                onClick={() => setSelectedApplication(app)}
+                            >
+                                Открыть
+                            </button>
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {selectedApplication && (
+                <div className="card">
+                    <h2>📋 Заявка участницы</h2>
+
+                    <p>
+                        <b>👑 {selectedApplication.contestant_name || "Без имени"}</b>
+                    </p>
+                    <p>📅 Дата: {selectedApplication.requested_date}</p>
+                    <p>🕒 Время: {selectedApplication.requested_time}</p>
+                    <p>📌 Статус: {selectedApplication.status}</p>
+                    <p>🌍 Язык: {selectedApplication.language || "не указан"}</p>
+                    <p>📝 Описание: {selectedApplication.description || "не указано"}</p>
+
+                    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        <button
+                            className="vote-btn"
+                            onClick={() => updateApplicationStatus("Одобрена")}
+                        >
+                            ✅ Подтвердить
+                        </button>
+
+                        <button
+                            className="gift-btn"
+                            onClick={() => updateApplicationStatus("Отклонена")}
+                        >
+                            ❌ Отклонить
+                        </button>
+
+                        <button
+                            className="vote-btn"
+                            onClick={() => setSelectedApplication(null)}
+                        >
+                            Закрыть
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
+
 function ContestCalendar() {
     const navigate = useNavigate();
 useEffect(() => {
