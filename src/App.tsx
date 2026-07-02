@@ -3698,9 +3698,12 @@ function LiveApplicationPage() {
                     <button className="vote-btn" onClick={() => setStep(4)}>
                         Назад
                     </button>
-                    <button className="vote-btn">
-                        📨 Отправить заявку
-                    </button>
+                    <button
+    className="vote-btn"
+    onClick={() => alert("✅ Заявка отправлена на рассмотрение")}
+>
+    📨 Отправить заявку
+</button>
                 </div>
             )}
         </div>
