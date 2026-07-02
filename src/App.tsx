@@ -3644,7 +3644,7 @@ async function checkContestantAccess() {
         .from("contestants")
         .select("id,status")
         .eq("telegram_id", telegramUser.id)
-        .neq("status", "Отклонена")
+        .in("status", ["Одобрена", "Опубликована"])
         .maybeSingle();
 
     setIsContestant(!!data);
