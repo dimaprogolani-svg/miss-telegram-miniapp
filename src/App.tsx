@@ -3975,6 +3975,9 @@ function LivePage() {
 
 function LiveAdmin() {
     const navigate = useNavigate();
+	
+	const params = new URLSearchParams(window.location.search);
+    const openAppId = Number(params.get("app_id"));
 
     const [liveUrl, setLiveUrl] = useState("");
     const [liveTitle, setLiveTitle] = useState("Финал MISS TELEGRAM");
@@ -4019,8 +4022,14 @@ function LiveAdmin() {
 
         if (data) {
             setApplications(data);
+
+            if (openAppId) {
+                const found = data.find((app: any) => app.id === openAppId);
+                if (found) {
+            setSelectedApplication(found);
         }
     }
+}}
 
     async function saveLiveSettings(nextIsLive = isLive) {
         setMessage("");
