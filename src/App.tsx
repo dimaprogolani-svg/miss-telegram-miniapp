@@ -3640,14 +3640,14 @@ async function checkContestantAccess() {
         return;
     }
 
-    const { data } = await supabase
-        .from("contestants")
-        .select("id,status")
-        .eq("telegram_id", telegramUser.id)
-        .in("status", ["Одобрена", "Опубликована"])
-        .maybeSingle();
+const { data } = await supabase
+    .from("contestants")
+    .select("id,status")
+    .eq("telegram_id", telegramUser.id)
+    .eq("status", "Опубликована в конкурсе")
+    .limit(1);
 
-    setIsContestant(!!data);
+setIsContestant((data || []).length > 0);
     setCheckingContestant(false);
 }
 async function submitLiveApplication() {
