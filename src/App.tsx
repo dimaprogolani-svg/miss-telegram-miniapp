@@ -3650,15 +3650,18 @@ async function checkContestantAccess() {
     setIsContestant(!!data);
     setCheckingContestant(false);
 }
-    async function submitLiveApplication() {
-        setMessage("");
-		if (checkingContestant) {
-    return;
-}
-        if (!isContestant) {
+async function submitLiveApplication() {
+    setMessage("");
+
+    if (checkingContestant) {
+        setMessage("⏳ Проверяем доступ...");
+        return;
+    }
+
+    if (!isContestant) {
         setMessage("❌ Подать заявку на прямой эфир могут только участницы конкурса.");
-    return;
-}
+        return;
+    }
 
         if (!title.trim() || !topic.trim() || !requestedDate || !requestedTime) {
             setMessage("❌ Заполните название, тему, дату и время.");
