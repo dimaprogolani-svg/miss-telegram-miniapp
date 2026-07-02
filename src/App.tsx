@@ -4025,9 +4025,16 @@ function LiveAdmin() {
 
             if (openAppId) {
                 const found = data.find((app: any) => app.id === openAppId);
-                if (found) {
-            setSelectedApplication(found);
-        }
+               if (found) {
+                   setSelectedApplication(found);
+
+                   setTimeout(() => {
+                       window.scrollTo({
+                           top: document.body.scrollHeight,
+                           behavior: "smooth",
+        });
+    }, 500);
+}
     }
 }}
 
