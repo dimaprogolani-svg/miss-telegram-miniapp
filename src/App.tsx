@@ -4215,9 +4215,32 @@ function LiveAdmin() {
         };
 
         if (status === "Одобрена") {
-            updateData.approved_date = selectedApplication.requested_date;
-            updateData.approved_time = selectedApplication.requested_time;
-        }
+    updateData.approved_date = selectedApplication.requested_date;
+    updateData.approved_time = selectedApplication.requested_time;
+
+    const liveValue = {
+        url: liveUrl,
+        title: selectedApplication.contestant_name || liveTitle || "MISS TELEGRAM",
+        isLive: true,
+        hostMessage,
+        contestant_name: selectedApplication.contestant_name || "",
+        topic: selectedApplication.topic || "",
+        application_id: selectedApplication.id,
+        requested_date: selectedApplication.requested_date,
+        requested_time: selectedApplication.requested_time,
+        updated_at: new Date().toISOString(),
+    };
+
+    await supabase
+        .from("settings")
+        .upsert(
+            {
+                key: "live_stream",
+                value: liveValue,
+            },
+            { onConflict: "key" }
+        );
+}
 
         const { error } = await supabase
             .from("live_applications")
