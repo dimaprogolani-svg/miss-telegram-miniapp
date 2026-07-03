@@ -4216,6 +4216,7 @@ function LiveAdmin() {
         isLive: true,
         hostMessage,
         contestant_name: selectedApplication.contestant_name || "",
+		telegram_id: selectedApplication.telegram_id || null,
         topic: selectedApplication.topic || "",
         application_id: selectedApplication.id,
         requested_date: selectedApplication.requested_date,
