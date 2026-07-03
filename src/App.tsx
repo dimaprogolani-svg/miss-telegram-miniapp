@@ -4369,18 +4369,27 @@ function ContestCalendar() {
     async function loadNextLive() {
         setLoadingLive(true);
 
-        const today = new Date().toISOString().split("T")[0];
+        const now = new Date();
+const today = now.toISOString().split("T")[0];
 
-        const { data } = await supabase
-            .from("live_applications")
-            .select("*")
-            .eq("status", "Одобрена")
-            .gte("requested_date", today)
-            .order("requested_date", { ascending: true })
-            .order("requested_time", { ascending: true })
-            .limit(1);
+const { data } = await supabase
+    .from("live_applications")
+    .select("*")
+    .eq("status", "Одобрена")
+    .gte("requested_date", today)
+    .order("requested_date", { ascending: true })
+    .order("requested_time", { ascending: true });
 
-        setNextLive(data?.[0] || null);
+const futureLives = (data || []).filter((live: any) => {
+    const liveStart = new Date(`${live.requested_date}T${live.requested_time}:00`);
+    const liveEnd = new Date(liveStart.getTime() + 60 * 60 * 1000);
+
+    return now <= liveEnd;
+});
+
+setNextLive(futureLives[0] || null);
+
+        
         setLoadingLive(false);
     }
 
@@ -4405,7 +4414,19 @@ function ContestCalendar() {
                     <p>⏳ Загружаем ближайший эфир...</p>
                 ) : nextLive ? (
                     <>
-                        <p><b>Следующий эфир:</b></p>
+                        <p>
+    <b>
+        {(() => {
+            const now = new Date();
+            const liveStart = new Date(`${nextLive.requested_date}T${nextLive.requested_time}:00`);
+            const liveEnd = new Date(liveStart.getTime() + 60 * 60 * 1000);
+
+            return now >= liveStart && now <= liveEnd
+                ? "🔴 ЭФИР СЕЙЧАС"
+                : "Следующий эфир:";
+        })()}
+    </b>
+</p>
                         <p>📅 {nextLive.requested_date}</p>
                         <p>🕕 {nextLive.requested_time}</p>
                         <p>👑 {nextLive.contestant_name || "Участница"}</p>
@@ -4415,7 +4436,15 @@ function ContestCalendar() {
                             className="vote-btn"
                             onClick={() => navigate("/live")}
                         >
-                            ▶ Смотреть эфир
+                            {(() => {
+    const now = new Date();
+    const liveStart = new Date(`${nextLive.requested_date}T${nextLive.requested_time}:00`);
+    const liveEnd = new Date(liveStart.getTime() + 60 * 60 * 1000);
+
+    return now >= liveStart && now <= liveEnd
+        ? "🔴 Перейти к трансляции"
+        : "▶ Смотреть эфир";
+})()}
                         </button>
                     </>
                 ) : (
