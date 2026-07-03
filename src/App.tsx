@@ -4170,14 +4170,24 @@ function LiveAdmin() {
     async function saveLiveSettings(nextIsLive = isLive) {
         setMessage("");
 
-        const value = {
-            url: liveUrl,
-            title: liveTitle,
-            isLive: nextIsLive,
-            hostMessage,
-            notification_sent: nextIsLive ? false : true,
-            updated_at: new Date().toISOString(),
-        };
+
+const { data: currentLive } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", "live_stream")
+    .maybeSingle();
+
+const value = {
+    ...(currentLive?.value || {}),
+
+    url: liveUrl,
+    title: liveTitle,
+    isLive: nextIsLive,
+    hostMessage,
+
+    notification_sent: nextIsLive ? false : true,
+    updated_at: new Date().toISOString(),
+};
 
         const { error } = await supabase
             .from("settings")
