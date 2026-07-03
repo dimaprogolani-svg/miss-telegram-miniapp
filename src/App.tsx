@@ -3968,6 +3968,7 @@ function LivePage() {
     const [isLive, setIsLive] = useState(false);
 	const [hostMessage, setHostMessage] = useState("");
 	const [liveData, setLiveData] = useState<any>(null);
+	const [liveContestant, setLiveContestant] = useState<any>(null);
 	
 
     useEffect(() => {
@@ -3988,6 +3989,15 @@ function LivePage() {
             setIsLive(data.value.isLive || false);
 			setHostMessage(data.value.hostMessage || "");
 			setLiveData(data.value);
+			if (data.value.telegram_id) {
+    const { data: contestantData } = await supabase
+        .from("contestants")
+        .select("*")
+        .eq("telegram_id", data.value.telegram_id)
+        .maybeSingle();
+
+    setLiveContestant(contestantData);
+}
         }
     }
 
@@ -4057,7 +4067,7 @@ function LivePage() {
 
             {liveData?.contestant_name ? (
              <>
-            <h3>{liveData.contestant_name}</h3>
+            <h3>{liveContestant?.name || liveData.contestant_name}</h3>
 
             {liveData.topic && (
                 <p>🎙️ {liveData.topic}</p>
@@ -4065,14 +4075,14 @@ function LivePage() {
 
             <button
                 className="vote-btn"
-                onClick={() => navigate("/contestants")}
+                onClick={() => navigate(`/contestants/${liveContestant?.id}`)}
             >
                 ⭐ Голосовать
             </button>
 
             <button
                 className="vote-btn"
-                onClick={() => navigate("/contestants")}
+                onClick={() => navigate(`/contestants/${liveContestant?.id}`)}
             >
                 🎁 Отправить Gift
             </button>
