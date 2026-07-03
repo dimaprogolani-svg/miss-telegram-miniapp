@@ -3967,6 +3967,7 @@ function LivePage() {
     const [liveTitle, setLiveTitle] = useState("MISS TELEGRAM");
     const [isLive, setIsLive] = useState(false);
 	const [hostMessage, setHostMessage] = useState("");
+	const [liveData, setLiveData] = useState<any>(null);
 	
 
     useEffect(() => {
@@ -3986,6 +3987,7 @@ function LivePage() {
             setLiveTitle(data.value.title || "MISS TELEGRAM");
             setIsLive(data.value.isLive || false);
 			setHostMessage(data.value.hostMessage || "");
+			setLiveData(data.value);
         }
     }
 
@@ -4038,9 +4040,36 @@ function LivePage() {
 
         <div className="card">
             <h2>👑 Участница в эфире</h2>
+
+            {liveData?.contestant_name ? (
+             <>
+            <h3>{liveData.contestant_name}</h3>
+
+            {liveData.topic && (
+                <p>🎙️ {liveData.topic}</p>
+            )}
+
+            <button
+                className="vote-btn"
+                onClick={() => navigate("/contestants")}
+            >
+                ⭐ Голосовать
+            </button>
+
+            <button
+                className="vote-btn"
+                onClick={() => navigate("/contestants")}
+            >
+                🎁 Отправить Gift
+            </button>
+        </>
+    ) : (
+        <>
             <p>Сейчас участница ещё не выбрана.</p>
             <p>Позже здесь будет фото, имя и кнопки поддержки.</p>
-        </div>
+        </>
+    )}
+</div>
 
         <div className="card">
             <button className="vote-btn" onClick={() => navigate("/contestants")}>
