@@ -3963,7 +3963,7 @@ if (!isContestant) {
 function LivePage() {
     const navigate = useNavigate();
 
-    const [, setLiveUrl] = useState("");
+    const [liveUrl, setLiveUrl] = useState("");
     const [liveTitle, setLiveTitle] = useState("MISS TELEGRAM");
     const [isLive, setIsLive] = useState(false);
 	const [hostMessage, setHostMessage] = useState("");
@@ -4025,8 +4025,22 @@ function LivePage() {
                 }}
             >
                 <div>
-                    <p>🔴 LIVE</p>
-                    <p>Видеопоток будет подключён на следующем этапе</p>
+                    {liveUrl ? (
+    <>
+        <p>▶ Трансляция доступна</p>
+        <button
+            className="vote-btn"
+            onClick={() => window.open(liveUrl, "_blank")}
+        >
+            ▶ Открыть трансляцию
+        </button>
+    </>
+) : (
+    <>
+        <p>🔴 LIVE</p>
+        <p>Ссылка на трансляцию ещё не добавлена.</p>
+    </>
+)}
                 </div>
             </div>
         </div>
