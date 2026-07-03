@@ -4358,9 +4358,31 @@ ${liveUrl}`);
 
 function ContestCalendar() {
     const navigate = useNavigate();
-useEffect(() => {
-    window.scrollTo(0, 0);
-}, []);	
+    const [nextLive, setNextLive] = useState<any>(null);
+    const [loadingLive, setLoadingLive] = useState(true);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+        loadNextLive();
+    }, []);
+
+    async function loadNextLive() {
+        setLoadingLive(true);
+
+        const today = new Date().toISOString().split("T")[0];
+
+        const { data } = await supabase
+            .from("live_applications")
+            .select("*")
+            .eq("status", "Одобрена")
+            .gte("requested_date", today)
+            .order("requested_date", { ascending: true })
+            .order("requested_time", { ascending: true })
+            .limit(1);
+
+        setNextLive(data?.[0] || null);
+        setLoadingLive(false);
+    }
 
     return (
         <div className="page">
@@ -4375,23 +4397,34 @@ useEffect(() => {
                 <p>Старт сезона: будет объявлен отдельно.</p>
                 <p>Приём заявок открыт до начала финального этапа.</p>
             </div>
-			<div className="card">
-    <h2>🎥 Прямые эфиры</h2>
 
-    <p><b>Следующий эфир:</b></p>
+            <div className="card">
+                <h2>🎥 Прямые эфиры</h2>
 
-    <p>📅 17.07.2026</p>
-    <p>🕕 18:00</p>
-    <p>👑 Ely</p>
-    <p>🎙️ Тема: Знакомство со зрителями</p>
+                {loadingLive ? (
+                    <p>⏳ Загружаем ближайший эфир...</p>
+                ) : nextLive ? (
+                    <>
+                        <p><b>Следующий эфир:</b></p>
+                        <p>📅 {nextLive.requested_date}</p>
+                        <p>🕕 {nextLive.requested_time}</p>
+                        <p>👑 {nextLive.contestant_name || "Участница"}</p>
+                        <p>🎙️ Тема: {nextLive.topic || "Будет объявлена"}</p>
 
-    <button
-        className="vote-btn"
-        onClick={() => navigate("/live")}
-    >
-        ▶ Смотреть эфир
-    </button>
-</div>
+                        <button
+                            className="vote-btn"
+                            onClick={() => navigate("/live")}
+                        >
+                            ▶ Смотреть эфир
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <p>Пока нет одобренных прямых эфиров.</p>
+                        <p>Следующая трансляция появится здесь после подтверждения админом.</p>
+                    </>
+                )}
+            </div>
 
             <div className="card">
                 <h2>📸 Приём заявок</h2>
