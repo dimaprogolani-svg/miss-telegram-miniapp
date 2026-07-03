@@ -3994,9 +3994,11 @@ function LivePage() {
         .from("contestants")
         .select("*")
         .eq("telegram_id", data.value.telegram_id)
-        .maybeSingle();
+        .eq("status", "Опубликована в конкурсе")
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-    setLiveContestant(contestantData);
+    setLiveContestant(contestantData?.[0] || null);
 }
         }
     }
