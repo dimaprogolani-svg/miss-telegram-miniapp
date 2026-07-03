@@ -4071,15 +4071,7 @@ function LivePage() {
     )}
 </div>
 
-        <div className="card">
-            <button className="vote-btn" onClick={() => navigate("/contestants")}>
-                ⭐ Голосовать
-            </button>
-
-            <button className="vote-btn" onClick={() => navigate("/contestants")}>
-                🎁 Отправить Gift
-            </button>
-        </div>
+        
     </>
 ) : (
             <>
