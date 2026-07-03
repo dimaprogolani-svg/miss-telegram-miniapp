@@ -4075,7 +4075,7 @@ function LivePage() {
 
             <button
                 className="vote-btn"
-                onClick={() => navigate(`/contestants/${liveContestant?.id}`)}
+                onClick={() => navigate(`/contestant/${liveContestant?.slug}`)}
             >
                 ⭐ Голосовать
             </button>
