@@ -1,6 +1,12 @@
 import { supabase } from "./lib/supabase";
 import { useState, useEffect } from "react";
 import heroGirl from "./assets/hero-girl-fireworks.png";
+import {
+    LiveKitRoom,
+    VideoConference,
+} from "@livekit/components-react";
+
+import "@livekit/components-styles";
 
 
 import {
@@ -4039,14 +4045,19 @@ function LivePage() {
                 <div>
                     {liveUrl ? (
     <>
-        <p>▶ Трансляция доступна</p>
-        <button
-            className="vote-btn"
-            onClick={() => window.open(liveUrl, "_blank")}
-        >
-            ▶ Открыть трансляцию
-        </button>
-    </>
+    <LiveKitRoom
+        serverUrl="ws://127.0.0.1:7880"
+        token=""
+        connect={false}
+        style={{
+            height: "500px",
+            borderRadius: "18px",
+            overflow: "hidden",
+        }}
+    >
+        <VideoConference />
+    </LiveKitRoom>
+</>
 ) : (
     <>
         <p>🔴 LIVE</p>
