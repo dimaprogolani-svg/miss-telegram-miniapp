@@ -3632,6 +3632,8 @@ function LiveApplicationPage() {
     const [checkingContestant, setCheckingContestant] = useState(true);
 	const [busySlots, setBusySlots] = useState<string[]>([]);
     const [loadingSlots, setLoadingSlots] = useState(false);
+	const [canGoLive, setCanGoLive] = useState(false);
+    const [myApprovedLive, setMyApprovedLive] = useState<any>(null);
 
     const timeSlots = ["18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
     useEffect(() => {
@@ -3682,6 +3684,19 @@ const { data } = await supabase
     .limit(1);
 
 setIsContestant((data || []).length > 0);
+
+const { data: liveAppData } = await supabase
+    .from("live_applications")
+    .select("*")
+    .eq("telegram_id", telegramUser.id)
+    .eq("status", "Одобрена")
+    .order("updated_at", { ascending: false })
+    .limit(1);
+
+const approvedLive = liveAppData?.[0] || null;
+
+setMyApprovedLive(approvedLive);
+setCanGoLive(!!approvedLive);
 
     setCheckingContestant(false);
 }
@@ -3747,6 +3762,36 @@ async function submitLiveApplication() {
 
         setMessage("✅ Заявка отправлена на рассмотрение.");
     }
+if (canGoLive) {
+    return (
+        <div className="page">
+            <button
+                className="vote-btn"
+                onClick={() => navigate("/live-host")}
+            >
+                🎥 Начать прямой эфир
+            </button>
+
+            <div className="card">
+                <h2>Ваш эфир одобрен</h2>
+
+                <p><b>Название:</b> {myApprovedLive?.title}</p>
+                <p><b>Дата:</b> {myApprovedLive?.requested_date}</p>
+                <p><b>Время:</b> {myApprovedLive?.requested_time}</p>
+
+                <br />
+
+                <button
+                    className="vote-btn"
+                    onClick={() => navigate("/live-host")}
+                >
+                    ▶ Начать эфир
+                </button>
+            </div>
+        </div>
+    );
+}	
+	
 if (checkingContestant) {
     return (
         <div className="page">
@@ -3975,11 +4020,15 @@ function LivePage() {
 	const [hostMessage, setHostMessage] = useState("");
 	const [liveData, setLiveData] = useState<any>(null);
 	const [liveContestant, setLiveContestant] = useState<any>(null);
+	const [token, setToken] = useState("");
 	
 
     useEffect(() => {
         window.scrollTo(0, 0);
         loadLiveSettings();
+		fetch("http://localhost:3001/token")
+            .then((r) => r.json())
+            .then((d) => setToken(d.token));
     }, []);
 
     async function loadLiveSettings() {
@@ -4047,7 +4096,7 @@ function LivePage() {
     <>
     <LiveKitRoom
         serverUrl="ws://127.0.0.1:7880"
-        token=""
+        token={token}
         connect={false}
         style={{
             height: "500px",
@@ -4178,6 +4227,8 @@ function LiveAdmin() {
             );
         }
     }
+	
+	
 
     async function loadApplications() {
         const { data } = await supabase
@@ -5179,6 +5230,52 @@ if (editingAmbassador) {
     );
 }
 
+function LiveHost() {
+  const navigate = useNavigate();
+
+  const [token, setToken] = useState("");
+  const [message, setMessage] = useState("Получение токена...");
+
+  useEffect(() => {
+    fetch("http://localhost:3001/token?role=host")
+      .then((r) => r.json())
+      .then((d) => {
+        setToken(d.token);
+        setMessage("Токен получен.");
+      })
+      .catch(() => {
+        setMessage("Ошибка получения токена.");
+      });
+  }, []);
+
+  return (
+    <div className="page">
+      <button className="vote-btn" onClick={() => navigate(-1)}>
+        ← Назад
+      </button>
+
+      <h1>🎥 Ведущий эфира</h1>
+
+      <div className="card">
+        <p>{message}</p>
+
+        {token && (
+          <LiveKitRoom
+            serverUrl="ws://127.0.0.1:7880"
+            token={token}
+            connect={true}
+            video={true}
+            audio={true}
+            style={{ height: "600px" }}
+          >
+            <VideoConference />
+          </LiveKitRoom>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const telegram = (window as any).Telegram?.WebApp;
   const urlParams = new URLSearchParams(window.location.search);
@@ -5340,6 +5437,7 @@ saveAmbassadorReferral();
 <Route path="/live" element={<LivePage />} />
 <Route path="/live-application" element={<LiveApplicationPage />} />
 <Route path="/live-admin" element={<LiveAdmin />} />
+<Route path="/live-host" element={<LiveHost />} />
 
 
         <Route
