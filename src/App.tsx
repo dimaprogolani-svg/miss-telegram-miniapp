@@ -4026,7 +4026,7 @@ function LivePage() {
     useEffect(() => {
         window.scrollTo(0, 0);
         loadLiveSettings();
-		fetch("http://localhost:3001/token")
+		fetch("http://10.0.0.4:3001/token")
             .then((r) => r.json())
             .then((d) => setToken(d.token));
     }, []);
@@ -5237,7 +5237,7 @@ function LiveHost() {
   const [message, setMessage] = useState("Получение токена...");
 
   useEffect(() => {
-    fetch("http://localhost:3001/token?role=host")
+    fetch("http://10.0.0.4:3001/token?role=host")
       .then((r) => r.json())
       .then((d) => {
         setToken(d.token);
