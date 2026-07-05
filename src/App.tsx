@@ -5266,7 +5266,7 @@ function LiveHost() {
 
         {token && (
           <LiveKitRoom
-            serverUrl="wss://sequel-heftiness-grit.ngrok-free.dev"
+            serverUrl="https://sequel-heftiness-grit.ngrok-free.dev"
             token={token}
             connect={true}
             video={true}
