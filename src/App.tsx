@@ -4095,7 +4095,7 @@ function LivePage() {
                     {liveUrl ? (
     <>
     <LiveKitRoom
-        serverUrl="ws://127.0.0.1:7880"
+        serverUrl="wss://sequel-heftiness-grit.ngrok-free.dev"
         token={token}
         connect={false}
         style={{
