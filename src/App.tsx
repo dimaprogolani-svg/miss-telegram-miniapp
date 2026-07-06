@@ -4095,7 +4095,7 @@ function LivePage() {
                     {liveUrl ? (
     <>
     <LiveKitRoom
-        serverUrl="wss://sequel-heftiness-grit.ngrok-free.dev"
+        serverUrl="wss://catalyst-treasury-trembl-ala.trycloudflare.com"
         token={token}
         connect={false}
         style={{
@@ -5266,7 +5266,7 @@ function LiveHost() {
 
         {token && (
           <LiveKitRoom
-            serverUrl="https://sequel-heftiness-grit.ngrok-free.dev"
+            serverUrl="https://catalyst-treasury-trembl-ala.trycloudflare.com"
             token={token}
             connect={true}
             video={true}
