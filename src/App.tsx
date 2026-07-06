@@ -5237,7 +5237,7 @@ function LiveHost() {
   const [message, setMessage] = useState("Получение токена...");
 
   useEffect(() => {
-    fetch("https://sequel-heftiness-grit.ngrok-free.dev/token?role=host", {
+    fetch("https://catalyst-treasury-trembl-ala.trycloudflare.com/token?role=host", {
     headers: {
         "ngrok-skip-browser-warning": "true",
     },
