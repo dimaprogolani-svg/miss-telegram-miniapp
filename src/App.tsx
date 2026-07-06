@@ -5237,7 +5237,7 @@ function LiveHost() {
   const [message, setMessage] = useState("Получение токена...");
 
   useEffect(() => {
-    fetch("https://catalyst-treasury-trembl-ala.trycloudflare.com/token?role=host", {
+    fetch("https://sequel-heftiness-grit.ngrok-free.dev/token?role=host", {
     headers: {
         "ngrok-skip-browser-warning": "true",
     },
@@ -5266,7 +5266,7 @@ function LiveHost() {
 
         {token && (
           <LiveKitRoom
-            serverUrl="https://catalyst-treasury-trembl-ala.trycloudflare.com"
+            serverUrl="wss://catalyst-treasury-trembl-ala.trycloudflare.com"
             token={token}
             connect={true}
             video={true}
