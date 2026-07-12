@@ -3767,7 +3767,7 @@ if (canGoLive) {
         <div className="page">
             <button
                 className="vote-btn"
-                onClick={() => navigate("/live-host")}
+                onClick={() => navigate(`/live-host?id=${myApprovedLive?.id}`)}
             >
                 🎥 Начать прямой эфир
             </button>
@@ -3783,7 +3783,7 @@ if (canGoLive) {
 
                 <button
                     className="vote-btn"
-                    onClick={() => navigate("/live-host")}
+                    onClick={() => navigate(`/live-host?id=${myApprovedLive?.id}`)}
                 >
                     ▶ Начать эфир
                 </button>
