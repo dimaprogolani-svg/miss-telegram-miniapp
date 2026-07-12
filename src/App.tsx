@@ -4026,7 +4026,7 @@ function LivePage() {
     useEffect(() => {
         window.scrollTo(0, 0);
         loadLiveSettings();
-		fetch("https://sequel-heftiness-grit.ngrok-free.dev/token")
+		fetch("https://atm-supplements-socks-quality.trycloudflare.com/token?role=viewer")
             .then((r) => r.json())
             .then((d) => setToken(d.token));
     }, []);
