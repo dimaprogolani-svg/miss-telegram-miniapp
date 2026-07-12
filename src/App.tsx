@@ -4026,7 +4026,7 @@ function LivePage() {
     useEffect(() => {
         window.scrollTo(0, 0);
         loadLiveSettings();
-		fetch("https://atm-supplements-socks-quality.trycloudflare.com/token?role=viewer")
+		fetch("/token?role=viewer")
             .then((r) => r.json())
             .then((d) => setToken(d.token));
     }, []);
@@ -4095,7 +4095,7 @@ function LivePage() {
                     {liveUrl ? (
     <>
     <LiveKitRoom
-        serverUrl="wss://catalyst-treasury-trembl-ala.trycloudflare.com"
+        serverUrl="wss://misstelegram-suaxuq32.livekit.cloud"
         token={token}
         connect={true}
         style={{
@@ -5270,7 +5270,7 @@ async function markLiveAsStarted() {
 
   useEffect(() => {
     markLiveAsStarted();
-    fetch("https://atm-supplements-socks-quality.trycloudflare.com/token?role=host")
+    fetch("/token?role=host")
     .then((r) => r.json())
     .then((d) => {
         setToken(d.token);
@@ -5295,7 +5295,7 @@ async function markLiveAsStarted() {
 
         {token && (
           <LiveKitRoom
-            serverUrl="wss://catalyst-treasury-trembl-ala.trycloudflare.com"
+            serverUrl="wss://misstelegram-suaxuq32.livekit.cloud"
             token={token}
             connect={true}
             video={true}
