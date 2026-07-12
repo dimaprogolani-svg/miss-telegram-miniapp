@@ -5237,11 +5237,7 @@ function LiveHost() {
   const [message, setMessage] = useState("Получение токена...");
 
   useEffect(() => {
-    fetch("https://sequel-heftiness-grit.ngrok-free.dev/token?role=host", {
-    headers: {
-        "ngrok-skip-browser-warning": "true",
-    },
-})
+    fetch("/token?role=host")
     .then((r) => r.json())
     .then((d) => {
         setToken(d.token);
