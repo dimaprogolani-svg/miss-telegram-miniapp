@@ -4097,7 +4097,7 @@ function LivePage() {
     <LiveKitRoom
         serverUrl="wss://catalyst-treasury-trembl-ala.trycloudflare.com"
         token={token}
-        connect={false}
+        connect={true}
         style={{
             height: "500px",
             borderRadius: "18px",
