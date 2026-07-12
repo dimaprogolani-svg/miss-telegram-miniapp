@@ -5232,11 +5232,44 @@ if (editingAmbassador) {
 
 function LiveHost() {
   const navigate = useNavigate();
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const liveApplicationId = urlParams.get("id");
 
   const [token, setToken] = useState("");
   const [message, setMessage] = useState("Получение токена...");
 
+async function markLiveAsStarted() {
+  if (!liveApplicationId) {
+    return;
+  }
+
+  const { data: settingsData } = await supabase
+    .from("settings")
+    .select("*")
+    .eq("key", "live_stream")
+    .maybeSingle();
+
+  const currentValue = settingsData?.value || {};
+
+  const { error } = await supabase
+    .from("settings")
+    .update({
+      value: {
+        ...currentValue,
+        isLive: true,
+        liveApplicationId: liveApplicationId,
+      },
+    })
+    .eq("key", "live_stream");
+
+  if (error) {
+    console.error("Ошибка запуска эфира:", error);
+  }
+}
+
   useEffect(() => {
+    markLiveAsStarted();
     fetch("https://atm-supplements-socks-quality.trycloudflare.com/token?role=host")
     .then((r) => r.json())
     .then((d) => {
