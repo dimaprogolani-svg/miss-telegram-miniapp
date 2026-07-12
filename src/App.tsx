@@ -5237,7 +5237,7 @@ function LiveHost() {
   const [message, setMessage] = useState("Получение токена...");
 
   useEffect(() => {
-    fetch("/token?role=host")
+    fetch("https://atm-supplements-socks-quality.trycloudflare.com/token?role=host")
     .then((r) => r.json())
     .then((d) => {
         setToken(d.token);
