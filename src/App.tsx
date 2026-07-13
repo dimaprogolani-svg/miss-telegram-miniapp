@@ -4026,7 +4026,7 @@ function LivePage() {
     useEffect(() => {
         window.scrollTo(0, 0);
         loadLiveSettings();
-		fetch("/token?role=viewer")
+		fetch("https://miss-telegram-token-server.onrender.com/token?role=viewer")
             .then((r) => r.json())
             .then((d) => setToken(d.token));
     }, []);
@@ -5270,7 +5270,7 @@ async function markLiveAsStarted() {
 
   useEffect(() => {
     markLiveAsStarted();
-    fetch("/token?role=host")
+    fetch("https://miss-telegram-token-server.onrender.com/token?role=host")
     .then((r) => r.json())
     .then((d) => {
         setToken(d.token);
