@@ -2,8 +2,9 @@ import { supabase } from "./lib/supabase";
 import { useState, useEffect } from "react";
 import heroGirl from "./assets/hero-girl-fireworks.png";
 import {
-    LiveKitRoom,
-    VideoConference,
+  LiveKitRoom,
+  VideoConference,
+  useLocalParticipant,
 } from "@livekit/components-react";
 
 import "@livekit/components-styles";
@@ -5230,6 +5231,18 @@ if (editingAmbassador) {
     );
 }
 
+function EnableHostMedia() {
+  const { localParticipant } = useLocalParticipant();
+
+  useEffect(() => {
+    localParticipant
+      .enableCameraAndMicrophone()
+      .catch((error) => console.error("MEDIA ERROR:", error));
+  }, [localParticipant]);
+
+  return null;
+}
+
 function LiveHost() {
   const navigate = useNavigate();
   
@@ -5302,6 +5315,7 @@ async function markLiveAsStarted() {
             audio={true}
             style={{ height: "600px" }}
           >
+            <EnableHostMedia />
             <VideoConference />
           </LiveKitRoom>
         )}
