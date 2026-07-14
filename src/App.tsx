@@ -3787,6 +3787,7 @@ async function submitLiveApplication() {
 
         setMessage("✅ Заявка отправлена на рассмотрение.");
     }
+
 if (myApprovedLive) {
     return (
         <div className="page">
@@ -5412,6 +5413,54 @@ async function markLiveAsStarted() {
   }
 }
 
+async function finishLive() {
+  if (!liveApplicationId) {
+    return;
+  }
+
+  const { data: settingsData } = await supabase
+    .from("settings")
+    .select("*")
+    .eq("key", "live_stream")
+    .maybeSingle();
+
+  const currentValue = settingsData?.value || {};
+
+  const { error: settingsError } = await supabase
+    .from("settings")
+    .update({
+      value: {
+        ...currentValue,
+        isLive: false,
+        finished_at: new Date().toISOString(),
+      },
+    })
+    .eq("key", "live_stream");
+
+  if (settingsError) {
+    console.error("Ошибка завершения эфира:", settingsError);
+    setMessage("Ошибка завершения эфира.");
+    return;
+  }
+
+  const { error: applicationError } = await supabase
+    .from("live_applications")
+    .update({
+      status: "Завершён",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", Number(liveApplicationId));
+
+  if (applicationError) {
+    console.error("Ошибка обновления заявки:", applicationError);
+    setMessage("Эфир завершён, но статус заявки не обновлён.");
+    return;
+  }
+
+  setMessage("Эфир завершён.");
+  navigate("/live-application");
+}
+
   useEffect(() => {
     markLiveAsStarted();
     fetch("https://miss-telegram-token-server.onrender.com/token?role=host")
@@ -5450,6 +5499,13 @@ async function markLiveAsStarted() {
             <HostPreview />
           </LiveKitRoom>
         )}
+		<button
+          className="gift-btn"
+          onClick={finishLive}
+          style={{ marginTop: "15px" }}
+        >
+          ■ Завершить эфир
+        </button>
       </div>
     </div>
   );
