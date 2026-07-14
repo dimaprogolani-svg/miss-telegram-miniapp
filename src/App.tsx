@@ -4,12 +4,12 @@ import heroGirl from "./assets/hero-girl-fireworks.png";
 
 import {
   LiveKitRoom,
-  VideoConference,
   VideoTrack,
   RoomAudioRenderer,
   useLocalParticipant,
   useTracks,
 } from "@livekit/components-react";
+
 import { Track } from "livekit-client";
 
 import "@livekit/components-styles";
@@ -5288,6 +5288,52 @@ function EnableHostMedia() {
   return null;
 }
 
+function HostPreview() {
+  const cameraTracks = useTracks([Track.Source.Camera], {
+    onlySubscribed: false,
+  });
+
+  const localCamera = cameraTracks.find(
+    (trackRef) => trackRef.participant.isLocal
+  );
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        borderRadius: "18px",
+        background: "#000",
+      }}
+    >
+      {localCamera ? (
+        <VideoTrack
+          trackRef={localCamera}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+          }}
+        >
+          Включение камеры…
+        </div>
+      )}
+    </div>
+  );
+}
+
 function LiveHost() {
   const navigate = useNavigate();
   
@@ -5361,7 +5407,7 @@ async function markLiveAsStarted() {
             style={{ height: "600px" }}
           >
             <EnableHostMedia />
-            <VideoConference />
+            <HostPreview />
           </LiveKitRoom>
         )}
       </div>
