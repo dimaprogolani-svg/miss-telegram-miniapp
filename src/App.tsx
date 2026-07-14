@@ -3787,31 +3787,52 @@ async function submitLiveApplication() {
 
         setMessage("✅ Заявка отправлена на рассмотрение.");
     }
-if (canGoLive) {
+if (myApprovedLive) {
     return (
         <div className="page">
             <button
                 className="vote-btn"
-                onClick={() => navigate(`/live-host?id=${myApprovedLive?.id}`)}
+                onClick={() => navigate(-1)}
             >
-                🎥 Начать прямой эфир
+                ← Назад
             </button>
 
+            <h1>🎥 Прямой эфир</h1>
+
             <div className="card">
-                <h2>Ваш эфир одобрен</h2>
+                <h2>✅ Ваш эфир одобрен</h2>
 
-                <p><b>Название:</b> {myApprovedLive?.title}</p>
-                <p><b>Дата:</b> {myApprovedLive?.requested_date}</p>
-                <p><b>Время:</b> {myApprovedLive?.requested_time}</p>
+                <p><b>Дата:</b> {myApprovedLive.requested_date}</p>
+                <p><b>Время:</b> {myApprovedLive.requested_time}</p>
+                <p><b>Тема:</b> {myApprovedLive.topic || "не указана"}</p>
 
-                <br />
+                {canGoLive ? (
+                    <button
+                        className="vote-btn"
+                        onClick={() =>
+                            navigate(`/live-host?id=${myApprovedLive.id}`)
+                        }
+                    >
+                        🎥 Начать прямой эфир
+                    </button>
+                ) : (
+                    <>
+                        <button
+                            className="vote-btn"
+                            disabled
+                            style={{
+                                opacity: 0.45,
+                                cursor: "not-allowed",
+                            }}
+                        >
+                            ⏳ Начать эфир
+                        </button>
 
-                <button
-                    className="vote-btn"
-                    onClick={() => navigate(`/live-host?id=${myApprovedLive?.id}`)}
-                >
-                    ▶ Начать эфир
-                </button>
+                        <p>
+                            Кнопка станет активной за 5 минут до назначенного времени.
+                        </p>
+                    </>
+                )}
             </div>
         </div>
     );
