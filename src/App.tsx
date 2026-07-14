@@ -1,11 +1,16 @@
 import { supabase } from "./lib/supabase";
 import { useState, useEffect } from "react";
 import heroGirl from "./assets/hero-girl-fireworks.png";
+
 import {
   LiveKitRoom,
   VideoConference,
+  VideoTrack,
+  RoomAudioRenderer,
   useLocalParticipant,
+  useTracks,
 } from "@livekit/components-react";
+import { Track } from "livekit-client";
 
 import "@livekit/components-styles";
 
@@ -4012,6 +4017,46 @@ if (!isContestant) {
     );
 }
 
+function ViewerStream() {
+  const cameraTracks = useTracks([Track.Source.Camera], {
+    onlySubscribed: true,
+  });
+
+  const hostTrack = cameraTracks.find(
+    (trackRef) => trackRef.participant.identity.startsWith("host-")
+  );
+
+  return (
+    <>
+      <RoomAudioRenderer />
+
+      {hostTrack ? (
+        <VideoTrack
+          trackRef={hostTrack}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            background: "#000",
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+          }}
+        >
+          Ожидание видео ведущей…
+        </div>
+      )}
+    </>
+  );
+}
+
 function LivePage() {
     const navigate = useNavigate();
 
@@ -4105,7 +4150,7 @@ function LivePage() {
             overflow: "hidden",
         }}
     >
-        <VideoConference />
+        <ViewerStream />
     </LiveKitRoom>
 </>
 ) : (
