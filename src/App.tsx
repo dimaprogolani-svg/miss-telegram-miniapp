@@ -3702,7 +3702,26 @@ const { data: liveAppData } = await supabase
 const approvedLive = liveAppData?.[0] || null;
 
 setMyApprovedLive(approvedLive);
-setCanGoLive(!!approvedLive);
+
+if (approvedLive?.requested_date && approvedLive?.requested_time) {
+    const now = new Date();
+
+    const liveStart = new Date(
+        `${approvedLive.requested_date}T${approvedLive.requested_time}:00`
+    );
+
+    const allowedFrom = new Date(
+        liveStart.getTime() - 5 * 60 * 1000
+    );
+
+    const allowedUntil = new Date(
+        liveStart.getTime() + 60 * 60 * 1000
+    );
+
+    setCanGoLive(now >= allowedFrom && now <= allowedUntil);
+} else {
+    setCanGoLive(false);
+}
 
     setCheckingContestant(false);
 }
@@ -4357,7 +4376,7 @@ const value = {
     const liveValue = {
         url: liveUrl,
         title: selectedApplication.contestant_name || liveTitle || "MISS TELEGRAM",
-        isLive: true,
+        isLive: false,
         hostMessage,
         contestant_name: selectedApplication.contestant_name || "",
 		telegram_id: selectedApplication.telegram_id || null,
