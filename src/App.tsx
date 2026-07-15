@@ -3644,7 +3644,14 @@ function LiveApplicationPage() {
     const timeSlots = ["18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
     useEffect(() => {
     window.scrollTo(0, 0);
+
     checkContestantAccess();
+
+    const interval = setInterval(() => {
+        checkContestantAccess();
+    }, 5000);
+
+    return () => clearInterval(interval);
 }, []);
 
 useEffect(() => {
