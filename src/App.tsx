@@ -5435,11 +5435,20 @@ async function finishLive() {
     .from("settings")
     .update({
       value: {
-        ...currentValue,
-        isLive: false,
-        finished_at: new Date().toISOString(),
-      },
-    })
+       ...currentValue,
+       isLive: false,
+       notification_sent: false,
+       liveApplicationId: null,
+       application_id: null,
+       telegram_id: null,
+       contestant_name: "",
+       title: "MISS TELEGRAM",
+       topic: "",
+       hostMessage: "",
+       finished_at: new Date().toISOString(),
+       updated_at: new Date().toISOString(),
+  },
+})
     .eq("key", "live_stream");
 
   if (settingsError) {
