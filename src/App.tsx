@@ -3620,6 +3620,8 @@ setRejectedCount(rejectedCount);
 
 function LiveApplicationPage() {
     const navigate = useNavigate();
+	const searchParams = new URLSearchParams(window.location.search);
+    const liveFinished = searchParams.get("finished") === "1";
 
     const [step, setStep] = useState(1);
     const [title, setTitle] = useState("");
@@ -3640,6 +3642,7 @@ function LiveApplicationPage() {
     const [loadingSlots, setLoadingSlots] = useState(false);
 	const [canGoLive, setCanGoLive] = useState(false);
     const [myApprovedLive, setMyApprovedLive] = useState<any>(null);
+	
 
     const timeSlots = ["18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
     useEffect(() => {
@@ -3799,6 +3802,33 @@ async function submitLiveApplication() {
 
         setMessage("✅ Заявка отправлена на рассмотрение.");
     }
+
+if (liveFinished) {
+    return (
+        <div className="page">
+            <div className="card">
+                <h1>✅ Эфир завершён</h1>
+
+                <h2>🎉 Спасибо за участие!</h2>
+
+                <h2>📊 Статистика эфира</h2>
+
+                <p>👁 Просмотров: 0</p>
+                <p>⭐ Получено голосов: 0</p>
+                <p>🎁 Подарков: 0</p>
+
+                <p>❤️ Спасибо зрителям!</p>
+
+                <button
+                    className="vote-btn"
+                    onClick={() => navigate("/", { replace: true })}
+                >
+                    🏠 На главную
+                </button>
+            </div>
+        </div>
+    );
+}
 
 if (myApprovedLive) {
     return (
@@ -5479,7 +5509,7 @@ async function finishLive() {
   }
 
   setMessage("Эфир завершён.");
-  navigate("/live-application", { replace: true });
+  navigate("/live-application?finished=1", { replace: true });
 }
 
   useEffect(() => {
