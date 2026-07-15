@@ -3703,27 +3703,9 @@ const approvedLive = liveAppData?.[0] || null;
 
 setMyApprovedLive(approvedLive);
 
-if (approvedLive?.requested_date && approvedLive?.requested_time) {
-    const now = new Date();
+setCanGoLive(!!approvedLive);
 
-    const liveStart = new Date(
-        `${approvedLive.requested_date}T${approvedLive.requested_time}:00`
-    );
-
-    const allowedFrom = new Date(
-        liveStart.getTime() - 5 * 60 * 1000
-    );
-
-    const allowedUntil = new Date(
-        liveStart.getTime() + 60 * 60 * 1000
-    );
-
-    setCanGoLive(now >= allowedFrom && now <= allowedUntil);
-} else {
-    setCanGoLive(false);
-}
-
-    setCheckingContestant(false);
+setCheckingContestant(false);
 }
 async function submitLiveApplication() {
     setMessage("");
