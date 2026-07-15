@@ -5479,7 +5479,7 @@ async function finishLive() {
   }
 
   setMessage("Эфир завершён.");
-  navigate("/live-application");
+  navigate("/live-application", { replace: true });
 }
 
   useEffect(() => {
