@@ -3766,13 +3766,20 @@ async function submitLiveApplication() {
         setSending(true);
 
         const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+		
+		const { data: contestantData } = await supabase
+           .from("contestants")
+           .select("name")
+           .eq("telegram_id", telegramUser?.id)
+           .maybeSingle();
 
         const { error } = await supabase.from("live_applications").insert({
             telegram_id: telegramUser?.id || null,
             contestant_name:
-                `${telegramUser?.first_name || ""} ${telegramUser?.last_name || ""}`.trim() ||
-                telegramUser?.username ||
-                "",
+              contestantData?.name ||
+              `${telegramUser?.first_name || ""} ${telegramUser?.last_name || ""}`.trim() ||
+              telegramUser?.username ||
+              "",
             requested_date: requestedDate,
             requested_time: requestedTime,
             topic,
