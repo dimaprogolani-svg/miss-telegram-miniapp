@@ -3767,11 +3767,20 @@ async function submitLiveApplication() {
 
         const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 		
-		const { data: contestantData } = await supabase
-           .from("contestants")
-           .select("name")
-           .eq("telegram_id", telegramUser?.id)
-           .maybeSingle();
+		const { data: contestantData, error: contestantError } = await supabase
+            .from("contestants")
+            .select("name")
+            .eq("telegram_id", telegramUser?.id)
+            .eq("status", "Опубликована в конкурсе")
+            .order("updated_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+if (contestantError) {
+  console.error("Ошибка получения имени участницы:", contestantError);
+}
+
+console.log("Данные участницы для эфира:", contestantData);
 
         const { error } = await supabase.from("live_applications").insert({
             telegram_id: telegramUser?.id || null,
