@@ -3766,6 +3766,7 @@ async function submitLiveApplication() {
         setSending(true);
 
         const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+		console.log("LIVE USER ID:", telegramUser?.id);
 		
 		const { data: contestantData, error: contestantError } = await supabase
             .from("contestants")
@@ -3775,6 +3776,7 @@ async function submitLiveApplication() {
             .order("updated_at", { ascending: false })
             .limit(1)
             .maybeSingle();
+		console.log("FOUND CONTESTANT:", contestantData);
 
 if (contestantError) {
   console.error("Ошибка получения имени участницы:", contestantError);
