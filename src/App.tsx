@@ -26,7 +26,7 @@ import {
 
 import "./App.css";
 
-
+const TEST_MODE = true;
 
 
 function Home() {
@@ -3703,7 +3703,30 @@ const approvedLive = liveAppData?.[0] || null;
 
 setMyApprovedLive(approvedLive);
 
-setCanGoLive(!!approvedLive);
+if (TEST_MODE) {
+    setCanGoLive(!!approvedLive);
+} else if (
+    approvedLive?.requested_date &&
+    approvedLive?.requested_time
+) {
+    const now = new Date();
+
+    const liveStart = new Date(
+        `${approvedLive.requested_date}T${approvedLive.requested_time}:00`
+    );
+
+    const allowedFrom = new Date(
+        liveStart.getTime() - 5 * 60 * 1000
+    );
+
+    const allowedUntil = new Date(
+        liveStart.getTime() + 10 * 60 * 1000
+    );
+
+    setCanGoLive(now >= allowedFrom && now <= allowedUntil);
+} else {
+    setCanGoLive(false);
+}
 
 setCheckingContestant(false);
 }
