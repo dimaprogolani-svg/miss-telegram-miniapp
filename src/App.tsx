@@ -4166,6 +4166,7 @@ function LivePage() {
 	const [liveData, setLiveData] = useState<any>(null);
 	const [liveContestant, setLiveContestant] = useState<any>(null);
 	const [token, setToken] = useState("");
+	const [viewerSaved, setViewerSaved] = useState(false);
 	
 
     useEffect(() => {
@@ -4175,6 +4176,41 @@ function LivePage() {
             .then((r) => r.json())
             .then((d) => setToken(d.token));
     }, []);
+
+useEffect(() => {
+    if (viewerSaved) return;
+    if (!liveData?.liveApplicationId) return;
+
+    const telegramUser =
+        (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+    if (!telegramUser?.id) return;
+
+    async function saveViewer() {
+        const { error } = await supabase
+            .from("live_viewers")
+            .upsert(
+                {
+                    live_application_id: liveData.liveApplicationId,
+                    telegram_id: telegramUser.id,
+                    joined_at: new Date().toISOString(),
+                    left_at: null,
+                },
+                {
+                    onConflict: "live_application_id,telegram_id",
+                }
+            );
+
+        if (error) {
+            console.error("Ошибка сохранения зрителя:", error);
+            return;
+        }
+
+        setViewerSaved(true);
+    }
+
+    saveViewer();
+}, [liveData, viewerSaved]);
 
     async function loadLiveSettings() {
         const { data } = await supabase
