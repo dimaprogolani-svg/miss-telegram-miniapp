@@ -5741,8 +5741,17 @@ useEffect(() => {
       </button>
 
       <h1>🎥 Ведущий эфира</h1>
-	  <h2>
-  🔴 LIVE <span style={{ fontSize: "18px" }}>👁 {onlineViewers}</span>
+	  <h2 style={{ color: "#FFD54A" }}>
+  🔴 LIVE{" "}
+  <span
+    style={{
+      fontSize: "18px",
+      color: "#FFD54A",
+      fontWeight: "bold",
+    }}
+  >
+    👁 {onlineViewers}
+  </span>
 </h2>
 
       <div className="card">
