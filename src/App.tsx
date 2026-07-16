@@ -5515,6 +5515,23 @@ async function markLiveAsStarted() {
   }
 }
 
+useEffect(() => {
+  const interval = setInterval(async () => {
+    const { data } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "live_stream")
+      .maybeSingle();
+
+    if (!data?.value?.isLive) {
+      setToken("");
+      navigate("/live-application?finished=1", { replace: true });
+    }
+  }, 3000);
+
+  return () => clearInterval(interval);
+}, [navigate]);
+
 async function finishLive() {
   if (!liveApplicationId) {
     return;
