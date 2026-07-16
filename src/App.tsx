@@ -4170,12 +4170,20 @@ function LivePage() {
 	
 
     useEffect(() => {
-        window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+
+    loadLiveSettings();
+
+    const interval = setInterval(() => {
         loadLiveSettings();
-		fetch("https://miss-telegram-token-server.onrender.com/token?role=viewer")
-            .then((r) => r.json())
-            .then((d) => setToken(d.token));
-    }, []);
+    }, 3000);
+
+    fetch("https://miss-telegram-token-server.onrender.com/token?role=viewer")
+        .then((r) => r.json())
+        .then((d) => setToken(d.token));
+
+    return () => clearInterval(interval);
+}, []);
 
 useEffect(() => {
     if (viewerSaved) return;
