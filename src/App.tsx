@@ -5551,6 +5551,7 @@ function LiveHost() {
 
   const [token, setToken] = useState("");
   const [message, setMessage] = useState("Получение токена...");
+  const [onlineViewers, setOnlineViewers] = useState(0);
 
 async function markLiveAsStarted() {
   if (!liveApplicationId) {
@@ -5669,6 +5670,36 @@ async function finishLive() {
     });
   }, []);
 
+useEffect(() => {
+  if (!liveApplicationId) {
+    setOnlineViewers(0);
+    return;
+  }
+
+  async function loadOnlineViewers() {
+    const { count, error } = await supabase
+      .from("live_viewers")
+      .select("*", { count: "exact", head: true })
+      .eq("live_application_id", Number(liveApplicationId))
+      .eq("is_online", true);
+
+    if (error) {
+      console.error("Ошибка загрузки зрителей ведущей:", error);
+      return;
+    }
+
+    setOnlineViewers(count || 0);
+  }
+
+  loadOnlineViewers();
+
+  const interval = setInterval(() => {
+    loadOnlineViewers();
+  }, 3000);
+
+  return () => clearInterval(interval);
+}, [liveApplicationId]);
+
   return (
     <div className="page">
       <button className="vote-btn" onClick={() => navigate(-1)}>
@@ -5676,6 +5707,9 @@ async function finishLive() {
       </button>
 
       <h1>🎥 Ведущий эфира</h1>
+	  <h2>
+  🔴 LIVE <span style={{ fontSize: "18px" }}>👁 {onlineViewers}</span>
+</h2>
 
       <div className="card">
         <p>{message}</p>
