@@ -3622,7 +3622,27 @@ function LiveApplicationPage() {
     const navigate = useNavigate();
 	const searchParams = new URLSearchParams(window.location.search);
     const liveFinished = searchParams.get("finished") === "1";
+	const finishedLiveId = searchParams.get("liveId");
+	const [finishedViews, setFinishedViews] = useState(0);
+useEffect(() => {
+  if (!liveFinished || !finishedLiveId) return;
 
+  async function loadFinishedViews() {
+    const { count, error } = await supabase
+      .from("live_viewers")
+      .select("*", { count: "exact", head: true })
+      .eq("live_application_id", Number(finishedLiveId));
+
+    if (error) {
+      console.error("Ошибка загрузки итоговых просмотров:", error);
+      return;
+    }
+
+    setFinishedViews(count || 0);
+  }
+
+  loadFinishedViews();
+}, [liveFinished, finishedLiveId]);
     const [step, setStep] = useState(1);
     const [title, setTitle] = useState("");
     const [topic, setTopic] = useState("");
@@ -3829,7 +3849,7 @@ if (liveFinished) {
 
                 <h2>📊 Статистика эфира</h2>
 
-                <p>👁 Просмотров: 0</p>
+                <p>👁 Просмотров: {finishedViews}</p>
                 <p>⭐ Получено голосов: 0</p>
                 <p>🎁 Подарков: 0</p>
 
@@ -5687,7 +5707,10 @@ async function finishLive() {
   }
 
   setMessage("Эфир завершён.");
-  navigate("/live-application?finished=1", { replace: true });
+  navigate(
+  `/live-application?finished=1&liveId=${liveApplicationId}`,
+  { replace: true }
+);
 }
 
   useEffect(() => {
