@@ -4221,6 +4221,38 @@ useEffect(() => {
     saveViewer();
 }, [liveData, viewerSaved]);
 
+useEffect(() => {
+  if (!liveData?.liveApplicationId) return;
+
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  if (!telegramUser?.id) return;
+
+  async function markViewerOffline() {
+    const { error } = await supabase
+      .from("live_viewers")
+      .update({
+        is_online: false,
+        left_at: new Date().toISOString(),
+      })
+      .eq("live_application_id", liveData.liveApplicationId)
+      .eq("telegram_id", telegramUser.id);
+
+    if (error) {
+      console.error("Ошибка отключения зрителя:", error);
+    }
+  }
+
+  if (!isLive) {
+    markViewerOffline();
+  }
+
+  return () => {
+    void markViewerOffline();
+  };
+}, [isLive, liveData?.liveApplicationId]);
+
     async function loadLiveSettings() {
         const { data } = await supabase
             .from("settings")
