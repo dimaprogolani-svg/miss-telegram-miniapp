@@ -4319,7 +4319,10 @@ useEffect(() => {
       .from("live_viewers")
       .select("*", { count: "exact", head: true })
       .eq("live_application_id", liveData.liveApplicationId)
-      .eq("is_online", true);
+      .gte(
+  "last_seen",
+  new Date(Date.now() - 10000).toISOString()
+)
 
     if (error) {
       console.error("Ошибка загрузки онлайн-зрителей:", error);
@@ -5738,7 +5741,10 @@ useEffect(() => {
       .from("live_viewers")
       .select("*", { count: "exact", head: true })
       .eq("live_application_id", Number(liveApplicationId))
-      .eq("is_online", true);
+      .gte(
+  "last_seen",
+  new Date(Date.now() - 10000).toISOString()
+);;
 
     if (error) {
       console.error("Ошибка загрузки зрителей ведущей:", error);
