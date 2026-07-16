@@ -4167,6 +4167,7 @@ function LivePage() {
 	const [liveContestant, setLiveContestant] = useState<any>(null);
 	const [token, setToken] = useState("");
 	const [viewerSaved, setViewerSaved] = useState(false);
+	const [onlineViewers, setOnlineViewers] = useState(0);
 	
 
     useEffect(() => {
@@ -4253,6 +4254,36 @@ useEffect(() => {
   };
 }, [isLive, liveData?.liveApplicationId]);
 
+useEffect(() => {
+  if (!liveData?.liveApplicationId) {
+    setOnlineViewers(0);
+    return;
+  }
+
+  async function loadOnlineViewers() {
+    const { count, error } = await supabase
+      .from("live_viewers")
+      .select("*", { count: "exact", head: true })
+      .eq("live_application_id", liveData.liveApplicationId)
+      .eq("is_online", true);
+
+    if (error) {
+      console.error("Ошибка загрузки онлайн-зрителей:", error);
+      return;
+    }
+
+    setOnlineViewers(count || 0);
+  }
+
+  loadOnlineViewers();
+
+  const interval = setInterval(() => {
+    loadOnlineViewers();
+  }, 3000);
+
+  return () => clearInterval(interval);
+}, [liveData?.liveApplicationId]);
+
     async function loadLiveSettings() {
         const { data } = await supabase
             .from("settings")
@@ -4291,7 +4322,9 @@ useEffect(() => {
         {isLive ? (
     <>
         <div className="card">
-            <h2>🔴 LIVE <span style={{ fontSize: "18px" }}>👁 1245</span></h2>
+            <h2>
+  🔴 LIVE <span style={{ fontSize: "18px" }}>👁 {onlineViewers}</span>
+</h2>
             <p>👑 {liveTitle}</p>
         </div>
 
