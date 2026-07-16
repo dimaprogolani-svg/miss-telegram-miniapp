@@ -3769,13 +3769,11 @@ async function submitLiveApplication() {
 		console.log("LIVE USER ID:", telegramUser?.id);
 		
 		const { data: contestantData, error: contestantError } = await supabase
-            .from("contestants")
-            .select("name")
-            .eq("telegram_id", telegramUser?.id)
-            .eq("status", "Опубликована в конкурсе")
-            .order("updated_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
+         .from("contestants")
+         .select("name")
+         .eq("telegram_id", telegramUser?.id)
+         .eq("status", "Опубликована в конкурсе")
+         .maybeSingle();
 		console.log("FOUND CONTESTANT:", contestantData);
 
 if (contestantError) {
