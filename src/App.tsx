@@ -4205,6 +4205,7 @@ useEffect(() => {
                     joined_at: new Date().toISOString(),
                     left_at: null,
 					is_online: true,
+					last_seen: new Date().toISOString(),
                 },
                 {
                     onConflict: "live_application_id,telegram_id",
@@ -4252,6 +4253,39 @@ useEffect(() => {
   return () => {
     void markViewerOffline();
   };
+}, [isLive, liveData?.liveApplicationId]);
+
+useEffect(() => {
+  if (!liveData?.liveApplicationId) return;
+  if (!isLive) return;
+
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  if (!telegramUser?.id) return;
+
+  async function updateViewerHeartbeat() {
+    const { error } = await supabase
+      .from("live_viewers")
+      .update({
+        is_online: true,
+        last_seen: new Date().toISOString(),
+      })
+      .eq("live_application_id", liveData.liveApplicationId)
+      .eq("telegram_id", telegramUser.id);
+
+    if (error) {
+      console.error("Ошибка heartbeat зрителя:", error);
+    }
+  }
+
+  updateViewerHeartbeat();
+
+  const interval = setInterval(() => {
+    updateViewerHeartbeat();
+  }, 5000);
+
+  return () => clearInterval(interval);
 }, [isLive, liveData?.liveApplicationId]);
 
 useEffect(() => {
