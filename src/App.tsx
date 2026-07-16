@@ -4203,6 +4203,7 @@ useEffect(() => {
                     telegram_id: telegramUser.id,
                     joined_at: new Date().toISOString(),
                     left_at: null,
+					is_online: true,
                 },
                 {
                     onConflict: "live_application_id,telegram_id",
