@@ -4188,6 +4188,7 @@ function LivePage() {
 	const [token, setToken] = useState("");
 	const [viewerSaved, setViewerSaved] = useState(false);
 	const [onlineViewers, setOnlineViewers] = useState(0);
+	const [votesCount, setVotesCount] = useState(0);
 	
 
     useEffect(() => {
@@ -4341,6 +4342,30 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, [liveData?.liveApplicationId]);
 
+useEffect(() => {
+    if (!liveContestant?.telegram_id) {
+        setVotesCount(0);
+        return;
+    }
+
+    async function loadVotes() {
+        const { count, error } = await supabase
+            .from("votes")
+            .select("*", { count: "exact", head: true })
+            .eq("telegram_id", liveContestant.telegram_id);
+
+        if (!error) {
+            setVotesCount(count || 0);
+        }
+    }
+
+    loadVotes();
+
+    const interval = setInterval(loadVotes, 3000);
+
+    return () => clearInterval(interval);
+}, [liveContestant]);
+
     async function loadLiveSettings() {
         const { data } = await supabase
             .from("settings")
@@ -4446,6 +4471,16 @@ useEffect(() => {
             {liveData.topic && (
                 <p>🎙️ {liveData.topic}</p>
             )}
+
+            <p
+             style={{
+             color: "#FFD54A",
+             fontWeight: "bold",
+             fontSize: "20px",
+  }}
+>
+  ⭐ Голосов: {votesCount}
+</p>
 
             <button
                 className="vote-btn"
