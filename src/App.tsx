@@ -3624,24 +3624,87 @@ function LiveApplicationPage() {
     const liveFinished = searchParams.get("finished") === "1";
 	const finishedLiveId = searchParams.get("liveId");
 	const [finishedViews, setFinishedViews] = useState(0);
+	const [finishedVotes, setFinishedVotes] = useState(0);
+	
 useEffect(() => {
   if (!liveFinished || !finishedLiveId) return;
 
-  async function loadFinishedViews() {
-    const { count, error } = await supabase
+  async function loadFinishedStats() {
+    const liveId = Number(finishedLiveId);
+
+    const { count: viewsCount, error: viewsError } = await supabase
       .from("live_viewers")
       .select("*", { count: "exact", head: true })
-      .eq("live_application_id", Number(finishedLiveId));
+      .eq("live_application_id", liveId);
 
-    if (error) {
-      console.error("Ошибка загрузки итоговых просмотров:", error);
+    if (viewsError) {
+      console.error(
+        "Ошибка загрузки итоговых просмотров:",
+        viewsError
+      );
+    } else {
+      setFinishedViews(viewsCount || 0);
+    }
+
+    const { data: liveApplication, error: liveApplicationError } =
+      await supabase
+        .from("live_applications")
+        .select("telegram_id")
+        .eq("id", liveId)
+        .maybeSingle();
+
+    if (
+      liveApplicationError ||
+      !liveApplication?.telegram_id
+    ) {
+      console.error(
+        "Ошибка загрузки заявки завершённого эфира:",
+        liveApplicationError
+      );
+      setFinishedVotes(0);
       return;
     }
 
-    setFinishedViews(count || 0);
+    const { data: contestantData, error: contestantError } =
+      await supabase
+        .from("contestants")
+        .select("id")
+        .eq("telegram_id", liveApplication.telegram_id)
+        .eq("status", "Опубликована в конкурсе")
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+    if (
+      contestantError ||
+      !contestantData?.[0]?.id
+    ) {
+      console.error(
+        "Ошибка поиска участницы завершённого эфира:",
+        contestantError
+      );
+      setFinishedVotes(0);
+      return;
+    }
+
+    const { count: votesCount, error: votesError } =
+      await supabase
+        .from("votes")
+        .select("*", { count: "exact", head: true })
+        .eq("contestant_id", contestantData[0].id);
+
+    if (votesError) {
+      console.error(
+        "Ошибка загрузки итоговых голосов:",
+        votesError
+      );
+      setFinishedVotes(0);
+      return;
+    }
+
+    setFinishedVotes(votesCount || 0);
   }
 
-  loadFinishedViews();
+  loadFinishedStats();
 }, [liveFinished, finishedLiveId]);
     const [step, setStep] = useState(1);
     const [title, setTitle] = useState("");
@@ -3850,7 +3913,7 @@ if (liveFinished) {
                 <h2>📊 Статистика эфира</h2>
 
                 <p>👁 Просмотров: {finishedViews}</p>
-                <p>⭐ Получено голосов: 0</p>
+                <p>⭐ Получено голосов: {finishedVotes}</p>
                 <p>🎁 Подарков: 0</p>
 
                 <p>❤️ Спасибо зрителям!</p>
