@@ -4189,6 +4189,7 @@ function LivePage() {
 	const [viewerSaved, setViewerSaved] = useState(false);
 	const [onlineViewers, setOnlineViewers] = useState(0);
 	const [votesCount, setVotesCount] = useState(0);
+	const [liveVoteMessage, setLiveVoteMessage] = useState("");
 	
 
     useEffect(() => {
@@ -4366,6 +4367,49 @@ useEffect(() => {
     return () => clearInterval(interval);
 }, [liveContestant]);
 
+async function handleLiveVote() {
+  setLiveVoteMessage("");
+
+  if (!liveContestant?.id) {
+    setLiveVoteMessage("❌ Участница эфира не найдена.");
+    return;
+  }
+
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  if (!telegramUser?.id) {
+    setLiveVoteMessage("❌ Откройте приложение через Telegram.");
+    return;
+  }
+
+  const todayUtc = new Date().toISOString().slice(0, 10);
+
+  const { error } = await supabase.from("votes").insert({
+    contestant_id: liveContestant.id,
+    telegram_id: telegramUser.id,
+    vote_day: todayUtc,
+  });
+
+  if (error) {
+    if (
+      error.code === "23505" ||
+      error.message.includes("one vote per day")
+    ) {
+      setLiveVoteMessage(
+        "⭐ Вы уже голосовали за эту участницу сегодня."
+      );
+      return;
+    }
+
+    setLiveVoteMessage(`❌ Ошибка голосования: ${error.message}`);
+    return;
+  }
+
+  setVotesCount((current) => current + 1);
+  setLiveVoteMessage("✅ Ваш голос принят!");
+}
+
     async function loadLiveSettings() {
         const { data } = await supabase
             .from("settings")
@@ -4484,11 +4528,23 @@ useEffect(() => {
 
             <button
                 className="vote-btn"
-                onClick={() => navigate(`/contestant/${liveContestant?.slug}`)}
+                onClick={handleLiveVote}
             >
                 ⭐ Голосовать
             </button>
-
+            {liveVoteMessage && (
+              <p
+                style={{
+                color: "#FFD54A",
+                fontWeight: "bold",
+                fontSize: "18px",
+                marginTop: "12px",
+                textAlign: "center",
+    }}
+  >
+    {liveVoteMessage}
+  </p>
+)}
             <button
                 className="vote-btn"
                 onClick={() => navigate(`/contestants/${liveContestant?.id}`)}
