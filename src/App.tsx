@@ -5644,6 +5644,7 @@ function LiveHost() {
   const [token, setToken] = useState("");
   const [message, setMessage] = useState("Получение токена...");
   const [onlineViewers, setOnlineViewers] = useState(0);
+  const [hostVotesCount, setHostVotesCount] = useState(0);
 
 async function markLiveAsStarted() {
   if (!liveApplicationId) {
@@ -5771,6 +5772,44 @@ useEffect(() => {
     return;
   }
 
+useEffect(() => {
+  if (!liveApplicationId) {
+    setHostVotesCount(0);
+    return;
+  }
+
+  async function loadHostVotes() {
+    const { data: liveAppData, error: liveAppError } = await supabase
+      .from("live_applications")
+      .select("telegram_id")
+      .eq("id", Number(liveApplicationId))
+      .maybeSingle();
+
+    if (liveAppError || !liveAppData?.telegram_id) {
+      setHostVotesCount(0);
+      return;
+    }
+
+    const { count, error } = await supabase
+      .from("votes")
+      .select("*", { count: "exact", head: true })
+      .eq("telegram_id", liveAppData.telegram_id);
+
+    if (error) {
+      console.error("Ошибка загрузки голосов ведущей:", error);
+      return;
+    }
+
+    setHostVotesCount(count || 0);
+  }
+
+  loadHostVotes();
+
+  const interval = setInterval(loadHostVotes, 3000);
+
+  return () => clearInterval(interval);
+}, [liveApplicationId]);
+
   async function loadOnlineViewers() {
     const { count, error } = await supabase
       .from("live_viewers")
@@ -5817,6 +5856,16 @@ useEffect(() => {
     👁 {onlineViewers}
   </span>
 </h2>
+
+<p
+  style={{
+    color: "#FFD54A",
+    fontWeight: "bold",
+    fontSize: "20px",
+  }}
+>
+  ⭐ Голосов: {hostVotesCount}
+</p>
 
       <div className="card">
         <p>{message}</p>
