@@ -4353,7 +4353,7 @@ useEffect(() => {
         const { count, error } = await supabase
             .from("votes")
             .select("*", { count: "exact", head: true })
-            .eq("telegram_id", liveContestant.telegram_id);
+            .eq("contestant_id", liveContestant.id);
 
         if (!error) {
             setVotesCount(count || 0);
