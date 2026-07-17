@@ -5700,6 +5700,7 @@ function LiveHost() {
   const [token, setToken] = useState("");
   const [message, setMessage] = useState("Получение токена...");
   const [onlineViewers, setOnlineViewers] = useState(0);
+  const [hostVotesCount, setHostVotesCount] = useState(0);
 
 async function markLiveAsStarted() {
   if (!liveApplicationId) {
@@ -5854,6 +5855,59 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, [liveApplicationId]);
 
+useEffect(() => {
+  if (!liveApplicationId) {
+    setHostVotesCount(0);
+    return;
+  }
+
+  async function loadHostVotes() {
+    const { data: liveApplication, error: liveApplicationError } =
+      await supabase
+        .from("live_applications")
+        .select("telegram_id")
+        .eq("id", Number(liveApplicationId))
+        .maybeSingle();
+
+    if (liveApplicationError || !liveApplication?.telegram_id) {
+      setHostVotesCount(0);
+      return;
+    }
+
+    const { data: contestantData, error: contestantError } =
+      await supabase
+        .from("contestants")
+        .select("id")
+        .eq("telegram_id", liveApplication.telegram_id)
+        .eq("status", "Опубликована в конкурсе")
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+    if (contestantError || !contestantData?.[0]?.id) {
+      setHostVotesCount(0);
+      return;
+    }
+
+    const { count, error } = await supabase
+      .from("votes")
+      .select("*", { count: "exact", head: true })
+      .eq("contestant_id", contestantData[0].id);
+
+    if (error) {
+      console.error("Ошибка загрузки голосов ведущей:", error);
+      return;
+    }
+
+    setHostVotesCount(count || 0);
+  }
+
+  loadHostVotes();
+
+  const interval = setInterval(loadHostVotes, 3000);
+
+  return () => clearInterval(interval);
+}, [liveApplicationId]);
+
   return (
     <div className="page">
       <button className="vote-btn" onClick={() => navigate(-1)}>
@@ -5873,7 +5927,15 @@ useEffect(() => {
     👁 {onlineViewers}
   </span>
 </h2>
-
+<p
+  style={{
+    color: "#FFD54A",
+    fontWeight: "bold",
+    fontSize: "20px",
+  }}
+>
+  ⭐ Голосов: {hostVotesCount}
+</p>
       <div className="card">
         <p>{message}</p>
 
