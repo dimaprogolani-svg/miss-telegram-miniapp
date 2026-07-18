@@ -4253,6 +4253,7 @@ function LivePage() {
 	const [onlineViewers, setOnlineViewers] = useState(0);
 	const [votesCount, setVotesCount] = useState(0);
 	const [liveVoteMessage, setLiveVoteMessage] = useState("");
+	const [giftsCount, setGiftsCount] = useState(0);
 	
 
     useEffect(() => {
@@ -4430,6 +4431,33 @@ useEffect(() => {
     return () => clearInterval(interval);
 }, [liveContestant]);
 
+useEffect(() => {
+  if (!liveContestant?.id) {
+    setGiftsCount(0);
+    return;
+  }
+
+  async function loadLiveGifts() {
+    const { count, error } = await supabase
+      .from("gifts")
+      .select("*", { count: "exact", head: true })
+      .eq("contestant_id", liveContestant.id);
+
+    if (error) {
+      console.error("Ошибка загрузки подарков эфира:", error);
+      return;
+    }
+
+    setGiftsCount(count || 0);
+  }
+
+  loadLiveGifts();
+
+  const interval = setInterval(loadLiveGifts, 3000);
+
+  return () => clearInterval(interval);
+}, [liveContestant]);
+
 async function handleLiveVote() {
   setLiveVoteMessage("");
 
@@ -4587,6 +4615,15 @@ async function handleLiveVote() {
   }}
 >
   ⭐ Голосов: {votesCount}
+</p>
+            <p
+  style={{
+    color: "#FFD54A",
+    fontWeight: "bold",
+    fontSize: "18px",
+  }}
+>
+🎁 Подарков: {giftsCount}
 </p>
 
             <button
