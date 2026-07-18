@@ -5896,6 +5896,7 @@ function LiveHost() {
   const [message, setMessage] = useState("Получение токена...");
   const [onlineViewers, setOnlineViewers] = useState(0);
   const [hostVotesCount, setHostVotesCount] = useState(0);
+  const [hostGiftsCount, setHostGiftsCount] = useState(0);
 
 async function markLiveAsStarted() {
   if (!liveApplicationId) {
@@ -6052,6 +6053,59 @@ useEffect(() => {
 
 useEffect(() => {
   if (!liveApplicationId) {
+    setHostGiftsCount(0);
+    return;
+  }
+
+  async function loadHostGifts() {
+    const { data: liveApplication, error: liveApplicationError } =
+      await supabase
+        .from("live_applications")
+        .select("telegram_id")
+        .eq("id", Number(liveApplicationId))
+        .maybeSingle();
+
+    if (liveApplicationError || !liveApplication?.telegram_id) {
+      setHostGiftsCount(0);
+      return;
+    }
+
+    const { data: contestantData, error: contestantError } =
+      await supabase
+        .from("contestants")
+        .select("id")
+        .eq("telegram_id", liveApplication.telegram_id)
+        .eq("status", "Опубликована в конкурсе")
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+    if (contestantError || !contestantData?.[0]?.id) {
+      setHostGiftsCount(0);
+      return;
+    }
+
+    const { count, error } = await supabase
+      .from("gifts")
+      .select("*", { count: "exact", head: true })
+      .eq("contestant_id", contestantData[0].id);
+
+    if (error) {
+      console.error("Ошибка загрузки подарков ведущей:", error);
+      return;
+    }
+
+    setHostGiftsCount(count || 0);
+  }
+
+  loadHostGifts();
+
+  const interval = setInterval(loadHostGifts, 3000);
+
+  return () => clearInterval(interval);
+}, [liveApplicationId]);
+
+useEffect(() => {
+  if (!liveApplicationId) {
     setHostVotesCount(0);
     return;
   }
@@ -6130,6 +6184,15 @@ useEffect(() => {
   }}
 >
   ⭐ Голосов: {hostVotesCount}
+</p>
+<p
+  style={{
+    color: "#FFD54A",
+    fontWeight: "bold",
+    fontSize: "20px",
+  }}
+>
+  🎁 Подарков: {hostGiftsCount}
 </p>
       <div className="card">
         <p>{message}</p>
