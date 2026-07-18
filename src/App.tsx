@@ -5919,6 +5919,50 @@ async function markLiveAsStarted() {
     return;
   }
 
+  const { data: liveApplication, error: liveApplicationError } =
+    await supabase
+      .from("live_applications")
+      .select("telegram_id")
+      .eq("id", Number(liveApplicationId))
+      .maybeSingle();
+
+  if (liveApplicationError || !liveApplication?.telegram_id) {
+    console.error(
+      "Ошибка получения заявки при запуске эфира:",
+      liveApplicationError
+    );
+    return;
+  }
+
+  const { data: contestantData, error: contestantError } =
+    await supabase
+      .from("contestants")
+      .select("id")
+      .eq("telegram_id", liveApplication.telegram_id)
+      .eq("status", "Опубликована в конкурсе")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+  if (contestantError || !contestantData?.[0]?.id) {
+    console.error(
+      "Ошибка поиска участницы при запуске эфира:",
+      contestantError
+    );
+    return;
+  }
+
+  const contestantId = contestantData[0].id;
+
+  const { count: votesBeforeLive } = await supabase
+    .from("votes")
+    .select("*", { count: "exact", head: true })
+    .eq("contestant_id", contestantId);
+
+  const { count: giftsBeforeLive } = await supabase
+    .from("gifts")
+    .select("*", { count: "exact", head: true })
+    .eq("contestant_id", contestantId);
+
   const { data: settingsData } = await supabase
     .from("settings")
     .select("*")
@@ -5934,6 +5978,9 @@ async function markLiveAsStarted() {
         ...currentValue,
         isLive: true,
         liveApplicationId: liveApplicationId,
+        liveStartVotes: votesBeforeLive || 0,
+        liveStartGifts: giftsBeforeLive || 0,
+        liveStartedAt: new Date().toISOString(),
       },
     })
     .eq("key", "live_stream");
