@@ -3702,7 +3702,18 @@ useEffect(() => {
       return;
     }
 
-    setFinishedVotes(votesCount || 0);
+    const { data: liveSettings } = await supabase
+  .from("settings")
+  .select("value")
+  .eq("key", "live_stream")
+  .maybeSingle();
+
+const startVotes =
+  Number(liveSettings?.value?.liveStartVotes) || 0;
+
+setFinishedVotes(
+  Math.max(0, (votesCount || 0) - startVotes)
+);
 	const { count: giftsCount, error: giftsError } =
   await supabase
     .from("gifts")
@@ -3718,7 +3729,12 @@ if (giftsError) {
   return;
 }
 
-setFinishedGifts(giftsCount || 0);
+const startGifts =
+  Number(liveSettings?.value?.liveStartGifts) || 0;
+
+setFinishedGifts(
+  Math.max(0, (giftsCount || 0) - startGifts)
+);
   }
   loadFinishedStats();
 }, [liveFinished, finishedLiveId]);
