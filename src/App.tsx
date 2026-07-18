@@ -3625,6 +3625,7 @@ function LiveApplicationPage() {
 	const finishedLiveId = searchParams.get("liveId");
 	const [finishedViews, setFinishedViews] = useState(0);
 	const [finishedVotes, setFinishedVotes] = useState(0);
+	const [finishedGifts, setFinishedGifts] = useState(0);
 	
 useEffect(() => {
   if (!liveFinished || !finishedLiveId) return;
@@ -3702,8 +3703,23 @@ useEffect(() => {
     }
 
     setFinishedVotes(votesCount || 0);
-  }
+	const { count: giftsCount, error: giftsError } =
+  await supabase
+    .from("gifts")
+    .select("*", { count: "exact", head: true })
+    .eq("contestant_id", contestantData[0].id);
 
+if (giftsError) {
+  console.error(
+    "Ошибка загрузки итоговых подарков:",
+    giftsError
+  );
+  setFinishedGifts(0);
+  return;
+}
+
+setFinishedGifts(giftsCount || 0);
+  }
   loadFinishedStats();
 }, [liveFinished, finishedLiveId]);
     const [step, setStep] = useState(1);
@@ -3914,7 +3930,7 @@ if (liveFinished) {
 
                 <p>👁 Просмотров: {finishedViews}</p>
                 <p>⭐ Получено голосов: {finishedVotes}</p>
-                <p>🎁 Подарков: 0</p>
+                <p>🎁 Подарков: {finishedGifts}</p>
 
                 <p>❤️ Спасибо зрителям!</p>
 
