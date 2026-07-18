@@ -4255,6 +4255,7 @@ function LivePage() {
 	const [liveVoteMessage, setLiveVoteMessage] = useState("");
 	const [giftsCount, setGiftsCount] = useState(0);
 	const [liveGiftMessage, setLiveGiftMessage] = useState("");
+	const [showLiveGifts, setShowLiveGifts] = useState(false);
 	
 
     useEffect(() => {
@@ -4502,7 +4503,9 @@ async function handleLiveVote() {
   setLiveVoteMessage("✅ Ваш голос принят!");
 }
 
-async function handleLiveGift() {
+
+
+function handleLiveGift() {
   setLiveGiftMessage("");
 
   if (!liveContestant?.id) {
@@ -4510,7 +4513,7 @@ async function handleLiveGift() {
     return;
   }
 
-  navigate(`/contestants/${liveContestant.id}`);
+  setShowLiveGifts(true);
 }
 
     async function loadLiveSettings() {
@@ -4663,6 +4666,38 @@ async function handleLiveGift() {
             >
                 🎁 Отправить Gift
             </button>
+			{showLiveGifts && (
+  <div
+    className="card"
+    style={{
+      marginTop: "14px",
+      textAlign: "center",
+    }}
+  >
+    <h3>🎁 Выберите подарок</h3>
+
+    <button
+      className="vote-btn"
+      onClick={() => setLiveGiftMessage("🎁 Подарок выбран: Роза")}
+    >
+      🌹 Роза
+    </button>
+
+    <button
+      className="vote-btn"
+      onClick={() => setLiveGiftMessage("🎁 Подарок выбран: Сердце")}
+    >
+      ❤️ Сердце
+    </button>
+
+    <button
+      className="vote-btn"
+      onClick={() => setShowLiveGifts(false)}
+    >
+      ✖ Закрыть
+    </button>
+  </div>
+)}
 			{liveGiftMessage && (
   <p
     style={{
