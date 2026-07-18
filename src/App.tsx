@@ -4516,6 +4516,41 @@ function handleLiveGift() {
   setShowLiveGifts(true);
 }
 
+async function sendLiveGift(giftName: string, price: number) {
+  setLiveGiftMessage("");
+
+  if (!liveContestant?.id) {
+    setLiveGiftMessage("❌ Участница эфира не найдена.");
+    return;
+  }
+
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  if (!telegramUser?.id) {
+    setLiveGiftMessage("❌ Откройте приложение через Telegram.");
+    return;
+  }
+
+  const { error } = await supabase.from("gifts").insert({
+    contestant_id: liveContestant.id,
+    telegram_id: telegramUser.id,
+    gift_name: giftName,
+    price: price,
+  });
+
+  if (error) {
+    setLiveGiftMessage(
+      `❌ Ошибка отправки подарка: ${error.message}`
+    );
+    return;
+  }
+
+  setGiftsCount((current) => current + 1);
+  setShowLiveGifts(false);
+  setLiveGiftMessage(`✅ Подарок отправлен: ${giftName}`);
+}
+
     async function loadLiveSettings() {
         const { data } = await supabase
             .from("settings")
@@ -4678,14 +4713,14 @@ function handleLiveGift() {
 
     <button
       className="vote-btn"
-      onClick={() => setLiveGiftMessage("🎁 Подарок выбран: Роза")}
+      onClick={() => sendLiveGift("🌹 Роза", 50)}
     >
       🌹 Роза
     </button>
 
     <button
       className="vote-btn"
-      onClick={() => setLiveGiftMessage("🎁 Подарок выбран: Сердце")}
+      onClick={() => sendLiveGift("❤️ Сердце", 100)}
     >
       ❤️ Сердце
     </button>
