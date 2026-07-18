@@ -6157,7 +6157,18 @@ useEffect(() => {
       return;
     }
 
-    setHostGiftsCount(count || 0);
+    const { data: liveSettings } = await supabase
+  .from("settings")
+  .select("value")
+  .eq("key", "live_stream")
+  .maybeSingle();
+
+const startGifts =
+  Number(liveSettings?.value?.liveStartGifts) || 0;
+
+setHostGiftsCount(
+  Math.max(0, (count || 0) - startGifts)
+);
   }
 
   loadHostGifts();
@@ -6210,7 +6221,18 @@ useEffect(() => {
       return;
     }
 
-    setHostVotesCount(count || 0);
+    const { data: liveSettings } = await supabase
+  .from("settings")
+  .select("value")
+  .eq("key", "live_stream")
+  .maybeSingle();
+
+const startVotes =
+  Number(liveSettings?.value?.liveStartVotes) || 0;
+
+setHostVotesCount(
+  Math.max(0, (count || 0) - startVotes)
+);
   }
 
   loadHostVotes();
