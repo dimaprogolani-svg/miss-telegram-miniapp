@@ -4254,6 +4254,7 @@ function LivePage() {
 	const [votesCount, setVotesCount] = useState(0);
 	const [liveVoteMessage, setLiveVoteMessage] = useState("");
 	const [giftsCount, setGiftsCount] = useState(0);
+	const [liveGiftMessage, setLiveGiftMessage] = useState("");
 	
 
     useEffect(() => {
@@ -4501,6 +4502,17 @@ async function handleLiveVote() {
   setLiveVoteMessage("✅ Ваш голос принят!");
 }
 
+async function handleLiveGift() {
+  setLiveGiftMessage("");
+
+  if (!liveContestant?.id) {
+    setLiveGiftMessage("❌ Участница эфира не найдена.");
+    return;
+  }
+
+  navigate(`/contestants/${liveContestant.id}`);
+}
+
     async function loadLiveSettings() {
         const { data } = await supabase
             .from("settings")
@@ -4647,10 +4659,23 @@ async function handleLiveVote() {
 )}
             <button
                 className="vote-btn"
-                onClick={() => navigate(`/contestants/${liveContestant?.id}`)}
+                onClick={handleLiveGift}
             >
                 🎁 Отправить Gift
             </button>
+			{liveGiftMessage && (
+  <p
+    style={{
+      color: "#FFD54A",
+      fontWeight: "bold",
+      fontSize: "18px",
+      marginTop: "12px",
+      textAlign: "center",
+    }}
+  >
+    {liveGiftMessage}
+  </p>
+)}
         </>
     ) : (
         <>
