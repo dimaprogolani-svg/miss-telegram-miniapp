@@ -4584,11 +4584,15 @@ async function sendLiveGift(giftName: string, price: number) {
   }
 
   const { error } = await supabase.from("gifts").insert({
-    contestant_id: liveContestant.id,
-    telegram_id: telegramUser.id,
-    gift_name: giftName,
-    price: price,
-  });
+  contestant_id: liveContestant.id,
+  telegram_id: telegramUser.id,
+  sender_name:
+    `${telegramUser.first_name || ""} ${telegramUser.last_name || ""}`.trim() ||
+    "Гость",
+  sender_username: telegramUser.username || "",
+  gift_name: giftName,
+  price: price,
+});
 
   if (error) {
     setLiveGiftMessage(
