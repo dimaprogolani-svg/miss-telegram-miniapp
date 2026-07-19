@@ -5988,15 +5988,23 @@ function LiveHost() {
   const [liveFeed, setLiveFeed] = useState<any[]>([]);
 
 function addLiveFeedEvent(event: any) {
+  const feedId = `${Date.now()}-${Math.random()}`;
+
+  const newEvent = {
+    ...event,
+    feedId,
+    createdAt: Date.now(),
+  };
+
   setLiveFeed((current) =>
-    [
-      {
-        ...event,
-        feedId: `${Date.now()}-${Math.random()}`,
-      },
-      ...current,
-    ].slice(0, 10)
+    [newEvent, ...current].slice(0, 10)
   );
+
+  setTimeout(() => {
+    setLiveFeed((current) =>
+      current.filter((item) => item.feedId !== feedId)
+    );
+  }, 25000);
 }
 
 async function markLiveAsStarted() {
@@ -6631,28 +6639,70 @@ setPreviousHostVotes((previous) => {
   }}
 >
   <h2 style={{ textAlign: "center" }}>⚡ События эфира</h2>
+<style>
+  {`
+    @keyframes liveFeedAppear {
+      0% {
+        opacity: 0;
+        transform: translateY(-22px) scale(0.96);
+      }
 
+      60% {
+        opacity: 1;
+        transform: translateY(4px) scale(1.02);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes liveFeedGlow {
+      0% {
+        box-shadow: 0 0 0 rgba(255, 213, 74, 0);
+      }
+
+      50% {
+        box-shadow: 0 0 20px rgba(255, 213, 74, 0.6);
+      }
+
+      100% {
+        box-shadow: 0 0 8px rgba(255, 213, 74, 0.2);
+      }
+    }
+  `}
+</style>
   {liveFeed.length === 0 ? (
     <p style={{ textAlign: "center", opacity: 0.7 }}>
       Новых событий пока нет
     </p>
   ) : (
     liveFeed.map((event) => (
-      <div
-        key={event.feedId}
-        style={{
-          padding: "10px",
-          marginBottom: "8px",
-          borderRadius: "12px",
-          border: "1px solid rgba(255,213,74,0.45)",
-          background: "rgba(40,0,45,0.55)",
-          color: "#ffffff",
-          fontWeight: "bold",
-        }}
-      >
-        {event.text}
-      </div>
-    ))
+  <div
+    key={event.feedId}
+    style={{
+      padding: "12px",
+      marginBottom: "8px",
+      borderRadius: "12px",
+      border:
+        event.type === "gift"
+          ? "1px solid rgba(255,213,74,0.75)"
+          : "1px solid rgba(255,255,255,0.35)",
+      background:
+        event.type === "gift"
+          ? "linear-gradient(135deg, rgba(70,0,85,0.8), rgba(35,0,45,0.75))"
+          : "linear-gradient(135deg, rgba(65,45,0,0.75), rgba(25,10,0,0.75))",
+      color: "#ffffff",
+      fontWeight: "bold",
+      animation:
+        "liveFeedAppear 0.55s ease-out, liveFeedGlow 1.2s ease-out",
+      transition: "all 0.35s ease",
+    }}
+  >
+    {event.text}
+  </div>
+))
   )}
 </div>
       <div className="card">
