@@ -3917,6 +3917,9 @@ console.log("Данные участницы для эфира:", contestantData
             `,
             rules_accepted: rulesAccepted,
             status: "На рассмотрении",
+            notification_sent: false,
+            approval_notification_sent: false,
+            rejection_notification_sent: false,
         });
 
         setSending(false);
