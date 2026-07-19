@@ -6235,7 +6235,9 @@ useEffect(() => {
     const { data: latestGift, error: giftError } =
       await supabase
         .from("gifts")
-        .select("id, gift_name, price, telegram_id, created_at")
+        .select(
+  "id, gift_name, price, telegram_id, sender_name, sender_username, created_at"
+)
         .eq("contestant_id", contestantData[0].id)
         .gte("created_at", liveStartedAt)
         .order("created_at", { ascending: false })
@@ -6448,6 +6450,19 @@ setHostVotesCount(
     >
       ⭐ {hostGiftNotice.price || 0} Stars
     </div>
+	<div
+  style={{
+    marginTop: "10px",
+    fontSize: "18px",
+    color: "white",
+    fontWeight: "bold",
+  }}
+>
+  от{" "}
+  {hostGiftNotice.sender_username
+    ? `@${hostGiftNotice.sender_username}`
+    : hostGiftNotice.sender_name || "Гость"}
+</div>
   </div>
 )}
       <button className="vote-btn" onClick={() => navigate(-1)}>
