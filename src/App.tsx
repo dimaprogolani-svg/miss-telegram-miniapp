@@ -4448,22 +4448,36 @@ useEffect(() => {
     }
 
     async function loadVotes() {
-        const { count, error } = await supabase
-            .from("votes")
-            .select("*", { count: "exact", head: true })
-            .eq("contestant_id", liveContestant.id);
+  const { count, error } = await supabase
+    .from("votes")
+    .select("*", { count: "exact", head: true })
+    .eq("contestant_id", liveContestant.id);
 
-        if (!error) {
-            setVotesCount(count || 0);
-        }
-    }
+  if (error) {
+    console.error("Ошибка загрузки голосов эфира:", error);
+    return;
+  }
+
+  const { data: liveSettings } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", "live_stream")
+    .maybeSingle();
+
+  const startVotes =
+    Number(liveSettings?.value?.liveStartVotes) || 0;
+
+  setVotesCount(
+    Math.max(0, (count || 0) - startVotes)
+  );
+}
 
     loadVotes();
 
     const interval = setInterval(loadVotes, 3000);
 
     return () => clearInterval(interval);
-}, [liveContestant]);
+}, [liveContestant?.id]);
 
 useEffect(() => {
   if (!liveContestant?.id) {
