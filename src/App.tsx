@@ -4482,7 +4482,12 @@ useEffect(() => {
       return;
     }
 
-    setGiftsCount(count || 0);
+    const startGifts =
+  Number(liveData?.liveStartGifts) || 0;
+
+setGiftsCount(
+  Math.max(0, (count || 0) - startGifts)
+);
   }
 
   loadLiveGifts();
@@ -4490,7 +4495,7 @@ useEffect(() => {
   const interval = setInterval(loadLiveGifts, 3000);
 
   return () => clearInterval(interval);
-}, [liveContestant]);
+}, [liveContestant?.id, liveData?.liveStartGifts]);
 
 async function handleLiveVote() {
   setLiveVoteMessage("");
