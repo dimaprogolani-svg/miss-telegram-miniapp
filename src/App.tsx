@@ -5982,6 +5982,7 @@ function LiveHost() {
   const [hostGiftsCount, setHostGiftsCount] = useState(0);
   const [hostGiftNotice, setHostGiftNotice] = useState<any>(null);
   const [, setLastHostGiftId] = useState(0);
+  const [flyingGift, setFlyingGift] = useState<any>(null);
 
 async function markLiveAsStarted() {
   if (!liveApplicationId) {
@@ -6254,6 +6255,14 @@ useEffect(() => {
       }
 
       setHostGiftNotice(latestGift);
+	  setFlyingGift({
+        ...latestGift,
+        animationId: Date.now(),
+});
+
+setTimeout(() => {
+  setFlyingGift(null);
+}, 3000);
 
       setTimeout(() => {
         setHostGiftNotice(null);
@@ -6400,6 +6409,51 @@ setHostVotesCount(
 
   return (
     <div className="page">
+	  {flyingGift && (
+  <>
+    <style>
+      {`
+        @keyframes flyHostGift {
+          0% {
+            transform: translate(-50%, 120px) scale(0.6) rotate(-12deg);
+            opacity: 0;
+          }
+
+          20% {
+            opacity: 1;
+            transform: translate(-50%, 40px) scale(1.15) rotate(8deg);
+          }
+
+          70% {
+            opacity: 1;
+            transform: translate(-50%, -180px) scale(1.35) rotate(-5deg);
+          }
+
+          100% {
+            transform: translate(-50%, -360px) scale(1.7) rotate(10deg);
+            opacity: 0;
+          }
+        }
+      `}
+    </style>
+
+    <div
+      key={flyingGift.animationId}
+      style={{
+        position: "fixed",
+        left: "50%",
+        bottom: "70px",
+        zIndex: 10000,
+        fontSize: "72px",
+        pointerEvents: "none",
+        filter: "drop-shadow(0 0 18px rgba(255,213,74,0.95))",
+        animation: "flyHostGift 3s ease-out forwards",
+      }}
+    >
+      {String(flyingGift.gift_name || "🎁").split(" ")[0]}
+    </div>
+  </>
+)}
 	  {hostGiftNotice && (
   <div
     style={{
