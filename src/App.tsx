@@ -4287,6 +4287,7 @@ function LivePage() {
 	const [liveVoteMessage, setLiveVoteMessage] = useState("");
 	const [giftsCount, setGiftsCount] = useState(0);
 	const [liveGiftMessage, setLiveGiftMessage] = useState("");
+	const [liveMessage, setLiveMessage] = useState("");
 	const [showLiveGifts, setShowLiveGifts] = useState(false);
 	
 
@@ -4606,6 +4607,28 @@ async function sendLiveGift(giftName: string, price: number) {
   setLiveGiftMessage(`✅ Подарок отправлен: ${giftName}`);
 }
 
+async function sendLiveMessage() {
+  if (!liveContestant?.id) return;
+
+  if (!liveMessage.trim()) return;
+
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  await supabase.from("live_messages").insert({
+    live_application_id: Number(liveData?.liveApplicationId),
+    telegram_id: telegramUser?.id,
+    sender_name:
+      telegramUser?.first_name || "Гость",
+    sender_username:
+      telegramUser?.username || null,
+    sender_role: "viewer",
+    message: liveMessage.trim(),
+  });
+
+  setLiveMessage("");
+}
+
     async function loadLiveSettings() {
         const { data } = await supabase
             .from("settings")
@@ -4829,6 +4852,45 @@ async function sendLiveGift(giftName: string, price: number) {
     {liveGiftMessage}
   </p>
 )}
+<div
+  className="card"
+  style={{
+    marginTop: "16px",
+  }}
+>
+  <h3>💬 Чат эфира</h3>
+
+  <textarea
+    value={liveMessage}
+    onChange={(event) => setLiveMessage(event.target.value)}
+    placeholder="Напишите сообщение..."
+    maxLength={300}
+    style={{
+      width: "100%",
+      minHeight: "80px",
+      boxSizing: "border-box",
+      padding: "12px",
+      borderRadius: "14px",
+      border: "1px solid #FFD54A",
+      background: "rgba(20, 0, 25, 0.9)",
+      color: "white",
+      fontSize: "16px",
+      resize: "none",
+    }}
+  />
+
+  <button
+    className="vote-btn"
+    onClick={sendLiveMessage}
+    disabled={!liveMessage.trim()}
+    style={{
+      marginTop: "10px",
+      opacity: liveMessage.trim() ? 1 : 0.6,
+    }}
+  >
+    ➤ Отправить сообщение
+  </button>
+</div>
         </>
     ) : (
         <>
