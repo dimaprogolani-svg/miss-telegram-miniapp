@@ -4762,19 +4762,47 @@ async function sendLiveGift(giftName: string, price: number) {
   >
     <h3>🎁 Выберите подарок</h3>
 
-    <button
-      className="vote-btn"
-      onClick={() => sendLiveGift("🌹 Роза", 50)}
-    >
-      🌹 Роза
-    </button>
+<button
+  className="vote-btn"
+  onClick={() => sendLiveGift("🌹 Роза", 50)}
+>
+  🌹 Роза — 50 Stars
+</button>
 
-    <button
-      className="vote-btn"
-      onClick={() => sendLiveGift("❤️ Сердце", 100)}
-    >
-      ❤️ Сердце
-    </button>
+<button
+  className="vote-btn"
+  onClick={() => sendLiveGift("💐 Букет", 100)}
+>
+  💐 Букет — 100 Stars
+</button>
+
+<button
+  className="vote-btn"
+  onClick={() => sendLiveGift("🧸 Мишка", 250)}
+>
+  🧸 Мишка — 250 Stars
+</button>
+
+<button
+  className="vote-btn"
+  onClick={() => sendLiveGift("❤️ Сердце", 300)}
+>
+  ❤️ Сердце — 300 Stars
+</button>
+
+<button
+  className="vote-btn"
+  onClick={() => sendLiveGift("💎 Бриллиант", 500)}
+>
+  💎 Бриллиант — 500 Stars
+</button>
+
+<button
+  className="vote-btn"
+  onClick={() => sendLiveGift("👑 Корона", 1000)}
+>
+  👑 Корона — 1000 Stars
+</button>
 
     <button
       className="vote-btn"
