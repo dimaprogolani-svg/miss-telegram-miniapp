@@ -5976,6 +5976,8 @@ function LiveHost() {
   const [onlineViewers, setOnlineViewers] = useState(0);
   const [hostVotesCount, setHostVotesCount] = useState(0);
   const [hostGiftsCount, setHostGiftsCount] = useState(0);
+  const [hostGiftNotice, setHostGiftNotice] = useState<any>(null);
+  const [, setLastHostGiftId] = useState(0);
 
 async function markLiveAsStarted() {
   if (!liveApplicationId) {
@@ -6179,6 +6181,91 @@ useEffect(() => {
 
 useEffect(() => {
   if (!liveApplicationId) {
+    return;
+  }
+
+  async function checkNewHostGift() {
+    const { data: liveApplication, error: liveApplicationError } =
+      await supabase
+        .from("live_applications")
+        .select("telegram_id")
+        .eq("id", Number(liveApplicationId))
+        .maybeSingle();
+
+    if (
+      liveApplicationError ||
+      !liveApplication?.telegram_id
+    ) {
+      return;
+    }
+
+    const { data: contestantData, error: contestantError } =
+      await supabase
+        .from("contestants")
+        .select("id")
+        .eq("telegram_id", liveApplication.telegram_id)
+        .eq("status", "Опубликована в конкурсе")
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+    if (
+      contestantError ||
+      !contestantData?.[0]?.id
+    ) {
+      return;
+    }
+
+    const { data: settingsData } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "live_stream")
+      .maybeSingle();
+
+    const liveStartedAt =
+      settingsData?.value?.liveStartedAt;
+
+    if (!liveStartedAt) {
+      return;
+    }
+
+    const { data: latestGift, error: giftError } =
+      await supabase
+        .from("gifts")
+        .select("id, gift_name, price, telegram_id, created_at")
+        .eq("contestant_id", contestantData[0].id)
+        .gte("created_at", liveStartedAt)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if (giftError || !latestGift?.id) {
+      return;
+    }
+
+    setLastHostGiftId((currentId) => {
+      if (currentId === latestGift.id) {
+        return currentId;
+      }
+
+      setHostGiftNotice(latestGift);
+
+      setTimeout(() => {
+        setHostGiftNotice(null);
+      }, 4000);
+
+      return latestGift.id;
+    });
+  }
+
+  checkNewHostGift();
+
+  const interval = setInterval(checkNewHostGift, 2000);
+
+  return () => clearInterval(interval);
+}, [liveApplicationId]);
+
+useEffect(() => {
+  if (!liveApplicationId) {
     setHostGiftsCount(0);
     return;
   }
@@ -6307,6 +6394,58 @@ setHostVotesCount(
 
   return (
     <div className="page">
+	  {hostGiftNotice && (
+  <div
+    style={{
+      position: "fixed",
+      top: "170px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "82%",
+      maxWidth: "360px",
+      zIndex: 9999,
+      padding: "18px",
+      borderRadius: "22px",
+      border: "2px solid #FFD54A",
+      background:
+        "linear-gradient(180deg, rgba(35,0,45,0.97), rgba(10,0,15,0.97))",
+      boxShadow:
+        "0 0 30px rgba(255,213,74,0.75)",
+      textAlign: "center",
+    }}
+  >
+    <div
+      style={{
+        fontSize: "22px",
+        fontWeight: "bold",
+        color: "#FFD54A",
+      }}
+    >
+      🎉 Новый подарок!
+    </div>
+
+    <div
+      style={{
+        fontSize: "30px",
+        fontWeight: "bold",
+        marginTop: "10px",
+        color: "white",
+      }}
+    >
+      {hostGiftNotice.gift_name}
+    </div>
+
+    <div
+      style={{
+        fontSize: "18px",
+        marginTop: "8px",
+        color: "#FFD54A",
+      }}
+    >
+      ⭐ {hostGiftNotice.price || 0} Stars
+    </div>
+  </div>
+)}
       <button className="vote-btn" onClick={() => navigate(-1)}>
         ← Назад
       </button>
