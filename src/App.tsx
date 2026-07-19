@@ -4611,6 +4611,7 @@ async function sendLiveGift(giftName: string, price: number) {
 }
 
 async function sendLiveMessage() {
+alert("sendLiveMessage");
   if (!liveContestant?.id) return;
 
   if (!liveMessage.trim()) return;
