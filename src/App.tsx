@@ -5985,6 +5985,19 @@ function LiveHost() {
   const [flyingGift, setFlyingGift] = useState<any>(null);
   const [hostVoteNotice, setHostVoteNotice] = useState(false);
   const [, setPreviousHostVotes] = useState<number | null>(null);
+  const [liveFeed, setLiveFeed] = useState<any[]>([]);
+
+function addLiveFeedEvent(event: any) {
+  setLiveFeed((current) =>
+    [
+      {
+        ...event,
+        feedId: `${Date.now()}-${Math.random()}`,
+      },
+      ...current,
+    ].slice(0, 10)
+  );
+}
 
 async function markLiveAsStarted() {
   if (!liveApplicationId) {
@@ -6257,6 +6270,14 @@ useEffect(() => {
       }
 
       setHostGiftNotice(latestGift);
+	  addLiveFeedEvent({
+  type: "gift",
+  text: `${
+    latestGift.sender_username
+      ? `@${latestGift.sender_username}`
+      : latestGift.sender_name || "Гость"
+  } отправил ${latestGift.gift_name}`,
+});
 	  setFlyingGift({
         ...latestGift,
         animationId: Date.now(),
@@ -6408,6 +6429,10 @@ setPreviousHostVotes((previous) => {
     currentLiveVotes > previous
   ) {
     setHostVoteNotice(true);
+	addLiveFeedEvent({
+  type: "vote",
+  text: "⭐ Получен новый голос",
+});
 
     setTimeout(() => {
       setHostVoteNotice(false);
@@ -6598,6 +6623,38 @@ setPreviousHostVotes((previous) => {
 >
   🎁 Подарков: {hostGiftsCount}
 </p>
+      <div
+  className="card"
+  style={{
+    marginTop: "14px",
+    textAlign: "left",
+  }}
+>
+  <h2 style={{ textAlign: "center" }}>⚡ События эфира</h2>
+
+  {liveFeed.length === 0 ? (
+    <p style={{ textAlign: "center", opacity: 0.7 }}>
+      Новых событий пока нет
+    </p>
+  ) : (
+    liveFeed.map((event) => (
+      <div
+        key={event.feedId}
+        style={{
+          padding: "10px",
+          marginBottom: "8px",
+          borderRadius: "12px",
+          border: "1px solid rgba(255,213,74,0.45)",
+          background: "rgba(40,0,45,0.55)",
+          color: "#ffffff",
+          fontWeight: "bold",
+        }}
+      >
+        {event.text}
+      </div>
+    ))
+  )}
+</div>
       <div className="card">
         <p>{message}</p>
 
