@@ -5983,6 +5983,8 @@ function LiveHost() {
   const [hostGiftNotice, setHostGiftNotice] = useState<any>(null);
   const [, setLastHostGiftId] = useState(0);
   const [flyingGift, setFlyingGift] = useState<any>(null);
+  const [hostVoteNotice, setHostVoteNotice] = useState(false);
+  const [, setPreviousHostVotes] = useState<number | null>(null);
 
 async function markLiveAsStarted() {
   if (!liveApplicationId) {
@@ -6395,9 +6397,25 @@ useEffect(() => {
 const startVotes =
   Number(liveSettings?.value?.liveStartVotes) || 0;
 
-setHostVotesCount(
-  Math.max(0, (count || 0) - startVotes)
-);
+const currentLiveVotes =
+  Math.max(0, (count || 0) - startVotes);
+
+setHostVotesCount(currentLiveVotes);
+
+setPreviousHostVotes((previous) => {
+  if (
+    previous !== null &&
+    currentLiveVotes > previous
+  ) {
+    setHostVoteNotice(true);
+
+    setTimeout(() => {
+      setHostVoteNotice(false);
+    }, 3000);
+  }
+
+  return currentLiveVotes;
+});
   }
 
   loadHostVotes();
@@ -6409,6 +6427,32 @@ setHostVotesCount(
 
   return (
     <div className="page">
+	{hostVoteNotice && (
+  <div
+    style={{
+      position: "fixed",
+      top: "145px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "78%",
+      maxWidth: "330px",
+      zIndex: 9998,
+      padding: "16px",
+      borderRadius: "20px",
+      border: "2px solid #FFD54A",
+      background:
+        "linear-gradient(180deg, rgba(45,25,0,0.97), rgba(15,5,0,0.97))",
+      boxShadow:
+        "0 0 28px rgba(255,213,74,0.8)",
+      textAlign: "center",
+      color: "#FFD54A",
+      fontSize: "24px",
+      fontWeight: "bold",
+    }}
+  >
+    ⭐ Новый голос!
+  </div>
+)}
 	  {flyingGift && (
   <>
     <style>
