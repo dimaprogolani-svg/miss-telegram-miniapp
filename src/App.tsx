@@ -6634,17 +6634,32 @@ useEffect(() => {
   }
 
   async function loadHostLiveMessages() {
-    const { data, error } = await supabase
-      .from("live_messages")
-      .select(
-        "id, sender_name, sender_username, sender_role, message, created_at"
-      )
-      .eq(
-        "live_application_id",
-        Number(liveApplicationId)
-      )
-      .order("created_at", { ascending: true })
-      .limit(50);
+    
+	const { data: settingsData } = await supabase
+  .from("settings")
+  .select("value")
+  .eq("key", "live_stream")
+  .maybeSingle();
+
+const liveStartedAt =
+  settingsData?.value?.liveStartedAt;
+
+if (!liveStartedAt) {
+  setHostLiveMessages([]);
+  return;
+}
+
+const { data, error } = await supabase
+  .from("live_messages")
+  .select(
+    "id, sender_name, sender_username, sender_role, message, created_at"
+  )
+  .eq("live_application_id", Number(liveApplicationId))
+  .gte("created_at", liveStartedAt)
+  .order("created_at", { ascending: true })
+  .limit(50);
+
+
 
     if (error) {
       console.error(
