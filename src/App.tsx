@@ -6153,6 +6153,7 @@ function LiveHost() {
   const [, setPreviousHostVotes] = useState<number | null>(null);
   const [liveFeed, setLiveFeed] = useState<any[]>([]);
   const [hostLiveMessages, setHostLiveMessages] = useState<any[]>([]);
+  const [hostLiveMessage, setHostLiveMessage] = useState("");
 
 function addLiveFeedEvent(event: any) {
   const feedId = `${Date.now()}-${Math.random()}`;
@@ -6681,6 +6682,33 @@ const { data, error } = await supabase
   return () => clearInterval(interval);
 }, [liveApplicationId]);
 
+async function sendHostLiveMessage() {
+  if (!liveApplicationId) return;
+
+  if (!hostLiveMessage.trim()) return;
+
+  const telegramUser =
+    (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  const { error } = await supabase.from("live_messages").insert({
+    live_application_id: Number(liveApplicationId),
+    telegram_id: telegramUser?.id || null,
+    sender_name:
+      `${telegramUser?.first_name || ""} ${telegramUser?.last_name || ""}`.trim() ||
+      "Ведущая",
+    sender_username: telegramUser?.username || null,
+    sender_role: "host",
+    message: hostLiveMessage.trim(),
+  });
+
+  if (error) {
+    alert(`Ошибка отправки сообщения ведущей: ${error.message}`);
+    return;
+  }
+
+  setHostLiveMessage("");
+}
+
   return (
     <div className="page">
 	{hostVoteNotice && (
@@ -6911,6 +6939,37 @@ const { data, error } = await supabase
       ))
     )}
   </div>
+  <textarea
+  value={hostLiveMessage}
+  onChange={(event) => setHostLiveMessage(event.target.value)}
+  placeholder="Ответить зрителям..."
+  maxLength={300}
+  style={{
+    width: "100%",
+    minHeight: "80px",
+    boxSizing: "border-box",
+    padding: "12px",
+    marginTop: "12px",
+    borderRadius: "14px",
+    border: "1px solid #FFD54A",
+    background: "rgba(20, 0, 25, 0.9)",
+    color: "white",
+    fontSize: "16px",
+    resize: "none",
+  }}
+/>
+
+<button
+  className="vote-btn"
+  onClick={sendHostLiveMessage}
+  disabled={!hostLiveMessage.trim()}
+  style={{
+    marginTop: "10px",
+    opacity: hostLiveMessage.trim() ? 1 : 0.6,
+  }}
+>
+  👑 Отправить сообщение
+</button>
 </div>
       <div
   className="card"
