@@ -4291,6 +4291,7 @@ function LivePage() {
 	const [giftsCount, setGiftsCount] = useState(0);
 	const [liveGiftMessage, setLiveGiftMessage] = useState("");
 	const [liveMessage, setLiveMessage] = useState("");
+	const [liveMessages, setLiveMessages] = useState<any[]>([]);
 	const [showLiveGifts, setShowLiveGifts] = useState(false);
 	
 
@@ -4639,6 +4640,45 @@ setLiveMessage("");
 
 }
 
+useEffect(() => {
+  if (!liveData?.liveApplicationId) {
+    setLiveMessages([]);
+    return;
+  }
+
+  async function loadLiveMessages() {
+    const { data, error } = await supabase
+      .from("live_messages")
+      .select(
+        "id, sender_name, sender_username, sender_role, message, created_at"
+      )
+      .eq(
+        "live_application_id",
+        Number(liveData.liveApplicationId)
+      )
+      .order("created_at", { ascending: true })
+      .limit(50);
+
+    if (error) {
+      console.error(
+        "Ошибка загрузки сообщений эфира:",
+        error
+      );
+      return;
+    }
+
+    setLiveMessages(data || []);
+  }
+
+  loadLiveMessages();
+
+  const interval = setInterval(() => {
+    loadLiveMessages();
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, [liveData?.liveApplicationId]);
+
     async function loadLiveSettings() {
         const { data } = await supabase
             .from("settings")
@@ -4869,6 +4909,60 @@ setLiveMessage("");
   }}
 >
   <h3>💬 Чат эфира</h3>
+  
+  <div
+  style={{
+    maxHeight: "260px",
+    overflowY: "auto",
+    marginBottom: "12px",
+    textAlign: "left",
+  }}
+>
+  {liveMessages.length === 0 ? (
+    <p
+      style={{
+        textAlign: "center",
+        opacity: 0.65,
+      }}
+    >
+      Сообщений пока нет
+    </p>
+  ) : (
+    liveMessages.map((item) => (
+      <div
+        key={item.id}
+        style={{
+          padding: "9px 11px",
+          marginBottom: "7px",
+          borderRadius: "12px",
+          background: "rgba(255,255,255,0.07)",
+        }}
+      >
+        <div
+          style={{
+            color: "#FFD54A",
+            fontWeight: "bold",
+            fontSize: "14px",
+          }}
+        >
+          {item.sender_username
+            ? `@${item.sender_username}`
+            : item.sender_name || "Гость"}
+        </div>
+
+        <div
+          style={{
+            marginTop: "4px",
+            color: "white",
+            wordBreak: "break-word",
+          }}
+        >
+          {item.message}
+        </div>
+      </div>
+    ))
+  )}
+</div>
 
   <textarea
     value={liveMessage}
