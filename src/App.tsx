@@ -4636,7 +4636,7 @@ if (error) {
 }
 
 setLiveMessage("");
-alert("Сообщение сохранено");
+
 }
 
     async function loadLiveSettings() {
