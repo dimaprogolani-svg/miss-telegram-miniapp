@@ -6152,6 +6152,7 @@ function LiveHost() {
   const [hostVoteNotice, setHostVoteNotice] = useState(false);
   const [, setPreviousHostVotes] = useState<number | null>(null);
   const [liveFeed, setLiveFeed] = useState<any[]>([]);
+  const [hostLiveMessages, setHostLiveMessages] = useState<any[]>([]);
 
 function addLiveFeedEvent(event: any) {
   const feedId = `${Date.now()}-${Math.random()}`;
@@ -6372,6 +6373,8 @@ useEffect(() => {
 
   return () => clearInterval(interval);
 }, [liveApplicationId]);
+
+
 
 useEffect(() => {
   if (!liveApplicationId) {
@@ -6624,6 +6627,45 @@ setPreviousHostVotes((previous) => {
   return () => clearInterval(interval);
 }, [liveApplicationId]);
 
+useEffect(() => {
+  if (!liveApplicationId) {
+    setHostLiveMessages([]);
+    return;
+  }
+
+  async function loadHostLiveMessages() {
+    const { data, error } = await supabase
+      .from("live_messages")
+      .select(
+        "id, sender_name, sender_username, sender_role, message, created_at"
+      )
+      .eq(
+        "live_application_id",
+        Number(liveApplicationId)
+      )
+      .order("created_at", { ascending: true })
+      .limit(50);
+
+    if (error) {
+      console.error(
+        "Ошибка загрузки сообщений ведущей:",
+        error
+      );
+      return;
+    }
+
+    setHostLiveMessages(data || []);
+  }
+
+  loadHostLiveMessages();
+
+  const interval = setInterval(() => {
+    loadHostLiveMessages();
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, [liveApplicationId]);
+
   return (
     <div className="page">
 	{hostVoteNotice && (
@@ -6797,6 +6839,64 @@ setPreviousHostVotes((previous) => {
 >
   🎁 Подарков: {hostGiftsCount}
 </p>
+<div
+  className="card"
+  style={{
+    marginTop: "14px",
+    textAlign: "left",
+  }}
+>
+  <h2 style={{ textAlign: "center" }}>💬 Чат эфира</h2>
+
+  <div
+    style={{
+      maxHeight: "300px",
+      overflowY: "auto",
+    }}
+  >
+    {hostLiveMessages.length === 0 ? (
+      <p style={{ textAlign: "center", opacity: 0.7 }}>
+        Сообщений пока нет
+      </p>
+    ) : (
+      hostLiveMessages.map((item) => (
+        <div
+          key={item.id}
+          style={{
+            padding: "10px 12px",
+            marginBottom: "8px",
+            borderRadius: "12px",
+            background: "rgba(255,255,255,0.08)",
+          }}
+        >
+          <div
+            style={{
+              color: "#FFD54A",
+              fontWeight: "bold",
+              fontSize: "14px",
+            }}
+          >
+            {item.sender_role === "host"
+              ? "👑 Ведущая"
+              : item.sender_username
+                ? `@${item.sender_username}`
+                : item.sender_name || "Гость"}
+          </div>
+
+          <div
+            style={{
+              marginTop: "4px",
+              color: "white",
+              wordBreak: "break-word",
+            }}
+          >
+            {item.message}
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+</div>
       <div
   className="card"
   style={{
