@@ -4249,14 +4249,37 @@ function ViewerStream() {
 
       {hostTrack ? (
         <VideoTrack
-          trackRef={hostTrack}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            background: "#000",
-          }}
-        />
+  trackRef={hostTrack}
+  autoPlay
+  playsInline
+  onLoadedMetadata={(event) => {
+    event.currentTarget
+      .play()
+      .catch((error) =>
+        console.error("Ошибка запуска видео на iPhone:", error)
+      );
+  }}
+  onCanPlay={(event) => {
+    event.currentTarget
+      .play()
+      .catch((error) =>
+        console.error("Ошибка повторного запуска видео:", error)
+      );
+  }}
+  onClick={(event) => {
+    event.currentTarget
+      .play()
+      .catch((error) =>
+        console.error("Ошибка запуска видео после нажатия:", error)
+      );
+  }}
+  style={{
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+    background: "#000",
+  }}
+/>
       ) : (
         <div
           style={{
