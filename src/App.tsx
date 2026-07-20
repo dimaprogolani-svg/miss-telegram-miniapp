@@ -4611,7 +4611,7 @@ async function sendLiveGift(giftName: string, price: number) {
 }
 
 async function sendLiveMessage() {
-alert("sendLiveMessage");
+
   if (!liveContestant?.id) return;
 
   if (!liveMessage.trim()) return;
@@ -4619,18 +4619,24 @@ alert("sendLiveMessage");
   const telegramUser =
     (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
-  await supabase.from("live_messages").insert({
-    live_application_id: Number(liveData?.liveApplicationId),
-    telegram_id: telegramUser?.id,
-    sender_name:
-      telegramUser?.first_name || "Гость",
-    sender_username:
-      telegramUser?.username || null,
-    sender_role: "viewer",
-    message: liveMessage.trim(),
-  });
+  const { error } = await supabase.from("live_messages").insert({
+  live_application_id: Number(liveData?.liveApplicationId),
+  telegram_id: telegramUser?.id,
+  sender_name:
+    telegramUser?.first_name || "Гость",
+  sender_username:
+    telegramUser?.username || null,
+  sender_role: "viewer",
+  message: liveMessage.trim(),
+});
 
-  setLiveMessage("");
+if (error) {
+  alert(`Ошибка отправки сообщения: ${error.message}`);
+  return;
+}
+
+setLiveMessage("");
+alert("Сообщение сохранено");
 }
 
     async function loadLiveSettings() {
