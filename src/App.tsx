@@ -7050,13 +7050,19 @@ async function sendHostLiveMessage() {
 
         {token && (
           <LiveKitRoom
-            serverUrl="wss://misstelegram-suaxuq32.livekit.cloud"
-            token={token}
-            connect={true}
-            video={true}
-            audio={true}
-            style={{ height: "600px" }}
-          >
+  serverUrl="wss://misstelegram-suaxuq32.livekit.cloud"
+  token={token}
+  connect={true}
+  video={true}
+  audio={true}
+  options={{
+    publishDefaults: {
+      videoCodec: "h264",
+      simulcast: false,
+    },
+  }}
+  style={{ height: "600px" }}
+>
             <EnableHostMedia />
             <HostPreview />
           </LiveKitRoom>
