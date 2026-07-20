@@ -6169,6 +6169,10 @@ function LiveHost() {
   const [onlineViewers, setOnlineViewers] = useState(0);
   const [hostVotesCount, setHostVotesCount] = useState(0);
   const [hostGiftsCount, setHostGiftsCount] = useState(0);
+  const [liveEvent, setLiveEvent] = useState<{
+  type: "vote" | "gift";
+  text: string;
+} | null>(null);
   const [hostGiftNotice, setHostGiftNotice] = useState<any>(null);
   const [, setLastHostGiftId] = useState(0);
   const [flyingGift, setFlyingGift] = useState<any>(null);
@@ -6558,6 +6562,21 @@ const startGifts =
 setHostGiftsCount(
   Math.max(0, (count || 0) - startGifts)
 );
+const currentLiveGifts = Math.max(
+  0,
+  (count || 0) - startGifts
+);
+
+if (currentLiveGifts > hostGiftsCount) {
+  setLiveEvent({
+    type: "gift",
+    text: "🎁 Вам отправили подарок!",
+  });
+
+  setTimeout(() => {
+    setLiveEvent(null);
+  }, 3500);
+}
   }
 
   loadHostGifts();
@@ -6734,6 +6753,28 @@ async function sendHostLiveMessage() {
 
   return (
     <div className="page">
+	{liveEvent && (
+  <div
+    style={{
+      position: "fixed",
+      top: 90,
+      left: "50%",
+      transform: "translateX(-50%)",
+      background: "#111",
+      color: "#FFD54A",
+      border: "2px solid #FFD54A",
+      borderRadius: "18px",
+      padding: "14px 24px",
+      fontSize: "22px",
+      fontWeight: "bold",
+      zIndex: 99999,
+      boxShadow: "0 0 30px gold",
+      textAlign: "center",
+    }}
+  >
+    {liveEvent.text}
+  </div>
+)}
 	{hostVoteNotice && (
   <div
     style={{
