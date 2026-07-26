@@ -1,6 +1,7 @@
 import { supabase } from "./lib/supabase";
 import { useState, useEffect } from "react";
 import heroGirl from "./assets/hero-girl-fireworks.png";
+import hallOfFameDemo from "./assets/hall-of-fame-demo.png";
 
 import {
   LiveKitRoom,
@@ -238,41 +239,19 @@ supabase.rpc("increment_contestant_link_clicks", {
     </div>
 </div>	
 
-<div className="home-wide-card">
+  <div
+  className="home-wide-card"
+  onClick={() => navigate("/hall-of-fame")}
+  style={{ cursor: "pointer" }}
+>
   <div className="home-icon">🏆</div>
 
-  <div style={{ width: "100%" }}>
+  <div>
     <h2>🏆 Зал Славы</h2>
 
     <p>
-  Здесь будут размещены победительницы
-  завершённых сезонов конкурса
-  <strong> MISS TELEGRAM</strong>.
-</p>
-
-    <p
-      style={{
-        color: "#FFD54A",
-        fontWeight: "bold",
-        marginTop: "8px",
-      }}
-    >
-      Первый сезон уже идёт!
+      Победительницы завершённых сезонов конкурса ›
     </p>
-
-    <button
-      className="vote-btn"
-      style={{
-        width: "100%",
-        marginTop: "12px",
-      }}
-      onClick={(event) => {
-        event.stopPropagation();
-        navigate("/apply");
-      }}
-    >
-      👑 Участвовать в конкурсе →
-    </button>
   </div>
 </div>
 
@@ -340,6 +319,122 @@ supabase.rpc("increment_contestant_link_clicks", {
     </div>
   );
 }
+
+function HallOfFame() {
+  const navigate = useNavigate();
+
+  return (
+    <div className="page">
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          width: "100%",
+          padding: "14px",
+          marginBottom: "12px",
+          borderRadius: "16px",
+          border: "1px solid #FFD54A",
+          background: "linear-gradient(180deg,#FFE88A,#D6A800)",
+          color: "#111",
+          fontWeight: "700",
+          fontSize: "24px",
+          cursor: "pointer",
+          boxShadow: "0 0 18px rgba(255,215,0,.35)",
+        }}
+      >
+        ← Назад
+      </button>
+
+      <h1>🏆 Зал Славы</h1>
+
+      <div
+        className="card"
+        style={{
+          padding: "18px",
+        }}
+      >
+        <div
+          style={{
+            display: "inline-block",
+            padding: "7px 12px",
+            marginBottom: "16px",
+            borderRadius: "12px",
+            border: "1px solid #b56cff",
+            background: "rgba(130, 40, 160, 0.18)",
+            color: "#FFD54A",
+            fontWeight: "bold",
+          }}
+        >
+          ⚠️ Демонстрационный сезон
+        </div>
+
+        <img
+          src={hallOfFameDemo}
+          alt="Демонстрационная победительница MISS TELEGRAM"
+          style={{
+            width: "100%",
+            maxHeight: "520px",
+            objectFit: "cover",
+            objectPosition: "center top",
+            display: "block",
+            borderRadius: "18px",
+            border: "2px solid #FFD54A",
+            boxShadow: "0 0 20px rgba(255,213,74,0.4)",
+            marginBottom: "16px",
+          }}
+        />
+
+        <h2 style={{ color: "#FFD54A" }}>
+          👑 MISS TELEGRAM 2026
+        </h2>
+
+        <h2>Анна</h2>
+
+        <p style={{ fontSize: "19px" }}>
+          🌍 Украина • Одесса
+        </p>
+
+        <hr
+          style={{
+            border: "none",
+            borderTop: "1px solid rgba(255,213,74,0.5)",
+            margin: "16px 0",
+          }}
+        />
+
+        <p
+          style={{
+            fontSize: "18px",
+            fontWeight: "bold",
+          }}
+        >
+          ⭐ Голосов: 12 540
+        </p>
+
+        <p
+          style={{
+            fontSize: "18px",
+            fontWeight: "bold",
+          }}
+        >
+          🎁 Подарков: 2 130
+        </p>
+
+        <button
+          className="vote-btn"
+          style={{
+            width: "100%",
+            marginTop: "14px",
+          }}
+          onClick={() => navigate("/apply")}
+        >
+          👑 Участвовать в конкурсе →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
 
 function Admin() {
   const navigate = useNavigate();
@@ -7390,6 +7485,7 @@ saveAmbassadorReferral();
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+		<Route path="/hall-of-fame" element={<HallOfFame />} />
         <Route path="/apply" element={<Apply />} />
         <Route path="/my-applications" element={<MyApplications />} />
         <Route path="/contestants" element={<Contestants />} />
