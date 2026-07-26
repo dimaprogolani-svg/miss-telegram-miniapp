@@ -238,6 +238,44 @@ supabase.rpc("increment_contestant_link_clicks", {
     </div>
 </div>	
 
+<div className="home-wide-card">
+  <div className="home-icon">🏆</div>
+
+  <div style={{ width: "100%" }}>
+    <h2>🏆 Зал Славы</h2>
+
+    <p>
+  Здесь будут размещены победительницы
+  завершённых сезонов конкурса
+  <strong> MISS TELEGRAM</strong>.
+</p>
+
+    <p
+      style={{
+        color: "#FFD54A",
+        fontWeight: "bold",
+        marginTop: "8px",
+      }}
+    >
+      Первый сезон уже идёт!
+    </p>
+
+    <button
+      className="vote-btn"
+      style={{
+        width: "100%",
+        marginTop: "12px",
+      }}
+      onClick={(event) => {
+        event.stopPropagation();
+        navigate("/apply");
+      }}
+    >
+      👑 Участвовать в конкурсе →
+    </button>
+  </div>
+</div>
+
 {isAdmin && (
     <div className="home-wide-card" onClick={() => navigate("/live-admin")}>
         <div className="home-icon">🎥</div>
