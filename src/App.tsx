@@ -848,7 +848,7 @@ const ambassadorCode =
   ← Назад
 </button>
 
-<h1>📝 Заявка участницы</h1>
+
       <h1>📝 Заявка участницы</h1>
 
       {!canSubmitMany && existingApplication?.status === "Отклонена" && (
