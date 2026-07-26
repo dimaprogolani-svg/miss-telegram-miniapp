@@ -322,6 +322,12 @@ supabase.rpc("increment_contestant_link_clicks", {
 
 function HallOfFame() {
   const navigate = useNavigate();
+  useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: "instant" as ScrollBehavior,
+  });
+}, []);
 
   return (
     <div className="page">
