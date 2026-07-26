@@ -2262,6 +2262,19 @@ function Contestants() {
           <p>🎁 Подарков: {contestant.realGifts}</p>
           <p>💎 Получено Stars: {contestant.giftStars}</p>
           <p>🏆 Место по подаркам: {contestant.giftPlace || "нет"}</p>
+		  <button
+  className="vote-btn"
+  style={{
+    width: "100%",
+    marginTop: "14px",
+  }}
+  onClick={(e) => {
+    e.stopPropagation();
+    navigate(`/contestant/${contestant.slug}`);
+  }}
+>
+  ✨ Смотреть анкету →
+</button>
         </div>
       ))}
     </div>
