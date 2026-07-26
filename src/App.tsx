@@ -834,7 +834,7 @@ const ambassadorCode =
   style={{
     width: "100%",
     padding: "14px",
-    marginBottom: "20px",
+    marginBottom: "12px",
     borderRadius: "16px",
     border: "1px solid #FFD54A",
     background: "linear-gradient(180deg,#FFE88A,#D6A800)",
