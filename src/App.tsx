@@ -834,7 +834,7 @@ const ambassadorCode =
   style={{
     width: "100%",
     padding: "14px",
-    marginBottom: "12px",
+    marginBottom: "0px",
     borderRadius: "16px",
     border: "1px solid #FFD54A",
     background: "linear-gradient(180deg,#FFE88A,#D6A800)",
@@ -849,7 +849,9 @@ const ambassadorCode =
 </button>
 
 
-      <h1>📝 Заявка участницы</h1>
+      <h1 style={{ marginTop: "8px" }}>
+  📝 Заявка участницы
+</h1>
 
       {!canSubmitMany && existingApplication?.status === "Отклонена" && (
         <div className="card">
