@@ -849,7 +849,12 @@ const ambassadorCode =
 </button>
 
 
-      <h1 style={{ marginTop: "8px" }}>
+      <h1
+  style={{
+    marginTop: "8px",
+    marginBottom: "12px",
+  }}
+>
   📝 Заявка участницы
 </h1>
 
