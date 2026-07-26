@@ -8,9 +8,13 @@ import {
   RoomAudioRenderer,
   useLocalParticipant,
   useTracks,
+  useConnectionState,
 } from "@livekit/components-react";
 
-import { Track } from "livekit-client";
+import {
+  Track,
+  ConnectionState,
+} from "livekit-client";
 
 import "@livekit/components-styles";
 
@@ -4235,6 +4239,11 @@ if (!isContestant) {
 }
 
 function ViewerStream() {
+  const connectionState = useConnectionState();
+  useEffect(() => {
+  console.log("LiveKit state:", connectionState);
+}, [connectionState]);
+
   const cameraTracks = useTracks([Track.Source.Camera], {
     onlySubscribed: true,
   });
@@ -4246,6 +4255,26 @@ function ViewerStream() {
   return (
     <>
       <RoomAudioRenderer />
+	  {connectionState === ConnectionState.Reconnecting && (
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 20,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      padding: "20px",
+      background: "rgba(0, 0, 0, 0.78)",
+      color: "#FFD54A",
+      fontSize: "20px",
+      fontWeight: "bold",
+    }}
+  >
+    🔄 Восстанавливаем соединение…
+  </div>
+)}
 
       {hostTrack ? (
         <VideoTrack
@@ -4772,10 +4801,11 @@ useEffect(() => {
         token={token}
         connect={true}
         style={{
-            height: "500px",
-            borderRadius: "18px",
-            overflow: "hidden",
-        }}
+  position: "relative",
+  height: "500px",
+  borderRadius: "18px",
+  overflow: "hidden",
+}}
     >
         <ViewerStream />
     </LiveKitRoom>
