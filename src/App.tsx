@@ -829,6 +829,26 @@ const ambassadorCode =
 
   return (
     <div className="page">
+	  <button
+  onClick={() => window.history.back()}
+  style={{
+    width: "100%",
+    padding: "14px",
+    marginBottom: "20px",
+    borderRadius: "16px",
+    border: "1px solid #FFD54A",
+    background: "linear-gradient(180deg,#FFE88A,#D6A800)",
+    color: "#111",
+    fontWeight: "700",
+    fontSize: "24px",
+    cursor: "pointer",
+    boxShadow: "0 0 18px rgba(255,215,0,.35)"
+  }}
+>
+  ← Назад
+</button>
+
+<h1>📝 Заявка участницы</h1>
       <h1>📝 Заявка участницы</h1>
 
       {!canSubmitMany && existingApplication?.status === "Отклонена" && (
